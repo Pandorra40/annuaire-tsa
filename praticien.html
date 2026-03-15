@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Je suis praticien — Annuaire TSA</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="container">
+
+  <nav class="topbar">
+    <div class="topbar-title"><a href="index.html" style="text-decoration:none;color:inherit">Annuaire TSA</a></div>
+    <div class="topbar-right">
+      <a href="index.html" class="btn">← Retour à l'annuaire</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="page-title">Référencer mon cabinet</div>
+    <div class="page-sub">Vous êtes professionnel de santé spécialisé dans le TSA ? Complétez ce formulaire pour apparaître dans l'annuaire. Votre fiche sera vérifiée avant publication.</div>
+  </div>
+
+  <div id="form-wrap">
+    <div class="notice">Les informations soumises sont utilisées uniquement pour alimenter l'annuaire et ne sont pas transmises à des tiers. Les champs marqués * sont obligatoires.</div>
+
+    <div class="form-section">
+      <div class="form-section-title">Identité</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Nom et prénom *</label>
+          <input type="text" id="nom" placeholder="Dr Marie Dupont" />
+        </div>
+        <div class="field">
+          <label>Type de professionnel *</label>
+          <select id="type">
+            <option value="">— Choisir —</option>
+            <option>Psychiatre</option>
+            <option>Pédopsychiatre</option>
+            <option>Psychologue</option>
+            <option>Médecin généraliste</option>
+            <option>Neuropsychologue</option>
+            <option>Orthophoniste</option>
+            <option>Autre</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Public reçu *</label>
+        <div class="check-group" id="ages">
+          <label class="check-pill"><input type="checkbox" value="Enfant" /><span>Enfant</span></label>
+          <label class="check-pill"><input type="checkbox" value="Adolescent" /><span>Adolescent</span></label>
+          <label class="check-pill"><input type="checkbox" value="Adulte" /><span>Adulte</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Localisation</div>
+      <div class="field">
+        <label>Adresse du cabinet</label>
+        <input type="text" id="adresse" placeholder="12 rue des Lilas" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Ville *</label>
+          <input type="text" id="ville" placeholder="Bordeaux" />
+        </div>
+        <div class="field">
+          <label>Code postal *</label>
+          <input type="text" id="codepostal" placeholder="33000" maxlength="5" />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Contact & pratique</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Téléphone *</label>
+          <input type="tel" id="telephone" placeholder="05 56 12 34 56" />
+        </div>
+        <div class="field">
+          <label>Site web ou Doctolib</label>
+          <input type="url" id="siteWeb" placeholder="https://…" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Téléconsultation</label>
+        <div class="check-group">
+          <label class="check-pill" id="pill-tele"><input type="checkbox" id="teleconsultation" /><span>Propose la téléconsultation</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Délai d'attente estimé</label>
+        <select id="delai">
+          <option value="">— Non renseigné —</option>
+          <option>Disponible</option>
+          <option>Quelques semaines</option>
+          <option>1 à 3 mois</option>
+          <option>3 à 6 mois</option>
+          <option>Plus de 6 mois</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Informations complémentaires</div>
+      <div class="field">
+        <label>Notes <span class="field-note">(approche thérapeutique, langues, accessibilité PMR…)</span></label>
+        <textarea id="notes" placeholder="Ex : spécialisée ADOS-2, approche TCC, cabinet accessible PMR…"></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a href="index.html" class="btn">Annuler</a>
+      <button class="btn btn-primary" onclick="soumettre()">Envoyer ma fiche</button>
+    </div>
+  </div>
+
+  <div class="success-wrap" id="success">
+    <div class="success-icon">
+      <svg width="20" height="20" fill="none" stroke="var(--vert-txt)" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div class="success-title">Fiche envoyée</div>
+    <div class="success-sub">Merci. Votre fiche sera examinée avant publication.<br>Elle apparaîtra dans l'annuaire sous 48 h si validée.</div>
+    <a href="index.html" class="btn" style="margin-top:20px;display:inline-block">← Retour à l'annuaire</a>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-note">Projet open source · Données hébergées en France · RGPD</div>
+    <div class="footer-links">
+      <a href="mentions.html" class="footer-link">Mentions légales</a>
+      <a href="contact.html" class="footer-link">Contact</a>
+    </div>
+  </footer>
+
+</div>
+<script src="js/config.js"></script>
+<script>
+  document.querySelectorAll(".check-pill").forEach(pill => {
+  pill.addEventListener("click", function(e) {
+    if (e.target.tagName === "INPUT") return;
+    e.preventDefault();
+    const cb = this.querySelector("input");
+    cb.checked = !cb.checked;
+    this.classList.toggle("on", cb.checked);
+  });
+});
+
+  async function soumettre() {
+    const nom = document.getElementById("nom").value.trim();
+    const type = document.getElementById("type").value;
+    const ville = document.getElementById("ville").value.trim();
+    const cp = document.getElementById("codepostal").value.trim();
+    const tel = document.getElementById("telephone").value.trim();
+    const ages = [...document.querySelectorAll("#ages input:checked")].map(i => i.value);
+
+    const notice = document.querySelector(".notice");
+    if (!nom || !type || !ville || !cp || !tel || !ages.length) {
+      notice.classList.add("notice-error");
+      notice.textContent = "Merci de renseigner au minimum : nom, type, ville, code postal, téléphone et public reçu.";
+      return;
+    }
+
+    const dept = cp.substring(0, 2);
+    const payload = {
+      nom, type, ville,
+      departement: dept,
+      telephone: tel,
+      adresse: document.getElementById("adresse").value.trim() || null,
+      site_web: document.getElementById("siteWeb").value.trim() || null,
+      teleconsultation: document.getElementById("teleconsultation").checked,
+      delai: document.getElementById("delai").value || null,
+      notes: document.getElementById("notes").value.trim() || null,
+      ages,
+      statut: "en_attente",
+      source: "praticien"
+    };
+
+    try {
+      await supabaseFetch("suggestions", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+      window.location.href = "merci.html";
+    } catch (e) {
+      notice.classList.add("notice-error");
+      notice.textContent = "Une erreur est survenue : " + e.message;
+    }
+  }
+</script>
+</body>
+</html>

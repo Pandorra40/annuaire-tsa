@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suggérer un praticien — Annuaire TSA</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="container">
+
+  <nav class="topbar">
+    <div class="topbar-title"><a href="index.html" style="text-decoration:none;color:inherit">Annuaire TSA</a></div>
+    <div class="topbar-right">
+      <a href="index.html" class="btn">← Retour à l'annuaire</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="page-title">Suggérer un praticien</div>
+    <div class="page-sub">Vous connaissez un praticien spécialisé TSA qui n'apparaît pas dans l'annuaire ? Signalez-le ici. La fiche sera vérifiée avant publication.</div>
+  </div>
+
+  <div id="form-wrap">
+    <div class="notice" id="notice">Les informations soumises sont utilisées uniquement pour alimenter l'annuaire et ne sont pas transmises à des tiers. Les champs marqués * sont obligatoires.</div>
+
+    <div class="form-section">
+      <div class="form-section-title">Identité du praticien</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Nom et prénom *</label>
+          <input type="text" id="nom" placeholder="Dr Marie Dupont" />
+        </div>
+        <div class="field">
+          <label>Type de professionnel *</label>
+          <select id="type">
+            <option value="">— Choisir —</option>
+            <option>Psychiatre</option>
+            <option>Pédopsychiatre</option>
+            <option>Psychologue</option>
+            <option>Médecin généraliste</option>
+            <option>Neuropsychologue</option>
+            <option>Orthophoniste</option>
+            <option>Autre</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Public reçu *</label>
+        <div class="check-group" id="ages">
+          <label class="check-pill"><input type="checkbox" value="Enfant" /><span>Enfant</span></label>
+          <label class="check-pill"><input type="checkbox" value="Adolescent" /><span>Adolescent</span></label>
+          <label class="check-pill"><input type="checkbox" value="Adulte" /><span>Adulte</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Localisation</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Ville *</label>
+          <input type="text" id="ville" placeholder="Bordeaux" />
+        </div>
+        <div class="field">
+          <label>Code postal *</label>
+          <input type="text" id="codepostal" placeholder="33000" maxlength="5" />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Contact</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Téléphone</label>
+          <input type="tel" id="telephone" placeholder="05 56 12 34 56" />
+        </div>
+        <div class="field">
+          <label>Site web ou Doctolib</label>
+          <input type="url" id="siteWeb" placeholder="https://…" />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Informations complémentaires</div>
+      <div class="field">
+        <label>Notes <span class="field-note">(approche, accessibilité, langues…)</span></label>
+        <textarea id="notes" placeholder="Toute information utile…"></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a href="index.html" class="btn">Annuler</a>
+      <button class="btn btn-primary" onclick="soumettre()">Envoyer la suggestion</button>
+    </div>
+  </div>
+
+  <div id="success" style="display:none;text-align:center;padding:40px 20px">
+    <div style="width:48px;height:48px;border-radius:50%;background:var(--vert-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+      <svg width="20" height="20" fill="none" stroke="var(--vert-txt)" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style="font-size:16px;font-weight:500;margin-bottom:6px">Suggestion envoyée</div>
+    <div style="font-size:13px;color:var(--texte-2);line-height:1.6">Merci pour votre contribution.<br>La fiche sera examinée avant publication.</div>
+    <a href="index.html" class="btn" style="margin-top:20px;display:inline-block">← Retour à l'annuaire</a>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-note">Projet open source · Données hébergées en France · RGPD</div>
+    <div class="footer-links">
+      <a href="mentions.html" class="footer-link">Mentions légales</a>
+      <a href="contact.html" class="footer-link">Contact</a>
+    </div>
+  </footer>
+
+</div>
+<script src="js/config.js"></script>
+<script>
+  document.querySelectorAll(".check-pill").forEach(pill => {
+    pill.addEventListener("click", function(e) {
+      if (e.target.tagName === "INPUT") return;
+      e.preventDefault();
+      const cb = this.querySelector("input");
+      cb.checked = !cb.checked;
+      this.classList.toggle("on", cb.checked);
+    });
+  });
+
+  async function soumettre() {
+    const nom = document.getElementById("nom").value.trim();
+    const type = document.getElementById("type").value;
+    const ville = document.getElementById("ville").value.trim();
+    const cp = document.getElementById("codepostal").value.trim();
+    const ages = [...document.querySelectorAll("#ages input:checked")].map(i => i.value);
+    const notice = document.getElementById("notice");
+
+    if (!nom || !type || !ville || !cp || !ages.length) {
+      notice.classList.add("notice-error");
+      notice.textContent = "Merci de renseigner au minimum : nom, type, ville, code postal et public reçu.";
+      return;
+    }
+
+    const payload = {
+      nom, type, ville,
+      departement: cp.substring(0, 2),
+      telephone: document.getElementById("telephone").value.trim() || null,
+      site_web: document.getElementById("siteWeb").value.trim() || null,
+      notes: document.getElementById("notes").value.trim() || null,
+      ages,
+      statut: "en_attente",
+      source: "communaute"
+    };
+
+    try {
+      await supabaseFetch("suggestions", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+      window.location.href = "merci.html";
+    } catch (e) {
+      notice.classList.add("notice-error");
+      notice.textContent = "Une erreur est survenue : " + e.message;
+    }
+  }
+</script>
+</body>
+</html>

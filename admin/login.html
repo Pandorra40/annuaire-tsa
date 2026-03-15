@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Connexion — Annuaire TSA</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .login-page { min-height: 80vh; display: flex; align-items: center; justify-content: center; }
+    .login-card {
+      background: var(--fond);
+      border: 0.5px solid var(--bordure);
+      border-radius: var(--rayon-lg);
+      padding: 32px;
+      width: 100%;
+      max-width: 360px;
+    }
+    .lock-msg { text-align: center; padding: 16px 0; }
+    .lock-msg p { font-size: 13px; color: var(--rouge-txt); margin-top: 6px; }
+    .countdown { font-weight: 500; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="login-page">
+    <div class="login-card">
+      <div class="page-title" style="margin-bottom:4px">Accès administration</div>
+      <div class="page-sub" style="margin-bottom:24px">Annuaire TSA · espace réservé</div>
+
+      <div class="notice notice-error" id="erreur" style="display:none;margin-bottom:14px"></div>
+
+      <div id="form-wrap">
+        <div class="field">
+          <label>Adresse email</label>
+          <input type="email" id="email" placeholder="admin@exemple.fr" autocomplete="email" />
+        </div>
+        <div class="field">
+          <label>Mot de passe</label>
+          <input type="password" id="mdp" placeholder="••••••••••" autocomplete="current-password" />
+        </div>
+        <button class="btn btn-primary" style="width:100%;margin-top:4px;padding:10px" onclick="connexion()">Se connecter</button>
+        <div style="font-size:12px;color:var(--texte-3);text-align:center;margin-top:10px" id="tentatives"></div>
+      </div>
+
+      <div class="lock-msg" id="blocage" style="display:none">
+        <div style="font-size:13px;color:var(--texte-3)">Accès temporairement bloqué</div>
+        <p>Trop de tentatives incorrectes.<br>Réessayez dans <span class="countdown" id="compte">30</span> secondes.</p>
+      </div>
+
+      <div style="text-align:center;margin-top:16px">
+        <a href="../index.html" class="footer-link" style="font-size:12px">← Retour à l'annuaire</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let tentatives = 0;
+  const MAX = 5;
+
+  // Rediriger si déjà connecté
+  client.auth.getSession().then(({ data }) => {
+    if (data.session) window.location.href = "index.html";
+  });
+
+  async function connexion() {
+    if (tentatives >= MAX) return;
+
+    const email = document.getElementById("email").value.trim();
+    const mdp = document.getElementById("mdp").value;
+    const erreur = document.getElementById("erreur");
+
+    if (!email || !mdp) {
+      erreur.textContent = "Merci de renseigner votre email et mot de passe.";
+      erreur.style.display = "block";
+      return;
+    }
+
+    const { error } = await client.auth.signInWithPassword({ email, password: mdp });
+
+    if (error) {
+      tentatives++;
+      const restantes = MAX - tentatives;
+      erreur.textContent = "Email ou mot de passe incorrect.";
+      erreur.style.display = "block";
+
+      if (tentatives >= MAX) {
+        bloquer();
+      } else if (restantes <= 3) {
+        document.getElementById("tentatives").textContent = restantes + " tentative" + (restantes > 1 ? "s" : "") + " restante" + (restantes > 1 ? "s" : "") + " avant blocage.";
+      }
+    } else {
+      window.location.href = "index.html";
+    }
+  }
+
+  function bloquer() {
+    document.getElementById("form-wrap").style.display = "none";
+    document.getElementById("blocage").style.display = "block";
+    document.getElementById("erreur").style.display = "none";
+    let sec = 30;
+    document.getElementById("compte").textContent = sec;
+    const t = setInterval(() => {
+      sec--;
+      document.getElementById("compte").textContent = sec;
+      if (sec <= 0) {
+        clearInterval(t);
+        tentatives = 0;
+        document.getElementById("form-wrap").style.display = "block";
+        document.getElementById("blocage").style.display = "none";
+        document.getElementById("tentatives").textContent = "";
+      }
+    }, 1000);
+  }
+
+  document.addEventListener("keydown", e => {
+    if (e.key === "Enter") connexion();
+  });
+</script>
+</body>
+</html>
