@@ -18,5 +18,7 @@ async function supabaseFetch(endpoint, options = {}) {
     throw new Error("Erreur Supabase : " + res.status + " — " + err);
   }
   if (res.status === 204) return {};
-  return res.json();
+  const text = await res.text();
+  if (!text) return {};
+  return JSON.parse(text);
 }
