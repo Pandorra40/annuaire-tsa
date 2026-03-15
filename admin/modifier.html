@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modifier une fiche — Annuaire TSA</title>
+  <link rel="stylesheet" href="../css/style.css" />
+</head>
+<body>
+<div class="container">
+
+  <nav class="topbar">
+    <div class="topbar-title"><a href="index.html" style="text-decoration:none;color:inherit">Administration — Annuaire TSA</a></div>
+    <div class="topbar-right">
+      <a href="index.html" class="btn">← Retour à l'admin</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="page-title">Modifier une fiche</div>
+    <div class="page-sub">Modifiez les informations de ce praticien. Les changements seront visibles immédiatement sur l'annuaire.</div>
+  </div>
+
+  <div id="chargement" style="text-align:center;padding:40px;color:var(--texte-3);font-size:14px">Chargement de la fiche…</div>
+
+  <div id="form-wrap" style="display:none">
+    <div class="notice" id="notice">Les champs marqués * sont obligatoires.</div>
+
+    <div class="form-section">
+      <div class="form-section-title">Identité</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Nom et prénom *</label>
+          <input type="text" id="nom" />
+        </div>
+        <div class="field">
+          <label>Type de professionnel *</label>
+          <select id="type">
+            <option value="">— Choisir —</option>
+            <option>Psychiatre</option>
+            <option>Pédopsychiatre</option>
+            <option>Psychologue</option>
+            <option>Médecin généraliste</option>
+            <option>Neuropsychologue</option>
+            <option>Orthophoniste</option>
+            <option>Autre</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Public reçu *</label>
+        <div class="check-group" id="ages">
+          <label class="check-pill"><input type="checkbox" value="Enfant" /><span>Enfant</span></label>
+          <label class="check-pill"><input type="checkbox" value="Adolescent" /><span>Adolescent</span></label>
+          <label class="check-pill"><input type="checkbox" value="Adulte" /><span>Adulte</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Localisation</div>
+      <div class="field">
+        <label>Adresse</label>
+        <input type="text" id="adresse" />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Ville *</label>
+          <input type="text" id="ville" />
+        </div>
+        <div class="field">
+          <label>Code postal *</label>
+          <input type="text" id="codepostal" maxlength="5" />
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Contact & pratique</div>
+      <div class="field-row">
+        <div class="field">
+          <label>Téléphone</label>
+          <input type="tel" id="telephone" />
+        </div>
+        <div class="field">
+          <label>Site web ou Doctolib</label>
+          <input type="url" id="siteWeb" />
+        </div>
+      </div>
+      <div class="field">
+        <label>Téléconsultation</label>
+        <div class="check-group">
+          <label class="check-pill" id="pill-tele"><input type="checkbox" id="teleconsultation" /><span>Propose la téléconsultation</span></label>
+        </div>
+      </div>
+      <div class="field">
+        <label>Délai d'attente estimé</label>
+        <select id="delai">
+          <option value="">— Non renseigné —</option>
+          <option>Disponible</option>
+          <option>Quelques semaines</option>
+          <option>1 à 3 mois</option>
+          <option>3 à 6 mois</option>
+          <option>Plus de 6 mois</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Informations complémentaires</div>
+      <div class="field">
+        <label>Notes</label>
+        <textarea id="notes"></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a href="index.html" class="btn">Annuler</a>
+      <button class="btn btn-primary" onclick="sauvegarder()">Enregistrer les modifications</button>
+    </div>
+  </div>
+
+  <div id="success" style="display:none;text-align:center;padding:40px 20px">
+    <div style="width:48px;height:48px;border-radius:50%;background:var(--vert-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+      <svg width="20" height="20" fill="none" stroke="var(--vert-txt)" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style="font-size:16px;font-weight:500;margin-bottom:6px">Fiche mise à jour</div>
+    <div style="font-size:13px;color:var(--texte-2);line-height:1.6">Les modifications sont visibles immédiatement sur l'annuaire.</div>
+    <a href="index.html" class="btn" style="margin-top:20px;display:inline-block">← Retour à l'admin</a>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-note">Espace administration</div>
+  </footer>
+
+</div>
+<script src="../js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const params = new URLSearchParams(window.location.search);
+  const praticienId = params.get("id");
+  let authToken = null;
+
+  async function adminFetch(endpoint, options = {}) {
+    if (!authToken) throw new Error("Non authentifié");
+    const res = await fetch(SUPABASE_URL + "/rest/v1/" + endpoint, {
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + authToken,
+        "Prefer": "return=minimal"
+      },
+      ...options
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error("Erreur : " + res.status + " — " + err);
+    }
+    if (res.status === 204) return {};
+    const text = await res.text();
+    if (!text) return {};
+    return JSON.parse(text);
+  }
+
+  // Vérification session puis chargement
+  client.auth.getSession().then(({ data }) => {
+    if (!data.session) {
+      window.location.href = "login.html";
+    } else {
+      authToken = data.session.access_token;
+      chargerFiche();
+    }
+  });
+
+  async function chargerFiche() {
+    if (!praticienId) {
+      document.getElementById("chargement").textContent = "Aucun praticien spécifié.";
+      return;
+    }
+    try {
+      const data = await adminFetch("praticiens?id=eq." + praticienId);
+      if (!data.length) {
+        document.getElementById("chargement").textContent = "Fiche introuvable.";
+        return;
+      }
+      const p = data[0];
+      preremplir(p);
+      document.getElementById("chargement").style.display = "none";
+      document.getElementById("form-wrap").style.display = "block";
+    } catch (e) {
+      document.getElementById("chargement").textContent = "Erreur de chargement : " + e.message;
+    }
+  }
+
+  function preremplir(p) {
+    document.getElementById("nom").value = p.nom || "";
+    document.getElementById("type").value = p.type || "";
+    document.getElementById("adresse").value = p.adresse || "";
+    document.getElementById("ville").value = p.ville || "";
+    document.getElementById("codepostal").value = p.departement || "";
+    document.getElementById("telephone").value = p.telephone || "";
+    document.getElementById("siteWeb").value = p.site_web || "";
+    document.getElementById("delai").value = p.delai || "";
+    document.getElementById("notes").value = p.notes || "";
+
+    if (p.teleconsultation) {
+      document.getElementById("teleconsultation").checked = true;
+      document.getElementById("pill-tele").classList.add("on");
+    }
+
+    if (p.ages) {
+      document.querySelectorAll("#ages input").forEach(cb => {
+        if (p.ages.includes(cb.value)) {
+          cb.checked = true;
+          cb.closest(".check-pill").classList.add("on");
+        }
+      });
+    }
+  }
+
+  document.querySelectorAll(".check-pill").forEach(pill => {
+    pill.addEventListener("click", function(e) {
+      if (e.target.tagName === "INPUT") return;
+      e.preventDefault();
+      const cb = this.querySelector("input");
+      if (cb.type === "checkbox") {
+        cb.checked = !cb.checked;
+        this.classList.toggle("on", cb.checked);
+      }
+    });
+  });
+
+  async function sauvegarder() {
+    const nom = document.getElementById("nom").value.trim();
+    const type = document.getElementById("type").value;
+    const ville = document.getElementById("ville").value.trim();
+    const cp = document.getElementById("codepostal").value.trim();
+    const ages = [...document.querySelectorAll("#ages input:checked")].map(i => i.value);
+    const notice = document.getElementById("notice");
+
+    if (!nom || !type || !ville || !cp || !ages.length) {
+      notice.classList.add("notice-error");
+      notice.textContent = "Merci de renseigner au minimum : nom, type, ville, code postal et public reçu.";
+      return;
+    }
+
+    const payload = {
+      nom, type, ville,
+      departement: cp.substring(0, 2),
+      adresse: document.getElementById("adresse").value.trim() || null,
+      telephone: document.getElementById("telephone").value.trim() || null,
+      site_web: document.getElementById("siteWeb").value.trim() || null,
+      teleconsultation: document.getElementById("teleconsultation").checked,
+      delai: document.getElementById("delai").value || null,
+      notes: document.getElementById("notes").value.trim() || null,
+      ages
+    };
+
+    try {
+      await adminFetch("praticiens?id=eq." + praticienId, {
+        method: "PATCH",
+        body: JSON.stringify(payload)
+      });
+      document.getElementById("form-wrap").style.display = "none";
+      document.getElementById("success").style.display = "block";
+      window.scrollTo(0, 0);
+    } catch (e) {
+      notice.classList.add("notice-error");
+      notice.textContent = "Une erreur est survenue : " + e.message;
+    }
+  }
+</script>
+</body>
+</html>
