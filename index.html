@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Annuaire TSA — Trouvez un spécialiste près de chez vous</title>
+  <meta name="description" content="Annuaire collaboratif et gratuit de praticiens spécialisés dans les troubles du spectre autistique (TSA). Médecins, psychiatres, psychologues, neuropsychologues." />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="container">
+
+  <!-- NAVIGATION -->
+  <nav class="topbar">
+    <div class="topbar-title">Annuaire TSA</div>
+    <div class="topbar-right">
+      <a href="praticien.html" class="btn btn-accent">Je suis praticien</a>
+      <a href="suggerer.html" class="btn">Suggérer un praticien</a>
+      <a href="admin/login.html" class="btn btn-admin">Admin</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <h1 class="hero-title">Trouvez un spécialiste TSA près de chez vous</h1>
+    <p class="hero-sub">Annuaire collaboratif et gratuit de médecins, psychiatres, psychologues et neuropsychologues spécialisés dans les troubles du spectre autistique.</p>
+    <div class="search-wrap">
+      <input type="text" id="search" placeholder="Ville, département ou code postal…" autocomplete="off" />
+    </div>
+    <div class="stats">
+      <div class="stat"><strong id="nb-total">—</strong> praticiens référencés</div>
+      <div class="stat">Projet open source · sans publicité</div>
+    </div>
+  </div>
+
+  <!-- FILTRES -->
+  <div class="filters" id="filtres-type">
+    <button class="pill on" data-val="tous">Tous</button>
+    <button class="pill" data-val="Médecin">Médecin</button>
+    <button class="pill" data-val="Psychiatre">Psychiatre</button>
+    <button class="pill" data-val="Pédopsychiatre">Pédopsychiatre</button>
+    <button class="pill" data-val="Psychologue">Psychologue</button>
+    <button class="pill" data-val="Neuropsychologue">Neuropsychologue</button>
+    <button class="pill" data-val="Orthophoniste">Orthophoniste</button>
+  </div>
+  <div class="filters" id="filtres-age">
+    <button class="pill on" data-val="tous">Tous âges</button>
+    <button class="pill" data-val="Enfant">Enfant</button>
+    <button class="pill" data-val="Adolescent">Adolescent</button>
+    <button class="pill" data-val="Adulte">Adulte</button>
+  </div>
+  <div class="filters" id="filtres-tele">
+    <button class="pill on" data-val="tous">Présentiel & télé</button>
+    <button class="pill" data-val="oui">Téléconsultation uniquement</button>
+  </div>
+
+  <!-- RÉSULTATS -->
+  <div class="results-count" id="count"></div>
+  <div id="liste"></div>
+
+  <!-- SUGGÉRER -->
+  <a href="suggerer.html" class="suggest-btn">+ Suggérer un praticien manquant</a>
+
+  <!-- PIED DE PAGE -->
+  <footer class="footer">
+    <div class="footer-note">Projet open source · Données hébergées en France · RGPD</div>
+    <div class="footer-links">
+      <a href="mentions.html" class="footer-link">Mentions légales</a>
+      <a href="https://github.com/Pandorra40/annuaire-tsa" target="_blank" class="footer-link">GitHub</a>
+      <a href="contact.html" class="footer-link">Contact</a>
+    </div>
+  </footer>
+
+</div>
+
+<script src="js/config.js"></script>
+<script>
+  let praticiens = [];
+  let filtres = { type: "tous", age: "tous", tele: "tous" };
+
+  // Chargement depuis Supabase
+  async function charger() {
+    try {
+      const data = await supabaseFetch("praticiens?statut=eq.publie&order=nom.asc");
+      praticiens = data;
+      document.getElementById("nb-total").textContent = praticiens.length;
+      afficher();
+    } catch (e) {
+      document.getElementById("liste").innerHTML = '<p class="empty">Impossible de charger les praticiens. Réessayez dans quelques instants.</p>';
+    }
+  }
+
+  // Filtrage et affichage
+  function afficher() {
+    const q = document.getElementById("search").value.toLowerCase().trim();
+    const filtered = praticiens.filter(d => {
+      const mQ = !q || d.ville.toLowerCase().includes(q) || d.departement.includes(q) || d.nom.toLowerCase().includes(q);
+      const mT = filtres.type === "tous" || d.type === filtres.type;
+      const mA = filtres.age === "tous" || (d.ages && d.ages.includes(filtres.age));
+      const mL = filtres.tele === "tous" || (filtres.tele === "oui" && d.teleconsultation);
+      return mQ && mT && mA && mL;
+    });
+
+    const n = filtered.length;
+    document.getElementById("count").textContent = n + " praticien" + (n > 1 ? "s" : "") + " trouvé" + (n > 1 ? "s" : "");
+
+    if (!n) {
+      document.getElementById("liste").innerHTML = '<p class="empty">Aucun résultat pour ces critères.</p>';
+      return;
+    }
+
+    document.getElementById("liste").innerHTML = filtered.map(d => `
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-name">${d.nom}</div>
+            <div class="card-meta">${d.type} · ${d.ville} (${d.departement})</div>
+          </div>
+          <div class="card-dept">Dép. ${d.departement}</div>
+        </div>
+        <div class="tags">
+          ${d.ages ? d.ages.map(a => `<span class="tag tag-blue">${a}</span>`).join("") : ""}
+          ${d.teleconsultation ? '<span class="tag tag-green">Téléconsultation</span>' : ""}
+          ${d.delai ? `<span class="tag ${d.delai === "Disponible" ? "tag-green" : "tag-amber"}">Délai : ${d.delai}</span>` : ""}
+        </div>
+        <div class="card-divider"></div>
+        <a class="card-tel" href="tel:${d.telephone}">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.27a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          ${d.telephone}
+        </a>
+        ${d.notes ? `<div style="font-size:12px;color:var(--texte-3);margin-top:6px">${d.notes}</div>` : ""}
+        <div style="margin-top:10px">
+          <a href="signaler.html?id=${d.id}" style="font-size:12px;color:var(--texte-3);text-decoration:underline;text-underline-offset:2px">Signaler une erreur</a>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  // Filtres
+  function initFiltres(groupeId, cle) {
+    document.getElementById(groupeId).querySelectorAll(".pill").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.getElementById(groupeId).querySelectorAll(".pill").forEach(b => b.classList.remove("on"));
+        btn.classList.add("on");
+        filtres[cle] = btn.dataset.val;
+        afficher();
+      });
+    });
+  }
+
+  document.getElementById("search").addEventListener("input", afficher);
+  initFiltres("filtres-type", "type");
+  initFiltres("filtres-age", "age");
+  initFiltres("filtres-tele", "tele");
+
+  charger();
+</script>
+</body>
+</html>

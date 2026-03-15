@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Administration — Annuaire TSA</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <style>
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+    .stat-card { background: var(--fond-2); border-radius: var(--rayon); padding: 12px 14px; }
+    .stat-val { font-size: 22px; font-weight: 500; }
+    .stat-label { font-size: 12px; color: var(--texte-3); margin-top: 2px; }
+    .tabs { display: flex; gap: 4px; border-bottom: 0.5px solid var(--bordure); margin-bottom: 20px; }
+    .tab {
+      padding: 8px 16px; font-size: 14px; color: var(--texte-2);
+      cursor: pointer; border: none; background: none;
+      border-bottom: 2px solid transparent; margin-bottom: -0.5px;
+      font-family: inherit; transition: all 0.1s;
+    }
+    .tab.on { color: var(--texte); font-weight: 500; border-bottom-color: var(--texte); }
+    .panel { display: none; }
+    .panel.on { display: block; }
+    .badge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 18px; height: 18px; border-radius: 50%;
+      font-size: 11px; font-weight: 500;
+      background: var(--rouge-bg); color: var(--rouge-txt);
+      margin-left: 5px; vertical-align: middle;
+    }
+    .card-actions { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--bordure); flex-wrap: wrap; }
+    .btn-valider { border-color: #9FE1CB; color: var(--vert-txt); }
+    .btn-valider:hover { background: var(--vert-bg); }
+    .btn-refuser { border-color: #f09595; color: var(--rouge-txt); }
+    .btn-refuser:hover { background: var(--rouge-bg); }
+    .btn-modifier { border-color: #B5D4F4; color: var(--bleu-fonce); }
+    .btn-modifier:hover { background: var(--bleu-clair); }
+    .search-admin { margin-bottom: 14px; }
+    .search-admin input { width: 100%; padding: 8px 12px; border: 0.5px solid #ccc; border-radius: var(--rayon); font-size: 13px; font-family: inherit; background: var(--fond); color: var(--texte); outline: none; }
+    .search-admin input:focus { border-color: var(--bleu); }
+    .source-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: var(--fond-2); color: var(--texte-3); }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <nav class="topbar">
+    <div class="topbar-title">Administration — Annuaire TSA</div>
+    <div class="topbar-right">
+      <a href="../index.html" class="btn">Voir le site</a>
+      <button class="btn btn-admin" onclick="deconnexion()">Déconnexion</button>
+    </div>
+  </nav>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="s-publies">—</div><div class="stat-label">Praticiens publiés</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-attente">—</div><div class="stat-label">En attente</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-signalements">—</div><div class="stat-label">Signalements</div></div>
+  </div>
+
+  <!-- ONGLETS -->
+  <div class="tabs">
+    <button class="tab on" onclick="showTab('attente', this)">En attente <span class="badge" id="b-attente">0</span></button>
+    <button class="tab" onclick="showTab('publies', this)">Publiés</button>
+    <button class="tab" onclick="showTab('signalements', this)">Signalements <span class="badge" id="b-signalements">0</span></button>
+  </div>
+
+  <div id="tab-attente" class="panel on"><div id="liste-attente"></div></div>
+  <div id="tab-publies" class="panel">
+    <div class="search-admin"><input type="text" placeholder="Rechercher un praticien publié…" oninput="filtrerPublies(this.value)" /></div>
+    <div id="liste-publies"></div>
+  </div>
+  <div id="tab-signalements" class="panel"><div id="liste-signalements"></div></div>
+
+</div>
+
+<script src="../js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>
+  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let publies = [], attente = [], signalements = [];
+
+  // Vérification session
+  client.auth.getSession().then(({ data }) => {
+    if (!data.session) window.location.href = "login.html";
+    else charger();
+  });
+
+  async function charger() {
+    try {
+      const [p, a, s] = await Promise.all([
+        supabaseFetch("praticiens?statut=eq.publie&order=nom.asc"),
+        supabaseFetch("suggestions?statut=eq.en_attente&order=created_at.asc"),
+        supabaseFetch("signalements?statut=eq.ouvert&order=created_at.desc")
+      ]);
+      publies = p; attente = a; signalements = s;
+      majStats();
+      afficherAttente();
+      afficherPublies("");
+      afficherSignalements();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function majStats() {
+    document.getElementById("s-publies").textContent = publies.length;
+    document.getElementById("s-attente").textContent = attente.length;
+    document.getElementById("s-signalements").textContent = signalements.length;
+    document.getElementById("b-attente").textContent = attente.length;
+    document.getElementById("b-signalements").textContent = signalements.length;
+  }
+
+  function showTab(id, el) {
+    document.querySelectorAll(".panel").forEach(p => p.classList.remove("on"));
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("on"));
+    document.getElementById("tab-" + id).classList.add("on");
+    el.classList.add("on");
+  }
+
+  function tagsHtml(d) {
+    return `
+      ${d.ages ? d.ages.map(a => `<span class="tag tag-blue">${a}</span>`).join("") : ""}
+      ${d.teleconsultation ? '<span class="tag tag-green">Téléconsultation</span>' : ""}
+    `;
+  }
+
+  function afficherAttente() {
+    const el = document.getElementById("liste-attente");
+    if (!attente.length) { el.innerHTML = '<p class="empty">Aucune fiche en attente.</p>'; return; }
+    el.innerHTML = attente.map(d => `
+      <div class="card" id="a${d.id}">
+        <div class="card-header">
+          <div>
+            <div class="card-name">${d.nom}</div>
+            <div class="card-meta">${d.type} · ${d.ville} (${d.departement})</div>
+          </div>
+          <span class="source-badge">${d.source === "praticien" ? "Auto-déclaré" : "Communauté"}</span>
+        </div>
+        <div class="tags" style="margin-top:8px">${tagsHtml(d)}</div>
+        ${d.notes ? `<div style="font-size:12px;color:var(--texte-3);margin-top:8px;padding:8px;background:var(--fond-2);border-radius:var(--rayon)">${d.notes}</div>` : ""}
+        <div class="card-actions">
+          <button class="btn btn-valider" onclick="valider(${d.id})">Valider</button>
+          <button class="btn btn-refuser" onclick="refuser(${d.id})">Refuser</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function afficherPublies(q) {
+    const el = document.getElementById("liste-publies");
+    const filtered = q ? publies.filter(d => d.nom.toLowerCase().includes(q.toLowerCase()) || d.ville.toLowerCase().includes(q.toLowerCase())) : publies;
+    if (!filtered.length) { el.innerHTML = '<p class="empty">Aucun résultat.</p>'; return; }
+    el.innerHTML = filtered.map(d => `
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-name">${d.nom}</div>
+            <div class="card-meta">${d.type} · ${d.ville} (${d.departement})</div>
+          </div>
+        </div>
+        <div class="tags" style="margin-top:8px">${tagsHtml(d)}</div>
+        <div class="card-actions">
+          <button class="btn btn-modifier" onclick="alert('Modification à venir en v2')">Modifier</button>
+          <button class="btn btn-refuser" onclick="retirer(${d.id})">Retirer</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function afficherSignalements() {
+    const el = document.getElementById("liste-signalements");
+    if (!signalements.length) { el.innerHTML = '<p class="empty">Aucun signalement en cours.</p>'; return; }
+    el.innerHTML = signalements.map(s => `
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-name">${s.praticien_nom || "Praticien #" + s.praticien_id}</div>
+            <div class="card-meta">${s.motif}</div>
+          </div>
+        </div>
+        ${s.detail ? `<div style="font-size:12px;color:var(--texte-3);margin-top:8px;padding:8px;background:var(--fond-2);border-radius:var(--rayon)">${s.detail}</div>` : ""}
+        <div class="card-actions">
+          <button class="btn btn-refuser" onclick="retirerSignalement(${s.id}, ${s.praticien_id})">Retirer le praticien</button>
+          <button class="btn" onclick="ignorerSignalement(${s.id})">Ignorer</button>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function filtrerPublies(q) { afficherPublies(q); }
+
+  async function valider(id) {
+    const s = attente.find(d => d.id === id);
+    if (!s) return;
+    try {
+      await supabaseFetch("praticiens", { method: "POST", body: JSON.stringify({ ...s, statut: "publie", id: undefined, created_at: undefined }) });
+      await supabaseFetch("suggestions?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "valide" }) });
+      attente = attente.filter(d => d.id !== id);
+      await charger();
+    } catch (e) { alert("Erreur lors de la validation."); }
+  }
+
+  async function refuser(id) {
+    try {
+      await supabaseFetch("suggestions?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "refuse" }) });
+      attente = attente.filter(d => d.id !== id);
+      await charger();
+    } catch (e) { alert("Erreur lors du refus."); }
+  }
+
+  async function retirer(id) {
+    if (!confirm("Retirer ce praticien de l'annuaire ?")) return;
+    try {
+      await supabaseFetch("praticiens?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "retire" }) });
+      await charger();
+    } catch (e) { alert("Erreur lors du retrait."); }
+  }
+
+  async function ignorerSignalement(id) {
+    try {
+      await supabaseFetch("signalements?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "ignore" }) });
+      await charger();
+    } catch (e) { alert("Erreur."); }
+  }
+
+  async function retirerSignalement(sigId, praticienId) {
+    if (!confirm("Retirer le praticien et clôturer le signalement ?")) return;
+    try {
+      await retirer(praticienId);
+      await ignorerSignalement(sigId);
+    } catch (e) { alert("Erreur."); }
+  }
+
+  async function deconnexion() {
+    await client.auth.signOut();
+    window.location.href = "login.html";
+  }
+</script>
+</body>
+</html>
