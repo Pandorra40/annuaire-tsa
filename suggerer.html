@@ -22,7 +22,7 @@
   </div>
 
   <div id="form-wrap">
-    <div class="notice">Les informations soumises sont utilisées uniquement pour alimenter l'annuaire et ne sont pas transmises à des tiers. Les champs marqués * sont obligatoires.</div>
+    <div class="notice" id="notice">Les informations soumises sont utilisées uniquement pour alimenter l'annuaire et ne sont pas transmises à des tiers. Les champs marqués * sont obligatoires.</div>
 
     <div class="form-section">
       <div class="form-section-title">Identité du praticien</div>
@@ -97,12 +97,12 @@
     </div>
   </div>
 
-  <div class="success-wrap" id="success" style="display:none">
-    <div class="success-icon">
+  <div id="success" style="display:none;text-align:center;padding:40px 20px">
+    <div style="width:48px;height:48px;border-radius:50%;background:var(--vert-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
       <svg width="20" height="20" fill="none" stroke="var(--vert-txt)" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
-    <div class="success-title">Suggestion envoyée</div>
-    <div class="success-sub">Merci pour votre contribution. La fiche sera examinée avant publication.</div>
+    <div style="font-size:16px;font-weight:500;margin-bottom:6px">Suggestion envoyée</div>
+    <div style="font-size:13px;color:var(--texte-2);line-height:1.6">Merci pour votre contribution.<br>La fiche sera examinée avant publication.</div>
     <a href="index.html" class="btn" style="margin-top:20px;display:inline-block">← Retour à l'annuaire</a>
   </div>
 
@@ -117,24 +117,24 @@
 </div>
 <script src="js/config.js"></script>
 <script>
-document.querySelectorAll(".check-pill").forEach(pill => {
-  pill.addEventListener("click", function(e) {
-    if (e.target.tagName === "INPUT") return;
-    e.preventDefault();
-    const cb = this.querySelector("input");
-    cb.checked = !cb.checked;
-    this.classList.toggle("on", cb.checked);
+  document.querySelectorAll(".check-pill").forEach(pill => {
+    pill.addEventListener("click", function(e) {
+      if (e.target.tagName === "INPUT") return;
+      e.preventDefault();
+      const cb = this.querySelector("input");
+      cb.checked = !cb.checked;
+      this.classList.toggle("on", cb.checked);
+    });
   });
-});
-  
+
   async function soumettre() {
     const nom = document.getElementById("nom").value.trim();
     const type = document.getElementById("type").value;
     const ville = document.getElementById("ville").value.trim();
     const cp = document.getElementById("codepostal").value.trim();
     const ages = [...document.querySelectorAll("#ages input:checked")].map(i => i.value);
+    const notice = document.getElementById("notice");
 
-    const notice = document.querySelector(".notice");
     if (!nom || !type || !ville || !cp || !ages.length) {
       notice.classList.add("notice-error");
       notice.textContent = "Merci de renseigner au minimum : nom, type, ville, code postal et public reçu.";
@@ -159,9 +159,10 @@ document.querySelectorAll(".check-pill").forEach(pill => {
       });
       document.getElementById("form-wrap").style.display = "none";
       document.getElementById("success").style.display = "block";
+      window.scrollTo(0, 0);
     } catch (e) {
       notice.classList.add("notice-error");
-      notice.textContent = "Une erreur est survenue. Réessayez ou contactez-nous.";
+      notice.textContent = "Une erreur est survenue : " + e.message;
     }
   }
 </script>
