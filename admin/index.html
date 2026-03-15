@@ -196,7 +196,8 @@
         </div>
         ${s.detail ? `<div style="font-size:12px;color:var(--texte-3);margin-top:8px;padding:8px;background:var(--fond-2);border-radius:var(--rayon)">${s.detail}</div>` : ""}
         <div class="card-actions">
-          <button class="btn btn-refuser" onclick="retirerSignalement(${s.id}, ${s.praticien_id})">Retirer le praticien</button>
+          <a href="modifier.html?id=${s.praticien_id}" class="btn btn-modifier">Modifier la fiche</a>
+          <button class="btn btn-refuser" onclick="retirerSignalement(${s.id}, ${s.praticien_id})">Retirer</button>
           <button class="btn" onclick="ignorerSignalement(${s.id})">Ignorer</button>
         </div>
       </div>
