@@ -11,22 +11,11 @@
     .stat-val { font-size: 22px; font-weight: 500; }
     .stat-label { font-size: 12px; color: var(--texte-3); margin-top: 2px; }
     .tabs { display: flex; gap: 4px; border-bottom: 0.5px solid var(--bordure); margin-bottom: 20px; }
-    .tab {
-      padding: 8px 16px; font-size: 14px; color: var(--texte-2);
-      cursor: pointer; border: none; background: none;
-      border-bottom: 2px solid transparent; margin-bottom: -0.5px;
-      font-family: inherit; transition: all 0.1s;
-    }
+    .tab { padding: 8px 16px; font-size: 14px; color: var(--texte-2); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -0.5px; font-family: inherit; transition: all 0.1s; }
     .tab.on { color: var(--texte); font-weight: 500; border-bottom-color: var(--texte); }
     .panel { display: none; }
     .panel.on { display: block; }
-    .badge {
-      display: inline-flex; align-items: center; justify-content: center;
-      width: 18px; height: 18px; border-radius: 50%;
-      font-size: 11px; font-weight: 500;
-      background: var(--rouge-bg); color: var(--rouge-txt);
-      margin-left: 5px; vertical-align: middle;
-    }
+    .badge { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; font-size: 11px; font-weight: 500; background: var(--rouge-bg); color: var(--rouge-txt); margin-left: 5px; vertical-align: middle; }
     .card-actions { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--bordure); flex-wrap: wrap; }
     .btn-valider { border-color: #9FE1CB; color: var(--vert-txt); }
     .btn-valider:hover { background: var(--vert-bg); }
@@ -51,14 +40,12 @@
     </div>
   </nav>
 
-  <!-- STATS -->
   <div class="stats-grid">
     <div class="stat-card"><div class="stat-val" id="s-publies">—</div><div class="stat-label">Praticiens publiés</div></div>
     <div class="stat-card"><div class="stat-val" id="s-attente">—</div><div class="stat-label">En attente</div></div>
     <div class="stat-card"><div class="stat-val" id="s-signalements">—</div><div class="stat-label">Signalements</div></div>
   </div>
 
-  <!-- ONGLETS -->
   <div class="tabs">
     <button class="tab on" onclick="showTab('attente', this)">En attente <span class="badge" id="b-attente">0</span></button>
     <button class="tab" onclick="showTab('publies', this)">Publiés</button>
@@ -79,19 +66,46 @@
 <script>
   const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let publies = [], attente = [], signalements = [];
+  let authToken = null;
+
+  // Requête avec token authentifié
+  async function adminFetch(endpoint, options = {}) {
+    if (!authToken) throw new Error("Non authentifié");
+    const res = await fetch(SUPABASE_URL + "/rest/v1/" + endpoint, {
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + authToken,
+        "Prefer": "return=minimal"
+      },
+      ...options
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error("Erreur : " + res.status + " — " + err);
+    }
+    if (res.status === 204) return {};
+    const text = await res.text();
+    if (!text) return {};
+    return JSON.parse(text);
+  }
 
   // Vérification session
   client.auth.getSession().then(({ data }) => {
-    if (!data.session) window.location.href = "login.html";
-    else charger();
+    if (!data.session) {
+      window.location.href = "login.html";
+    } else {
+      authToken = data.session.access_token;
+      charger();
+    }
   });
 
   async function charger() {
     try {
       const [p, a, s] = await Promise.all([
-        supabaseFetch("praticiens?statut=eq.publie&order=nom.asc"),
-        supabaseFetch("suggestions?statut=eq.en_attente&order=created_at.asc"),
-        supabaseFetch("signalements?statut=eq.ouvert&order=created_at.desc")
+        adminFetch("praticiens?statut=eq.publie&order=nom.asc"),
+        adminFetch("suggestions?statut=eq.en_attente&order=created_at.asc"),
+        adminFetch("signalements?statut=eq.ouvert&order=created_at.desc")
       ]);
       publies = p; attente = a; signalements = s;
       majStats();
@@ -139,6 +153,7 @@
         </div>
         <div class="tags" style="margin-top:8px">${tagsHtml(d)}</div>
         ${d.notes ? `<div style="font-size:12px;color:var(--texte-3);margin-top:8px;padding:8px;background:var(--fond-2);border-radius:var(--rayon)">${d.notes}</div>` : ""}
+        ${d.telephone ? `<div style="font-size:13px;color:var(--bleu-fonce);margin-top:8px">☎ ${d.telephone}</div>` : ""}
         <div class="card-actions">
           <button class="btn btn-valider" onclick="valider(${d.id})">Valider</button>
           <button class="btn btn-refuser" onclick="refuser(${d.id})">Refuser</button>
@@ -161,7 +176,6 @@
         </div>
         <div class="tags" style="margin-top:8px">${tagsHtml(d)}</div>
         <div class="card-actions">
-          <button class="btn btn-modifier" onclick="alert('Modification à venir en v2')">Modifier</button>
           <button class="btn btn-refuser" onclick="retirer(${d.id})">Retirer</button>
         </div>
       </div>
@@ -194,17 +208,16 @@
     const s = attente.find(d => d.id === id);
     if (!s) return;
     try {
-      await supabaseFetch("praticiens", { method: "POST", body: JSON.stringify({ ...s, statut: "publie", id: undefined, created_at: undefined }) });
-      await supabaseFetch("suggestions?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "valide" }) });
-      attente = attente.filter(d => d.id !== id);
+      const { id: _, created_at, statut, source, ...data } = s;
+      await adminFetch("praticiens", { method: "POST", body: JSON.stringify({ ...data, statut: "publie" }) });
+      await adminFetch("suggestions?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "valide" }) });
       await charger();
-    } catch (e) { alert("Erreur lors de la validation."); }
+    } catch (e) { alert("Erreur lors de la validation : " + e.message); }
   }
 
   async function refuser(id) {
     try {
-      await supabaseFetch("suggestions?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "refuse" }) });
-      attente = attente.filter(d => d.id !== id);
+      await adminFetch("suggestions?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "refuse" }) });
       await charger();
     } catch (e) { alert("Erreur lors du refus."); }
   }
@@ -212,14 +225,14 @@
   async function retirer(id) {
     if (!confirm("Retirer ce praticien de l'annuaire ?")) return;
     try {
-      await supabaseFetch("praticiens?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "retire" }) });
+      await adminFetch("praticiens?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "retire" }) });
       await charger();
     } catch (e) { alert("Erreur lors du retrait."); }
   }
 
   async function ignorerSignalement(id) {
     try {
-      await supabaseFetch("signalements?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "ignore" }) });
+      await adminFetch("signalements?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "ignore" }) });
       await charger();
     } catch (e) { alert("Erreur."); }
   }
