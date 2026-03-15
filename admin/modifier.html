@@ -109,8 +109,22 @@
     <div class="form-section">
       <div class="form-section-title">Informations complémentaires</div>
       <div class="field">
-        <label>Notes</label>
-        <textarea id="notes"></textarea>
+        <label>Notes <span class="field-note">(approche thérapeutique, langues, accessibilité…)</span></label>
+        <div style="border:0.5px solid #ccc;border-radius:var(--rayon-lg);overflow:hidden">
+          <div style="display:flex;gap:4px;padding:8px;border-bottom:0.5px solid var(--bordure);background:var(--fond-2);flex-wrap:wrap;align-items:center">
+            <button type="button" class="btn" style="font-size:15px;font-weight:500;padding:3px 10px" onclick="formatTitre('## ')">Grand</button>
+            <button type="button" class="btn" style="font-size:13px;font-weight:500;padding:3px 10px" onclick="formatTitre('### ')">Moyen</button>
+            <button type="button" class="btn" style="font-size:11px;padding:3px 10px" onclick="formatNormal()">Normal</button>
+            <div style="width:0.5px;background:var(--bordure);margin:0 2px;align-self:stretch"></div>
+            <button type="button" class="btn" style="font-weight:700;padding:3px 10px" onclick="formatTexte('**','**')">G</button>
+            <button type="button" class="btn" style="font-style:italic;padding:3px 10px" onclick="formatTexte('*','*')">I</button>
+            <div style="width:0.5px;background:var(--bordure);margin:0 2px;align-self:stretch"></div>
+            <button type="button" class="btn" style="padding:3px 10px" onclick="formatListe()">— Liste</button>
+          </div>
+          <textarea id="notes" style="width:100%;padding:10px 12px;border:none;outline:none;font-size:14px;font-family:inherit;background:var(--fond);color:var(--texte);resize:vertical;min-height:120px;line-height:1.7" placeholder="Ex :&#10;## Spécialités&#10;Spécialisé ADOS-2, approche TCC&#10;&#10;### Accessibilité&#10;- Cabinet accessible PMR" oninput="apercuNotes()"></textarea>
+          <div style="font-size:11px;color:var(--texte-3);padding:6px 12px;border-top:0.5px solid var(--bordure);background:var(--fond-2)">Sélectionnez du texte puis cliquez un bouton pour le mettre en forme.</div>
+        </div>
+        <div id="apercu-notes" style="display:none;margin-top:8px;padding:10px 12px;border:0.5px solid var(--bordure);border-radius:var(--rayon);font-size:13px;color:var(--texte-2);line-height:1.8;background:var(--fond-2)"></div>
       </div>
     </div>
 
@@ -134,6 +148,7 @@
   </footer>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="../js/config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
@@ -163,7 +178,6 @@
     return JSON.parse(text);
   }
 
-  // Vérification session puis chargement
   client.auth.getSession().then(({ data }) => {
     if (!data.session) {
       window.location.href = "login.html";
@@ -174,22 +188,15 @@
   });
 
   async function chargerFiche() {
-    if (!praticienId) {
-      document.getElementById("chargement").textContent = "Aucun praticien spécifié.";
-      return;
-    }
+    if (!praticienId) { document.getElementById("chargement").textContent = "Aucun praticien spécifié."; return; }
     try {
       const data = await adminFetch("praticiens?id=eq." + praticienId);
-      if (!data.length) {
-        document.getElementById("chargement").textContent = "Fiche introuvable.";
-        return;
-      }
-      const p = data[0];
-      preremplir(p);
+      if (!data.length) { document.getElementById("chargement").textContent = "Fiche introuvable."; return; }
+      preremplir(data[0]);
       document.getElementById("chargement").style.display = "none";
       document.getElementById("form-wrap").style.display = "block";
     } catch (e) {
-      document.getElementById("chargement").textContent = "Erreur de chargement : " + e.message;
+      document.getElementById("chargement").textContent = "Erreur : " + e.message;
     }
   }
 
@@ -202,13 +209,13 @@
     document.getElementById("telephone").value = p.telephone || "";
     document.getElementById("siteWeb").value = p.site_web || "";
     document.getElementById("delai").value = p.delai || "";
-    document.getElementById("notes").value = p.notes || "";
-
+    const notes = p.notes || "";
+    document.getElementById("notes").value = notes;
+    if (notes) apercuNotes();
     if (p.teleconsultation) {
       document.getElementById("teleconsultation").checked = true;
       document.getElementById("pill-tele").classList.add("on");
     }
-
     if (p.ages) {
       document.querySelectorAll("#ages input").forEach(cb => {
         if (p.ages.includes(cb.value)) {
@@ -230,6 +237,54 @@
       }
     });
   });
+
+  function formatTexte(avant, apres) {
+    const ta = document.getElementById("notes");
+    const s = ta.selectionStart, e = ta.selectionEnd;
+    const sel = ta.value.substring(s, e);
+    const r = avant + (sel || "texte") + apres;
+    ta.value = ta.value.substring(0, s) + r + ta.value.substring(e);
+    ta.focus();
+    ta.setSelectionRange(s + avant.length, s + avant.length + (sel || "texte").length);
+    apercuNotes();
+  }
+  function formatTitre(p) {
+    const ta = document.getElementById("notes");
+    const pos = ta.selectionStart;
+    const av = ta.value.substring(0, pos);
+    const sep = av.length > 0 && !av.endsWith("\n") ? "\n" : "";
+    ta.value = av + sep + p + ta.value.substring(pos);
+    ta.focus();
+    ta.setSelectionRange(pos + sep.length + p.length, pos + sep.length + p.length);
+    apercuNotes();
+  }
+  function formatNormal() {
+    const ta = document.getElementById("notes");
+    const pos = ta.selectionStart;
+    const av = ta.value.substring(0, pos);
+    const sep = av.length > 0 && !av.endsWith("\n") ? "\n" : "";
+    ta.value = av + sep + ta.value.substring(pos);
+    ta.focus();
+    ta.setSelectionRange(pos + sep.length, pos + sep.length);
+    apercuNotes();
+  }
+  function formatListe() {
+    const ta = document.getElementById("notes");
+    const pos = ta.selectionStart;
+    const av = ta.value.substring(0, pos);
+    const p = av.length > 0 && !av.endsWith("\n") ? "\n- " : "- ";
+    ta.value = av + p + ta.value.substring(pos);
+    ta.focus();
+    ta.setSelectionRange(pos + p.length, pos + p.length);
+    apercuNotes();
+  }
+  function apercuNotes() {
+    const val = document.getElementById("notes").value;
+    const el = document.getElementById("apercu-notes");
+    if (!val.trim()) { el.style.display = "none"; return; }
+    el.style.display = "block";
+    el.innerHTML = marked.parse(val);
+  }
 
   async function sauvegarder() {
     const nom = document.getElementById("nom").value.trim();
