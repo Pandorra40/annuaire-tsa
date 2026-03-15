@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fiche praticien — Annuaire TSA</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="container">
+
+  <nav class="topbar">
+    <div class="topbar-title"><a href="index.html" style="text-decoration:none;color:inherit">Annuaire TSA</a></div>
+    <div class="topbar-right">
+      <a href="index.html" class="btn">← Retour à l'annuaire</a>
+    </div>
+  </nav>
+
+  <div id="chargement" style="text-align:center;padding:60px;color:var(--texte-3);font-size:14px">Chargement de la fiche…</div>
+
+  <div id="fiche" style="display:none">
+
+    <!-- EN-TÊTE -->
+    <div style="margin-bottom:28px;padding-bottom:24px;border-bottom:0.5px solid var(--bordure)">
+      <div style="font-size:22px;font-weight:500;margin-bottom:4px" id="f-nom"></div>
+      <div style="font-size:15px;color:var(--texte-2)" id="f-type-ville"></div>
+      <div class="tags" style="margin-top:12px" id="f-tags"></div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="form-section">
+      <div class="form-section-title">Contact</div>
+      <div id="f-telephone" style="margin-bottom:10px"></div>
+      <div id="f-site"></div>
+    </div>
+
+    <!-- LOCALISATION -->
+    <div class="form-section">
+      <div class="form-section-title">Localisation</div>
+      <div style="font-size:14px;color:var(--texte-2)" id="f-adresse"></div>
+    </div>
+
+    <!-- PRATIQUE -->
+    <div class="form-section" id="section-pratique">
+      <div class="form-section-title">Pratique</div>
+      <div id="f-delai" style="margin-bottom:8px"></div>
+      <div id="f-tele"></div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="form-section" id="section-notes" style="display:none">
+      <div class="form-section-title">Informations complémentaires</div>
+      <div style="font-size:14px;color:var(--texte-2);line-height:1.8" id="f-notes"></div>
+    </div>
+
+    <!-- SIGNALER -->
+    <div style="margin-top:32px;padding-top:16px;border-top:0.5px solid var(--bordure)">
+      <a id="lien-signaler" href="#" style="font-size:12px;color:var(--texte-3);text-decoration:underline;text-underline-offset:2px">Signaler une erreur sur cette fiche</a>
+    </div>
+
+  </div>
+
+  <div id="erreur" style="display:none;text-align:center;padding:60px;color:var(--texte-3);font-size:14px">Fiche introuvable.</div>
+
+  <footer class="footer">
+    <div class="footer-note">Projet open source · Données hébergées en France · RGPD</div>
+    <div class="footer-links">
+      <a href="mentions.html" class="footer-link">Mentions légales</a>
+      <a href="contact.html" class="footer-link">Contact</a>
+    </div>
+  </footer>
+
+</div>
+<script src="js/config.js"></script>
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const id = params.get("id");
+
+  async function charger() {
+    if (!id) { afficherErreur(); return; }
+    try {
+      const data = await supabaseFetch("praticiens?id=eq." + id + "&statut=eq.publie");
+      if (!data.length) { afficherErreur(); return; }
+      afficher(data[0]);
+    } catch (e) {
+      afficherErreur();
+    }
+  }
+
+  function afficher(p) {
+    document.title = p.nom + " — Annuaire TSA";
+    document.getElementById("f-nom").textContent = p.nom;
+    document.getElementById("f-type-ville").textContent = p.type + " · " + p.ville + " (" + p.departement + ")";
+
+    // Tags
+    const tags = [];
+    if (p.ages) p.ages.forEach(a => tags.push(`<span class="tag tag-blue">${a}</span>`));
+    if (p.teleconsultation) tags.push('<span class="tag tag-green">Téléconsultation</span>');
+    if (p.delai) tags.push(`<span class="tag ${p.delai === 'Disponible' ? 'tag-green' : 'tag-amber'}">Délai : ${p.delai}</span>`);
+    document.getElementById("f-tags").innerHTML = tags.join("");
+
+    // Téléphone
+    if (p.telephone) {
+      document.getElementById("f-telephone").innerHTML = `
+        <a class="card-tel" href="tel:${p.telephone}" style="font-size:15px;font-weight:500">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.27a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          ${p.telephone}
+        </a>`;
+    } else {
+      document.getElementById("f-telephone").innerHTML = '<span style="font-size:13px;color:var(--texte-3)">Téléphone non renseigné</span>';
+    }
+
+    // Site web
+    if (p.site_web) {
+      document.getElementById("f-site").innerHTML = `<a href="${p.site_web}" target="_blank" class="footer-link" style="font-size:14px">Site web / Doctolib →</a>`;
+    }
+
+    // Adresse
+    const adresse = [p.adresse, p.ville, p.departement ? "(" + p.departement + ")" : ""].filter(Boolean).join(", ");
+    document.getElementById("f-adresse").textContent = adresse || "Adresse non renseignée";
+
+    // Délai
+    if (p.delai) {
+      document.getElementById("f-delai").innerHTML = `<span style="font-size:14px;color:var(--texte-2)">Délai d'attente estimé : <strong>${p.delai}</strong></span>`;
+    }
+
+    // Téléconsultation
+    document.getElementById("f-tele").innerHTML = p.teleconsultation
+      ? '<span style="font-size:14px;color:var(--vert-txt)">✓ Propose la téléconsultation</span>'
+      : '<span style="font-size:14px;color:var(--texte-3)">Pas de téléconsultation renseignée</span>';
+
+    // Notes
+    if (p.notes) {
+      document.getElementById("section-notes").style.display = "block";
+      document.getElementById("f-notes").textContent = p.notes;
+    }
+
+    // Lien signaler
+    document.getElementById("lien-signaler").href = "signaler.html?id=" + p.id;
+
+    document.getElementById("chargement").style.display = "none";
+    document.getElementById("fiche").style.display = "block";
+  }
+
+  function afficherErreur() {
+    document.getElementById("chargement").style.display = "none";
+    document.getElementById("erreur").style.display = "block";
+  }
+
+  charger();
+</script>
+</body>
+</html>
