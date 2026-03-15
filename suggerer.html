@@ -117,15 +117,16 @@
 </div>
 <script src="js/config.js"></script>
 <script>
-  document.querySelectorAll(".check-pill").forEach(pill => {
-    pill.addEventListener("click", function(e) {
-      e.preventDefault();
-      this.classList.toggle("on");
-      const cb = this.querySelector("input");
-      cb.checked = !cb.checked;
-    });
+document.querySelectorAll(".check-pill").forEach(pill => {
+  pill.addEventListener("click", function(e) {
+    if (e.target.tagName === "INPUT") return;
+    e.preventDefault();
+    const cb = this.querySelector("input");
+    cb.checked = !cb.checked;
+    this.classList.toggle("on", cb.checked);
   });
-
+});
+  
   async function soumettre() {
     const nom = document.getElementById("nom").value.trim();
     const type = document.getElementById("type").value;
