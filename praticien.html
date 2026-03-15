@@ -22,7 +22,7 @@
   </div>
 
   <div id="form-wrap">
-    <div class="notice">Les informations soumises sont utilisées uniquement pour alimenter l'annuaire et ne sont pas transmises à des tiers. Les champs marqués * sont obligatoires.</div>
+    <div class="notice" id="notice">Les informations soumises sont utilisées uniquement pour alimenter l'annuaire et ne sont pas transmises à des tiers. Les champs marqués * sont obligatoires.</div>
 
     <div class="form-section">
       <div class="form-section-title">Identité</div>
@@ -107,8 +107,22 @@
     <div class="form-section">
       <div class="form-section-title">Informations complémentaires</div>
       <div class="field">
-        <label>Notes <span class="field-note">(approche thérapeutique, langues, accessibilité PMR…)</span></label>
-        <textarea id="notes" placeholder="Ex : spécialisée ADOS-2, approche TCC, cabinet accessible PMR…"></textarea>
+        <label>Notes <span class="field-note">(approche thérapeutique, langues, accessibilité…)</span></label>
+        <div style="border:0.5px solid #ccc;border-radius:var(--rayon-lg);overflow:hidden">
+          <div style="display:flex;gap:4px;padding:8px;border-bottom:0.5px solid var(--bordure);background:var(--fond-2);flex-wrap:wrap;align-items:center">
+            <button type="button" class="btn" style="font-size:15px;font-weight:500;padding:3px 10px" onclick="formatTitre('## ')">Grand</button>
+            <button type="button" class="btn" style="font-size:13px;font-weight:500;padding:3px 10px" onclick="formatTitre('### ')">Moyen</button>
+            <button type="button" class="btn" style="font-size:11px;padding:3px 10px" onclick="formatNormal()">Normal</button>
+            <div style="width:0.5px;background:var(--bordure);margin:0 2px;align-self:stretch"></div>
+            <button type="button" class="btn" style="font-weight:700;padding:3px 10px" onclick="formatTexte('**','**')">G</button>
+            <button type="button" class="btn" style="font-style:italic;padding:3px 10px" onclick="formatTexte('*','*')">I</button>
+            <div style="width:0.5px;background:var(--bordure);margin:0 2px;align-self:stretch"></div>
+            <button type="button" class="btn" style="padding:3px 10px" onclick="formatListe()">— Liste</button>
+          </div>
+          <textarea id="notes" style="width:100%;padding:10px 12px;border:none;outline:none;font-size:14px;font-family:inherit;background:var(--fond);color:var(--texte);resize:vertical;min-height:120px;line-height:1.7" placeholder="Ex :&#10;## Spécialités&#10;Spécialisé ADOS-2, approche TCC&#10;&#10;### Accessibilité&#10;- Cabinet accessible PMR&#10;- Langues : français, anglais" oninput="apercuNotes()"></textarea>
+          <div style="font-size:11px;color:var(--texte-3);padding:6px 12px;border-top:0.5px solid var(--bordure);background:var(--fond-2)">Sélectionnez du texte puis cliquez un bouton pour le mettre en forme.</div>
+        </div>
+        <div id="apercu-notes" style="display:none;margin-top:8px;padding:10px 12px;border:0.5px solid var(--bordure);border-radius:var(--rayon);font-size:13px;color:var(--texte-2);line-height:1.8;background:var(--fond-2)"></div>
       </div>
     </div>
 
@@ -118,12 +132,12 @@
     </div>
   </div>
 
-  <div class="success-wrap" id="success">
-    <div class="success-icon">
+  <div id="success" style="display:none;text-align:center;padding:40px 20px">
+    <div style="width:48px;height:48px;border-radius:50%;background:var(--vert-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
       <svg width="20" height="20" fill="none" stroke="var(--vert-txt)" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
     </div>
-    <div class="success-title">Fiche envoyée</div>
-    <div class="success-sub">Merci. Votre fiche sera examinée avant publication.<br>Elle apparaîtra dans l'annuaire sous 48 h si validée.</div>
+    <div style="font-size:16px;font-weight:500;margin-bottom:6px">Fiche envoyée</div>
+    <div style="font-size:13px;color:var(--texte-2);line-height:1.6">Merci. Votre fiche sera examinée avant publication.<br>Elle apparaîtra dans l'annuaire sous 48 h si validée.</div>
     <a href="index.html" class="btn" style="margin-top:20px;display:inline-block">← Retour à l'annuaire</a>
   </div>
 
@@ -136,17 +150,66 @@
   </footer>
 
 </div>
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script src="js/config.js"></script>
 <script>
   document.querySelectorAll(".check-pill").forEach(pill => {
-  pill.addEventListener("click", function(e) {
-    if (e.target.tagName === "INPUT") return;
-    e.preventDefault();
-    const cb = this.querySelector("input");
-    cb.checked = !cb.checked;
-    this.classList.toggle("on", cb.checked);
+    pill.addEventListener("click", function(e) {
+      if (e.target.tagName === "INPUT") return;
+      e.preventDefault();
+      const cb = this.querySelector("input");
+      cb.checked = !cb.checked;
+      this.classList.toggle("on", cb.checked);
+    });
   });
-});
+
+  function formatTexte(avant, apres) {
+    const ta = document.getElementById("notes");
+    const s = ta.selectionStart, e = ta.selectionEnd;
+    const sel = ta.value.substring(s, e);
+    const r = avant + (sel || "texte") + apres;
+    ta.value = ta.value.substring(0, s) + r + ta.value.substring(e);
+    ta.focus();
+    ta.setSelectionRange(s + avant.length, s + avant.length + (sel || "texte").length);
+    apercuNotes();
+  }
+  function formatTitre(p) {
+    const ta = document.getElementById("notes");
+    const pos = ta.selectionStart;
+    const av = ta.value.substring(0, pos);
+    const sep = av.length > 0 && !av.endsWith("\n") ? "\n" : "";
+    ta.value = av + sep + p + ta.value.substring(pos);
+    ta.focus();
+    ta.setSelectionRange(pos + sep.length + p.length, pos + sep.length + p.length);
+    apercuNotes();
+  }
+  function formatNormal() {
+    const ta = document.getElementById("notes");
+    const pos = ta.selectionStart;
+    const av = ta.value.substring(0, pos);
+    const sep = av.length > 0 && !av.endsWith("\n") ? "\n" : "";
+    ta.value = av + sep + ta.value.substring(pos);
+    ta.focus();
+    ta.setSelectionRange(pos + sep.length, pos + sep.length);
+    apercuNotes();
+  }
+  function formatListe() {
+    const ta = document.getElementById("notes");
+    const pos = ta.selectionStart;
+    const av = ta.value.substring(0, pos);
+    const p = av.length > 0 && !av.endsWith("\n") ? "\n- " : "- ";
+    ta.value = av + p + ta.value.substring(pos);
+    ta.focus();
+    ta.setSelectionRange(pos + p.length, pos + p.length);
+    apercuNotes();
+  }
+  function apercuNotes() {
+    const val = document.getElementById("notes").value;
+    const el = document.getElementById("apercu-notes");
+    if (!val.trim()) { el.style.display = "none"; return; }
+    el.style.display = "block";
+    el.innerHTML = marked.parse(val);
+  }
 
   async function soumettre() {
     const nom = document.getElementById("nom").value.trim();
@@ -155,20 +218,19 @@
     const cp = document.getElementById("codepostal").value.trim();
     const tel = document.getElementById("telephone").value.trim();
     const ages = [...document.querySelectorAll("#ages input:checked")].map(i => i.value);
+    const notice = document.getElementById("notice");
 
-    const notice = document.querySelector(".notice");
     if (!nom || !type || !ville || !cp || !tel || !ages.length) {
       notice.classList.add("notice-error");
       notice.textContent = "Merci de renseigner au minimum : nom, type, ville, code postal, téléphone et public reçu.";
       return;
     }
 
-    const dept = cp.substring(0, 2);
     const payload = {
       nom, type, ville,
-      departement: dept,
-      telephone: tel,
+      departement: cp.substring(0, 2),
       adresse: document.getElementById("adresse").value.trim() || null,
+      telephone: tel,
       site_web: document.getElementById("siteWeb").value.trim() || null,
       teleconsultation: document.getElementById("teleconsultation").checked,
       delai: document.getElementById("delai").value || null,
