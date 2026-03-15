@@ -12,20 +12,27 @@ Projet open source · Sans publicité · Données hébergées en France
 annuaire-tsa/
 │
 ├── index.html          → Page d'accueil (recherche + filtres + liste)
-├── praticien.html      → Formulaire pour les praticiens (auto-déclaration)
-├── suggerer.html       → Formulaire pour suggérer un praticien
+├── fiche.html          → Page détaillée d'un praticien
+├── praticien.html      → Formulaire auto-déclaration praticien
+├── suggerer.html       → Formulaire suggestion communautaire
+├── signaler.html       → Formulaire signalement d'erreur
+├── merci.html          → Page de confirmation après envoi
 ├── contact.html        → Page de contact
 ├── mentions.html       → Mentions légales
 │
 ├── admin/
 │   ├── login.html      → Page de connexion sécurisée
-│   └── index.html      → Interface d'administration
+│   ├── index.html      → Interface d'administration
+│   └── modifier.html   → Modification d'une fiche praticien
 │
 ├── css/
 │   └── style.css       → Feuille de style commune à toutes les pages
 │
-└── js/
-    └── config.js       → Configuration Supabase (URL + clé API)
+├── js/
+│   └── config.js       → Configuration Supabase (URL + clé API)
+│
+└── img/
+    └── logo-tsa.svg    → Logo symbole neurodiversité
 ```
 
 ---
@@ -35,7 +42,7 @@ annuaire-tsa/
 ### 1. Créer un projet Supabase
 
 1. Rendez-vous sur [supabase.com](https://supabase.com) et créez un compte gratuit
-2. Créez un nouveau projet (choisissez la région **Frankfurt** pour l'Europe)
+2. Créez un nouveau projet — choisissez la région **France** pour la conformité RGPD
 3. Dans **Settings > API**, copiez votre **Project URL** et votre **anon public key**
 
 ### 2. Créer les tables dans Supabase
@@ -43,43 +50,41 @@ annuaire-tsa/
 Dans l'éditeur SQL de Supabase, exécutez :
 
 ```sql
--- Table des praticiens publiés
 CREATE TABLE praticiens (
-  id          BIGSERIAL PRIMARY KEY,
-  nom         TEXT NOT NULL,
-  type        TEXT NOT NULL,
-  ville       TEXT NOT NULL,
-  departement TEXT NOT NULL,
-  adresse     TEXT,
-  telephone   TEXT,
-  site_web    TEXT,
+  id               BIGSERIAL PRIMARY KEY,
+  nom              TEXT NOT NULL,
+  type             TEXT NOT NULL,
+  ville            TEXT NOT NULL,
+  departement      TEXT NOT NULL,
+  adresse          TEXT,
+  telephone        TEXT,
+  site_web         TEXT,
   teleconsultation BOOLEAN DEFAULT false,
-  delai       TEXT,
-  ages        TEXT[],
-  notes       TEXT,
-  statut      TEXT DEFAULT 'publie',
-  created_at  TIMESTAMPTZ DEFAULT NOW()
+  delai            TEXT,
+  ages             TEXT[],
+  notes            TEXT,
+  statut           TEXT DEFAULT 'publie',
+  created_at       TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Table des suggestions (en attente de validation)
 CREATE TABLE suggestions (
-  id          BIGSERIAL PRIMARY KEY,
-  nom         TEXT NOT NULL,
-  type        TEXT NOT NULL,
-  ville       TEXT NOT NULL,
-  departement TEXT NOT NULL,
-  telephone   TEXT,
-  site_web    TEXT,
+  id               BIGSERIAL PRIMARY KEY,
+  nom              TEXT NOT NULL,
+  type             TEXT NOT NULL,
+  ville            TEXT NOT NULL,
+  departement      TEXT NOT NULL,
+  adresse          TEXT,
+  telephone        TEXT,
+  site_web         TEXT,
   teleconsultation BOOLEAN DEFAULT false,
-  delai       TEXT,
-  ages        TEXT[],
-  notes       TEXT,
-  statut      TEXT DEFAULT 'en_attente',
-  source      TEXT DEFAULT 'communaute',
-  created_at  TIMESTAMPTZ DEFAULT NOW()
+  delai            TEXT,
+  ages             TEXT[],
+  notes            TEXT,
+  statut           TEXT DEFAULT 'en_attente',
+  source           TEXT DEFAULT 'communaute',
+  created_at       TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Table des signalements
 CREATE TABLE signalements (
   id            BIGSERIAL PRIMARY KEY,
   praticien_id  BIGINT REFERENCES praticiens(id),
@@ -91,86 +96,86 @@ CREATE TABLE signalements (
 );
 ```
 
-### 3. Configurer les permissions Supabase (Row Level Security)
+### 3. Activer la sécurité RLS
 
 ```sql
--- Activer RLS sur toutes les tables
 ALTER TABLE praticiens    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE suggestions   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE signalements  ENABLE ROW LEVEL SECURITY;
 
--- Tout le monde peut lire les praticiens publiés
 CREATE POLICY "lecture publique praticiens"
   ON praticiens FOR SELECT
   USING (statut = 'publie');
 
--- Tout le monde peut soumettre une suggestion
 CREATE POLICY "insertion publique suggestions"
   ON suggestions FOR INSERT
   WITH CHECK (true);
 
--- Tout le monde peut signaler
 CREATE POLICY "insertion publique signalements"
   ON signalements FOR INSERT
   WITH CHECK (true);
 
--- Seuls les admins authentifiés gèrent tout le reste
 CREATE POLICY "admin praticiens"
   ON praticiens FOR ALL
-  USING (auth.role() = 'authenticated');
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
 
 CREATE POLICY "admin suggestions"
   ON suggestions FOR ALL
-  USING (auth.role() = 'authenticated');
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
 
 CREATE POLICY "admin signalements"
   ON signalements FOR ALL
-  USING (auth.role() = 'authenticated');
+  TO authenticated
+  USING (true)
+  WITH CHECK (true);
 ```
 
-### 4. Créer le compte admin dans Supabase
+### 4. Créer le compte admin
 
-Dans **Authentication > Users**, cliquez sur **Add user** et créez votre compte admin avec email + mot de passe.
+Dans **Supabase > Authentication > Users**, cliquez sur **Add user** et créez votre compte admin avec email + mot de passe.
 
 ### 5. Configurer le projet
 
-Ouvrez `js/config.js` et remplacez les deux valeurs :
+Ouvrez `js/config.js` et renseignez vos valeurs Supabase :
 
 ```javascript
 const SUPABASE_URL = "https://VOTRE_URL.supabase.co";
 const SUPABASE_ANON_KEY = "VOTRE_CLE_PUBLIQUE";
 ```
 
-### 6. Mettre à jour les liens
+### 6. Déployer le site
 
-Dans tous les fichiers HTML, remplacez :
-- `VOTRE_COMPTE` → votre nom d'utilisateur GitHub
-- `annuaire.tsa@gmail.com` → votre adresse email dédiée
-- Dans `mentions.html` → votre nom ou pseudonyme
+**Option A — GitHub Pages (gratuit, idéal pour tester)**
 
-### 7. Déployer sur GitHub Pages
-
-1. Créez un dépôt public sur GitHub nommé `annuaire-tsa`
+1. Créez un dépôt public sur GitHub
 2. Déposez tous les fichiers à la racine du dépôt
 3. Dans **Settings > Pages**, sélectionnez la branche `main` comme source
 4. Votre site sera disponible sur `https://VOTRE_COMPTE.github.io/annuaire-tsa`
 
-### 8. Connecter votre domaine OVH (optionnel)
+Notez que GitHub Pages ne supporte pas le fichier `.htaccess` — les headers de sécurité HTTP ne s'appliqueront pas dans cette configuration.
 
-Dans GitHub Pages > Custom domain, entrez votre domaine.
-Dans OVH, créez un enregistrement CNAME pointant vers `VOTRE_COMPTE.github.io`.
+**Option B — Hébergeur français (recommandé pour la production)**
+
+Uploadez tous les fichiers à la racine de votre hébergement (`htdocs/` chez LWS, `www/` chez OVH).
+Ajoutez le fichier `.htaccess` pour les headers de sécurité HTTP.
+
+Le site est immédiatement fonctionnel — aucune configuration serveur supplémentaire requise.
 
 ---
 
-## Ping anti-veille Supabase (optionnel)
+## Ping anti-veille Supabase
 
-Pour éviter la mise en veille de Supabase après 7 jours d'inactivité, créez le fichier `.github/workflows/ping.yml` :
+Pour éviter la mise en veille de Supabase après 7 jours d'inactivité (plan gratuit), créez le fichier `.github/workflows/ping.yml` :
 
 ```yaml
 name: Ping Supabase
 on:
   schedule:
-    - cron: '0 8 * * 1,4'  # Lundi et jeudi à 8h
+    - cron: '0 8 * * 1,4'
 jobs:
   ping:
     runs-on: ubuntu-latest
@@ -180,6 +185,33 @@ jobs:
 ```
 
 Ajoutez `SUPABASE_URL` et `SUPABASE_KEY` dans **Settings > Secrets** de votre dépôt GitHub.
+
+---
+
+## Déploiement automatique GitHub → LWS
+
+Pour synchroniser automatiquement votre dépôt GitHub avec votre hébergement LWS, créez `.github/workflows/deploy.yml` :
+
+```yaml
+name: Deploy vers LWS
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USER }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          server-dir: /htdocs/
+```
+
+Ajoutez `FTP_HOST`, `FTP_USER` et `FTP_PASSWORD` dans **Settings > Secrets** de votre dépôt GitHub. Ces identifiants sont disponibles dans votre panneau LWS.
 
 ---
 
