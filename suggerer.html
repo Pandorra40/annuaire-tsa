@@ -157,9 +157,7 @@
         method: "POST",
         body: JSON.stringify(payload)
       });
-      document.getElementById("form-wrap").style.display = "none";
-      document.getElementById("success").style.display = "block";
-      window.scrollTo(0, 0);
+      window.location.href = "merci.html";
     } catch (e) {
       notice.classList.add("notice-error");
       notice.textContent = "Une erreur est survenue : " + e.message;
