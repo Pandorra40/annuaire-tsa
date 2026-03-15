@@ -4,16 +4,18 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Annuaire TSA — Trouvez un spécialiste près de chez vous</title>
-  <meta name="description" content="Annuaire collaboratif et gratuit de praticiens spécialisés dans les troubles du spectre autistique (TSA). Médecins, psychiatres, psychologues, neuropsychologues." />
+  <meta name="description" content="Annuaire collaboratif et gratuit de praticiens spécialisés dans les troubles du spectre autistique (TSA)." />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
 
 <div class="container">
 
-  <!-- NAVIGATION -->
   <nav class="topbar">
-    <div class="topbar-title">Annuaire TSA</div>
+    <a href="index.html" class="topbar-title">
+      <img src="img/logo-tsa.svg" alt="Symbole neurodiversité" />
+      Annuaire TSA
+    </a>
     <div class="topbar-right">
       <a href="praticien.html" class="btn btn-accent">Je suis praticien</a>
       <a href="suggerer.html" class="btn">Suggérer un praticien</a>
@@ -21,20 +23,21 @@
     </div>
   </nav>
 
-  <!-- HERO -->
   <div class="hero">
     <h1 class="hero-title">Trouvez un spécialiste TSA près de chez vous</h1>
     <p class="hero-sub">Annuaire collaboratif et gratuit de médecins, psychiatres, psychologues et neuropsychologues spécialisés dans les troubles du spectre autistique.</p>
     <div class="search-wrap">
+      <div class="search-icon">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </div>
       <input type="text" id="search" placeholder="Ville, département ou code postal…" autocomplete="off" />
     </div>
     <div class="stats">
-      <div class="stat"><strong id="nb-total">—</strong> praticiens référencés</div>
-      <div class="stat">Projet open source · sans publicité</div>
+      <div class="stat"><div class="stat-dot"></div><span id="nb-total">—</span> praticiens référencés</div>
+      <div class="stat"><div class="stat-dot" style="background:#52B06A"></div>Projet open source · sans publicité</div>
     </div>
   </div>
 
-  <!-- FILTRES -->
   <div class="filters" id="filtres-type">
     <button class="pill on" data-val="tous">Tous</button>
     <button class="pill" data-val="Médecin">Médecin</button>
@@ -55,14 +58,11 @@
     <button class="pill" data-val="oui">Téléconsultation uniquement</button>
   </div>
 
-  <!-- RÉSULTATS -->
   <div class="results-count" id="count"></div>
   <div id="liste"></div>
 
-  <!-- SUGGÉRER -->
   <a href="suggerer.html" class="suggest-btn">+ Suggérer un praticien manquant</a>
 
-  <!-- PIED DE PAGE -->
   <footer class="footer">
     <div class="footer-note">Projet open source · Données hébergées en France · RGPD</div>
     <div class="footer-links">
@@ -76,10 +76,29 @@
 
 <script src="js/config.js"></script>
 <script>
+  const couleurs = [
+    {bg:"#EEF5FC",txt:"#2E6FAD"},
+    {bg:"#EEF7EC",txt:"#2D6B3A"},
+    {bg:"#FEF3E2",txt:"#8A5A0A"},
+    {bg:"#F3EEFF",txt:"#6B3FA0"},
+    {bg:"#FFF0F0",txt:"#9B2C2C"}
+  ];
+
+  function initiales(nom) {
+    const parts = nom.trim().split(" ").filter(p => p !== "Dr" && p !== "Dr.");
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return nom.substring(0, 2).toUpperCase();
+  }
+
+  function couleurAvatar(nom) {
+    let h = 0;
+    for (let i = 0; i < nom.length; i++) h = nom.charCodeAt(i) + ((h << 5) - h);
+    return couleurs[Math.abs(h) % couleurs.length];
+  }
+
   let praticiens = [];
   let filtres = { type: "tous", age: "tous", tele: "tous" };
 
-  // Chargement depuis Supabase
   async function charger() {
     try {
       const data = await supabaseFetch("praticiens?statut=eq.publie&order=nom.asc");
@@ -91,7 +110,6 @@
     }
   }
 
-  // Filtrage et affichage
   function afficher() {
     const q = document.getElementById("search").value.toLowerCase().trim();
     const filtered = praticiens.filter(d => {
@@ -110,11 +128,15 @@
       return;
     }
 
-    document.getElementById("liste").innerHTML = filtered.map(d => `
-      <div class="card">
+    document.getElementById("liste").innerHTML = filtered.map(d => {
+      const ini = initiales(d.nom);
+      const c = couleurAvatar(d.nom);
+      return `
+      <div class="card" onclick="window.location='fiche.html?id=${d.id}'" style="cursor:pointer">
         <div class="card-header">
-          <div>
-            <a href="fiche.html?id=${d.id}" style="text-decoration:none;color:inherit;font-weight:500;font-size:15px">${d.nom}</a>
+          <div class="card-avatar" style="background:${c.bg};color:${c.txt}">${ini}</div>
+          <div style="flex:1">
+            <div class="card-name">${d.nom}</div>
             <div class="card-meta">${d.type} · ${d.ville} (${d.departement})</div>
           </div>
           <div class="card-dept">Dép. ${d.departement}</div>
@@ -125,19 +147,17 @@
           ${d.delai ? `<span class="tag ${d.delai === "Disponible" ? "tag-green" : "tag-amber"}">Délai : ${d.delai}</span>` : ""}
         </div>
         <div class="card-divider"></div>
-        ${d.telephone ? `<a class="card-tel" href="tel:${d.telephone}">
+        ${d.telephone ? `<a class="card-tel" href="tel:${d.telephone}" onclick="event.stopPropagation()">
           <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.27a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
           ${d.telephone}
-        </a>` : ""}
-        ${d.notes ? `<div style="font-size:12px;color:var(--texte-3);margin-top:6px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">${d.notes}</div>` : ""}
-        <div style="margin-top:10px">
-          <a href="signaler.html?id=${d.id}" style="font-size:12px;color:var(--texte-3);text-decoration:underline;text-underline-offset:2px">Signaler une erreur</a>
+        </a>` : '<span style="font-size:13px;color:var(--texte-3)">Téléphone non renseigné</span>'}
+        <div style="margin-top:8px">
+          <a href="signaler.html?id=${d.id}" onclick="event.stopPropagation()" style="font-size:12px;color:var(--texte-3);text-decoration:underline;text-underline-offset:2px">Signaler une erreur</a>
         </div>
-      </div>
-    `).join("");
+      </div>`;
+    }).join("");
   }
 
-  // Filtres
   function initFiltres(groupeId, cle) {
     document.getElementById(groupeId).querySelectorAll(".pill").forEach(btn => {
       btn.addEventListener("click", () => {
