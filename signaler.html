@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signaler une erreur — Annuaire TSA</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="container">
+
+  <nav class="topbar">
+    <div class="topbar-title"><a href="index.html" style="text-decoration:none;color:inherit">Annuaire TSA</a></div>
+    <div class="topbar-right">
+      <a href="index.html" class="btn">← Retour à l'annuaire</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="page-title">Signaler une erreur</div>
+    <div class="page-sub">Une information est incorrecte ou obsolète sur cette fiche ? Signalez-le ici, nous vérifierons et corrigerons dans les plus brefs délais.</div>
+  </div>
+
+  <div id="form-wrap">
+    <div class="notice" id="notice">Merci de décrire le problème rencontré. Les champs marqués * sont obligatoires.</div>
+
+    <div class="form-section">
+      <div class="form-section-title">Motif du signalement *</div>
+      <div class="field">
+        <div class="check-group" id="motifs" style="flex-direction:column;align-items:flex-start">
+          <label class="check-pill" style="border-radius:var(--rayon);width:100%"><input type="radio" name="motif" value="Numéro de téléphone incorrect" /><span>Numéro de téléphone incorrect</span></label>
+          <label class="check-pill" style="border-radius:var(--rayon);width:100%"><input type="radio" name="motif" value="Praticien ne reçoit plus de patients TSA" /><span>Praticien ne reçoit plus de patients TSA</span></label>
+          <label class="check-pill" style="border-radius:var(--rayon);width:100%"><input type="radio" name="motif" value="Cabinet fermé ou déménagé" /><span>Cabinet fermé ou déménagé</span></label>
+          <label class="check-pill" style="border-radius:var(--rayon);width:100%"><input type="radio" name="motif" value="Informations incorrectes" /><span>Informations incorrectes</span></label>
+          <label class="check-pill" style="border-radius:var(--rayon);width:100%"><input type="radio" name="motif" value="Autre" /><span>Autre</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-title">Détails</div>
+      <div class="field">
+        <label>Précisez le problème <span class="field-note">(optionnel mais utile)</span></label>
+        <textarea id="detail" placeholder="Ex : le numéro affiché n'est plus attribué, le cabinet a déménagé au 12 rue des Lilas…" style="min-height:100px"></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a href="index.html" class="btn">Annuler</a>
+      <button class="btn btn-primary" onclick="soumettre()">Envoyer le signalement</button>
+    </div>
+  </div>
+
+  <div id="success" style="display:none;text-align:center;padding:40px 20px">
+    <div style="width:48px;height:48px;border-radius:50%;background:var(--vert-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 16px">
+      <svg width="20" height="20" fill="none" stroke="var(--vert-txt)" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <div style="font-size:16px;font-weight:500;margin-bottom:6px">Signalement envoyé</div>
+    <div style="font-size:13px;color:var(--texte-2);line-height:1.6">Merci. Nous vérifierons cette fiche et la corrigerons si nécessaire.</div>
+    <a href="index.html" class="btn" style="margin-top:20px;display:inline-block">← Retour à l'annuaire</a>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-note">Projet open source · Données hébergées en France · RGPD</div>
+    <div class="footer-links">
+      <a href="mentions.html" class="footer-link">Mentions légales</a>
+      <a href="contact.html" class="footer-link">Contact</a>
+    </div>
+  </footer>
+
+</div>
+<script src="js/config.js"></script>
+<script>
+  // Récupération de l'id praticien depuis l'URL
+  const params = new URLSearchParams(window.location.search);
+  const praticienId = params.get("id");
+
+  // Gestion des radio buttons
+  document.querySelectorAll("#motifs .check-pill").forEach(pill => {
+    pill.addEventListener("click", function() {
+      document.querySelectorAll("#motifs .check-pill").forEach(p => p.classList.remove("on"));
+      this.classList.add("on");
+      this.querySelector("input").checked = true;
+    });
+  });
+
+  async function soumettre() {
+    const motifEl = document.querySelector("#motifs input:checked");
+    const notice = document.getElementById("notice");
+
+    if (!motifEl) {
+      notice.classList.add("notice-error");
+      notice.textContent = "Merci de sélectionner un motif.";
+      return;
+    }
+
+    const payload = {
+      praticien_id: praticienId ? parseInt(praticienId) : null,
+      motif: motifEl.value,
+      detail: document.getElementById("detail").value.trim() || null,
+      statut: "ouvert"
+    };
+
+    try {
+      await supabaseFetch("signalements", {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+      document.getElementById("form-wrap").style.display = "none";
+      document.getElementById("success").style.display = "block";
+      window.scrollTo(0, 0);
+    } catch (e) {
+      notice.classList.add("notice-error");
+      notice.textContent = "Une erreur est survenue : " + e.message;
+    }
+  }
+</script>
+</body>
+</html>
