@@ -17,6 +17,7 @@ annuaire-tsa/
 ├── suggerer.html       → Formulaire suggestion communautaire
 ├── signaler.html       → Formulaire signalement d'erreur
 ├── merci.html          → Page de confirmation après envoi
+├── apropos.html        → À propos & FAQ du projet
 ├── contact.html        → Page de contact
 ├── mentions.html       → Mentions légales
 │
@@ -51,20 +52,23 @@ Dans l'éditeur SQL de Supabase, exécutez :
 
 ```sql
 CREATE TABLE praticiens (
-  id               BIGSERIAL PRIMARY KEY,
-  nom              TEXT NOT NULL,
-  type             TEXT NOT NULL,
-  ville            TEXT NOT NULL,
-  departement      TEXT NOT NULL,
-  adresse          TEXT,
-  telephone        TEXT,
-  site_web         TEXT,
-  teleconsultation BOOLEAN DEFAULT false,
-  delai            TEXT,
-  ages             TEXT[],
-  notes            TEXT,
-  statut           TEXT DEFAULT 'publie',
-  created_at       TIMESTAMPTZ DEFAULT NOW()
+  id                    BIGSERIAL PRIMARY KEY,
+  nom                   TEXT NOT NULL,
+  type                  TEXT NOT NULL,
+  ville                 TEXT NOT NULL,
+  departement           TEXT NOT NULL,
+  adresse               TEXT,
+  telephone             TEXT,
+  site_web              TEXT,
+  teleconsultation      BOOLEAN DEFAULT false,
+  delai                 TEXT,
+  ages                  TEXT[],
+  notes                 TEXT,
+  adeli                 TEXT,
+  confirmations         INT DEFAULT 0,
+  derniere_confirmation TIMESTAMPTZ,
+  statut                TEXT DEFAULT 'publie',
+  created_at            TIMESTAMPTZ DEFAULT NOW()
 );
 
 CREATE TABLE suggestions (
@@ -80,6 +84,7 @@ CREATE TABLE suggestions (
   delai            TEXT,
   ages             TEXT[],
   notes            TEXT,
+  adeli            TEXT,
   statut           TEXT DEFAULT 'en_attente',
   source           TEXT DEFAULT 'communaute',
   created_at       TIMESTAMPTZ DEFAULT NOW()
