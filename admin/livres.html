@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Livres TSA — Administration</title>
+  <link rel="stylesheet" href="/css/style.css" />
+  <style>
+    .tabs { display: flex; gap: 4px; border-bottom: 0.5px solid var(--bordure); margin-bottom: 20px; }
+    .tab { padding: 8px 16px; font-size: 14px; color: var(--texte-2); cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -0.5px; font-family: inherit; transition: all 0.1s; }
+    .tab.on { color: var(--texte); font-weight: 500; border-bottom-color: var(--texte); }
+    .panel { display: none; } .panel.on { display: block; }
+    .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 99px; padding: 0 5px; font-size: 11px; font-weight: 500; background: var(--rouge-bg); color: var(--rouge-txt); margin-left: 5px; vertical-align: middle; }
+    .card-actions { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--bordure); flex-wrap: wrap; }
+    .btn-valider { border-color: #9FE1CB; color: var(--vert-txt); } .btn-valider:hover { background: var(--vert-bg); }
+    .btn-refuser { border-color: #f09595; color: var(--rouge-txt); } .btn-refuser:hover { background: var(--rouge-bg); }
+    /* Formulaire ajout */
+    .add-form { background: var(--fond); border: 0.5px solid var(--bordure); border-radius: var(--rayon-lg); padding: 18px; margin-bottom: 20px; display: flex; flex-direction: column; gap: 12px; }
+    .add-form h3 { font-size: 14px; font-weight: 600; color: var(--texte); margin-bottom: 4px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field label { font-size: 12px; font-weight: 500; color: var(--texte-2); }
+    .field input, .field select, .field textarea {
+      padding: 7px 10px; border: 0.5px solid var(--bordure-2); border-radius: var(--rayon);
+      font-size: 13px; font-family: inherit; color: var(--texte); background: var(--fond);
+      outline: none; transition: border-color .15s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--bleu); }
+    .field textarea { resize: vertical; min-height: 70px; }
+    .add-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <nav class="topbar">
+    <a href="/livres/" class="topbar-title" style="text-decoration:none">
+      <span>📚 Livres TSA</span>
+    </a>
+    <div class="topbar-right">
+      <a href="/admin/index.html" class="btn">Admin Annuaire</a>
+      <button class="btn btn-admin" onclick="deconnexion()">Déconnexion</button>
+    </div>
+  </nav>
+
+  <div class="tabs">
+    <button class="tab on" onclick="showTab('ajouter', this)">Ajouter un livre</button>
+    <button class="tab" onclick="showTab('publies', this)">Publiés</button>
+    <button class="tab" onclick="showTab('suggestions', this)">Suggestions <span class="badge" id="b-suggestions">0</span></button>
+  </div>
+
+  <!-- ONGLET AJOUTER -->
+  <div id="tab-ajouter" class="panel on">
+    <div class="add-form">
+      <h3>Nouveau livre</h3>
+      <div id="add-notice" style="display:none;font-size:13px;padding:8px 12px;border-radius:var(--rayon);"></div>
+      <div class="field-row">
+        <div class="field"><label>Titre *</label><input type="text" id="a-titre" placeholder="Titre du livre" /></div>
+        <div class="field"><label>Auteur *</label><input type="text" id="a-auteur" placeholder="Prénom Nom" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Année</label><input type="number" id="a-annee" placeholder="2024" min="1900" max="2099" /></div>
+        <div class="field">
+          <label>Catégorie *</label>
+          <select id="a-cat">
+            <option value="">— Choisir —</option>
+            <option value="témoignage">Témoignage</option>
+            <option value="guide pratique">Guide pratique</option>
+            <option value="scientifique">Scientifique</option>
+            <option value="jeunesse">Jeunesse</option>
+            <option value="roman">Roman</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Type *</label>
+          <select id="a-type">
+            <option value="classique">Classique</option>
+            <option value="suggestion">Suggestion communauté</option>
+          </select>
+        </div>
+        <div class="field"><label>Lien</label><input type="url" id="a-lien" placeholder="https://…" /></div>
+      </div>
+      <div class="field"><label>Description</label><textarea id="a-desc" placeholder="Résumé du livre…"></textarea></div>
+      <div class="add-actions">
+        <button class="btn" onclick="resetForm()">Réinitialiser</button>
+        <button class="btn btn-primary" onclick="ajouterLivre()">Publier le livre</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ONGLET PUBLIÉS -->
+  <div id="tab-publies" class="panel">
+    <div style="margin-bottom:14px">
+      <input type="text" placeholder="Rechercher un livre publié…" oninput="filtrerPublies(this.value)"
+        style="width:100%;padding:8px 12px;border:0.5px solid #ccc;border-radius:var(--rayon);font-size:13px;font-family:inherit;background:var(--fond);color:var(--texte);outline:none" />
+    </div>
+    <div id="liste-publies"></div>
+  </div>
+
+  <!-- ONGLET SUGGESTIONS -->
+  <div id="tab-suggestions" class="panel">
+    <div id="liste-suggestions"></div>
+  </div>
+
+</div>
+
+<script src="/js/config.js"></script>
+<script>
+  let publies = [], suggestions = [];
+
+  if (!sessionStorage.getItem('admin_token')) {
+    window.location.href = 'login.html';
+  } else {
+    charger();
+  }
+
+  async function charger() {
+    try {
+      const [p, s] = await Promise.all([
+        adminFetch('livres.php'),
+        adminFetch('suggestions_livres.php?statut=en_attente')
+      ]);
+      publies = p; suggestions = s;
+      document.getElementById('b-suggestions').textContent = s.length;
+      afficherPublies('');
+      afficherSuggestions();
+    } catch (e) { console.error(e); }
+  }
+
+  function showTab(id, el) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+    document.getElementById('tab-' + id).classList.add('on');
+    el.classList.add('on');
+  }
+
+  function afficherPublies(q) {
+    const el = document.getElementById('liste-publies');
+    const list = q ? publies.filter(d => d.titre.toLowerCase().includes(q.toLowerCase()) || d.auteur.toLowerCase().includes(q.toLowerCase())) : publies;
+    if (!list.length) { el.innerHTML = '<p class="empty">Aucun livre publié.</p>'; return; }
+    el.innerHTML = list.map(d => `
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-name">${d.titre}</div>
+            <div class="card-meta">${d.auteur}${d.annee ? ' · ' + d.annee : ''} · <em>${d.categorie}</em></div>
+          </div>
+          <span class="source-badge">${d.type}</span>
+        </div>
+        ${d.description ? `<div style="font-size:12px;color:var(--texte-3);margin-top:8px">${d.description}</div>` : ''}
+        <div class="card-actions">
+          <button class="btn btn-refuser" onclick="supprimer(${d.id})">Supprimer</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function filtrerPublies(q) { afficherPublies(q); }
+
+  function afficherSuggestions() {
+    const el = document.getElementById('liste-suggestions');
+    if (!suggestions.length) { el.innerHTML = '<p class="empty">Aucune suggestion en attente.</p>'; return; }
+    el.innerHTML = suggestions.map(s => `
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-name">${s.titre}</div>
+            <div class="card-meta">${s.auteur}${s.annee ? ' · ' + s.annee : ''}${s.categorie ? ' · ' + s.categorie : ''}</div>
+          </div>
+        </div>
+        ${s.description ? `<div style="font-size:12px;color:var(--texte-3);margin-top:8px;padding:8px;background:var(--fond-2);border-radius:var(--rayon)">${s.description}</div>` : ''}
+        ${s.lien ? `<div style="font-size:12px;margin-top:6px"><a href="${s.lien}" target="_blank" style="color:var(--bleu)">${s.lien}</a></div>` : ''}
+        <div class="card-actions">
+          <button class="btn btn-valider" onclick="validerSuggestion(${s.id})">Valider → Publier</button>
+          <button class="btn btn-refuser" onclick="refuserSuggestion(${s.id})">Refuser</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function ajouterLivre() {
+    const notice = document.getElementById('add-notice');
+    const titre  = document.getElementById('a-titre').value.trim();
+    const auteur = document.getElementById('a-auteur').value.trim();
+    const cat    = document.getElementById('a-cat').value;
+    const type   = document.getElementById('a-type').value;
+    if (!titre || !auteur || !cat) {
+      notice.style.display = 'block';
+      notice.style.cssText = 'display:block;font-size:13px;padding:8px 12px;border-radius:var(--rayon);background:var(--rouge-bg);color:var(--rouge-txt);border:0.5px solid #fca5a5';
+      notice.textContent = 'Titre, auteur et catégorie sont obligatoires.';
+      return;
+    }
+    try {
+      await adminFetch('livres.php', { method: 'POST', body: JSON.stringify({
+        titre, auteur, type, categorie: cat,
+        annee:       parseInt(document.getElementById('a-annee').value) || null,
+        description: document.getElementById('a-desc').value.trim() || null,
+        lien:        document.getElementById('a-lien').value.trim() || null,
+      })});
+      notice.style.cssText = 'display:block;font-size:13px;padding:8px 12px;border-radius:var(--rayon);background:var(--vert-bg);color:var(--vert-txt);border:0.5px solid #9FE1CB';
+      notice.textContent = '✓ Livre publié avec succès.';
+      resetForm();
+      await charger();
+    } catch(e) {
+      notice.style.cssText = 'display:block;font-size:13px;padding:8px 12px;border-radius:var(--rayon);background:var(--rouge-bg);color:var(--rouge-txt)';
+      notice.textContent = 'Erreur : ' + e.message;
+    }
+  }
+
+  function resetForm() {
+    ['a-titre','a-auteur','a-annee','a-lien','a-desc'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('a-cat').value = '';
+    document.getElementById('a-type').value = 'classique';
+    document.getElementById('add-notice').style.display = 'none';
+  }
+
+  let enCours = false;
+
+  async function supprimer(id) {
+    if (enCours) return;
+    if (!confirm('Supprimer ce livre ? Cette action est irréversible.')) return;
+    enCours = true;
+    try {
+      await adminFetch('livres.php?id=' + id, { method: 'DELETE' });
+      window.location.reload();
+    } catch(e) { alert('Erreur : ' + e.message); enCours = false; }
+  }
+
+  async function validerSuggestion(id) {
+    if (enCours) return;
+    enCours = true;
+    try {
+      await adminFetch('suggestions_livres.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'valide' }) });
+      window.location.reload();
+    } catch(e) { alert('Erreur : ' + e.message); enCours = false; }
+  }
+
+  async function refuserSuggestion(id) {
+    if (enCours) return;
+    enCours = true;
+    try {
+      await adminFetch('suggestions_livres.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'refuse' }) });
+      window.location.reload();
+    } catch(e) { alert('Erreur : ' + e.message); enCours = false; }
+  }
+
+  async function deconnexion() {
+    try { await adminFetch('auth.php', { method: 'DELETE' }); } catch(e) {}
+    sessionStorage.removeItem('admin_token');
+    window.location.href = 'login.html';
+  }
+</script>
+</body>
+</html>

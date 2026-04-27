@@ -12,16 +12,27 @@
     .notes-content li { margin:3px 0; font-size:14px; color:var(--texte-2); }
     .notes-content p { font-size:14px; color:var(--texte-2); line-height:1.7; margin:4px 0; }
     .notes-content strong { color:var(--texte); }
+    .verify-btn {
+      display:inline-flex; align-items:center; gap:7px;
+      padding:8px 16px; border-radius:99px;
+      border:1.5px solid var(--bordure-2); background:var(--fond);
+      font-size:13px; color:var(--texte-2); cursor:pointer;
+      transition:all 0.15s; font-family:inherit;
+    }
+    .verify-btn:hover { border-color:#86efac; background:var(--vert-bg); color:var(--vert-txt); }
+    .verify-btn.done { border-color:#86efac; background:var(--vert-bg); color:var(--vert-txt); font-weight:500; cursor:default; }
+    .verify-count { font-size:12px; color:var(--texte-3); }
+    .verify-count span { color:var(--vert-txt); font-weight:500; }
   </style>
 </head>
 <body>
 <div class="container">
 
   <nav class="topbar">
-  <a href="index.html" class="topbar-title">
-    <img src="img/logo-tsa.svg" alt="" style="width:32px;height:25px" />
-    Annuaire TSA
-  </a>
+    <a href="index.html" class="topbar-title">
+      <img src="img/logo-tsa.svg" alt="" style="width:32px;height:25px" />
+      Annuaire TSA
+    </a>
     <div class="topbar-right">
       <a href="index.html" class="btn">← Retour à l'annuaire</a>
     </div>
@@ -59,8 +70,19 @@
       <div class="notes-content" id="f-notes"></div>
     </div>
 
+    <!-- Zone vérification + signalement -->
     <div style="margin-top:32px;padding-top:16px;border-top:0.5px solid var(--bordure)">
-      <a id="lien-signaler" href="#" style="font-size:12px;color:var(--texte-3);text-decoration:underline;text-underline-offset:2px">Signaler une erreur sur cette fiche</a>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <button class="verify-btn" id="verify-btn" onclick="confirmer()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+            Fiche vérifiée
+          </button>
+          <div class="verify-count" id="verify-count"></div>
+          <div id="verify-thanks" style="display:none;font-size:12px;color:var(--vert-txt)">Merci pour votre confirmation !</div>
+        </div>
+        <a id="lien-signaler" href="#" style="font-size:12px;color:var(--texte-3);text-decoration:underline;text-underline-offset:2px">Signaler une erreur</a>
+      </div>
     </div>
 
   </div>
@@ -81,46 +103,62 @@
 <script>
   const params = new URLSearchParams(window.location.search);
   const id = params.get("id");
+  let praticienData = null;
+  let alreadyVoted = false;
+
+  // Protection XSS — échappe les caractères dangereux
+  function esc(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
 
   async function charger() {
     if (!id) { afficherErreur(); return; }
     try {
-      const data = await supabaseFetch("praticiens?id=eq." + id + "&statut=eq.publie");
+      const data = await apiFetch("praticiens.php?id=" + id);
       if (!data.length) { afficherErreur(); return; }
-      afficher(data[0]);
+      praticienData = data[0];
+      afficher(praticienData);
+      alreadyVoted = localStorage.getItem("verified_" + id) === "1";
+      if (alreadyVoted) marquerVote();
     } catch (e) { afficherErreur(); }
   }
 
   function afficher(p) {
-    document.title = p.nom + " — Annuaire TSA";
+    document.title = esc(p.nom) + " — Annuaire TSA";
     document.getElementById("f-nom").textContent = p.nom;
     document.getElementById("f-type-ville").textContent = p.type + " · " + p.ville + " (" + p.departement + ")";
 
     const tags = [];
-    if (p.ages) p.ages.forEach(a => tags.push(`<span class="tag tag-blue">${a}</span>`));
+    if (p.ages) p.ages.forEach(a => tags.push(`<span class="tag tag-blue">${esc(a)}</span>`));
     if (p.teleconsultation) tags.push('<span class="tag tag-green">Téléconsultation</span>');
-    if (p.delai) tags.push(`<span class="tag ${p.delai === "Disponible" ? "tag-green" : "tag-amber"}">Délai : ${p.delai}</span>`);
+    if (p.delai) tags.push(`<span class="tag ${p.delai === "Disponible" ? "tag-green" : "tag-amber"}">Délai : ${esc(p.delai)}</span>`);
     document.getElementById("f-tags").innerHTML = tags.join("");
 
     if (p.telephone) {
       document.getElementById("f-telephone").innerHTML = `
-        <a class="card-tel" href="tel:${p.telephone}" style="font-size:15px;font-weight:500">
+        <a class="card-tel" href="tel:${esc(p.telephone)}" style="font-size:15px;font-weight:500">
           <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.27a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          ${p.telephone}
+          ${esc(p.telephone)}
         </a>`;
     } else {
       document.getElementById("f-telephone").innerHTML = '<span style="font-size:13px;color:var(--texte-3)">Téléphone non renseigné</span>';
     }
 
     if (p.site_web) {
-      document.getElementById("f-site").innerHTML = `<a href="${p.site_web}" target="_blank" class="footer-link" style="font-size:14px">Site web / Doctolib →</a>`;
+      document.getElementById("f-site").innerHTML = `<a href="${esc(p.site_web)}" target="_blank" rel="noopener noreferrer" class="footer-link" style="font-size:14px">Site web / Doctolib →</a>`;
     }
 
     const adresse = [p.adresse, p.ville, p.departement ? "(" + p.departement + ")" : ""].filter(Boolean).join(", ");
     document.getElementById("f-adresse").textContent = adresse || "Adresse non renseignée";
 
     if (p.delai) {
-      document.getElementById("f-delai").innerHTML = `<span style="font-size:14px;color:var(--texte-2)">Délai d'attente estimé : <strong>${p.delai}</strong></span>`;
+      document.getElementById("f-delai").innerHTML = `<span style="font-size:14px;color:var(--texte-2)">Délai d'attente estimé : <strong>${esc(p.delai)}</strong></span>`;
     }
 
     document.getElementById("f-tele").innerHTML = p.teleconsultation
@@ -132,9 +170,36 @@
       document.getElementById("f-notes").innerHTML = marked.parse(p.notes);
     }
 
-    document.getElementById("lien-signaler").href = "signaler.html?id=" + p.id;
+    const nb = p.confirmations || 0;
+    if (nb > 0) {
+      document.getElementById("verify-count").innerHTML = `<span>${nb}</span> confirmation${nb > 1 ? "s" : ""}`;
+    }
+
+    document.getElementById("lien-signaler").href = "signaler.html?id=" + encodeURIComponent(p.id);
     document.getElementById("chargement").style.display = "none";
     document.getElementById("fiche").style.display = "block";
+  }
+
+  async function confirmer() {
+    if (alreadyVoted) return;
+    alreadyVoted = true;
+    marquerVote();
+    localStorage.setItem("verified_" + id, "1");
+
+    try {
+      await apiFetch("praticiens.php?id=" + id, { method: "PATCH" });
+      const nb = (praticienData.confirmations || 0) + 1;
+      praticienData.confirmations = nb;
+      document.getElementById("verify-count").innerHTML = `<span>${nb}</span> confirmation${nb > 1 ? "s" : ""}`;
+    } catch (e) { console.error(e); }
+  }
+
+  function marquerVote() {
+    const btn = document.getElementById("verify-btn");
+    btn.classList.add("done");
+    btn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Confirmé';
+    document.getElementById("verify-count").style.display = "none";
+    document.getElementById("verify-thanks").style.display = "block";
   }
 
   function afficherErreur() {

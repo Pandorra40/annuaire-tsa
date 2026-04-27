@@ -11,9 +11,9 @@
 
   <nav class="topbar">
     <a href="index.html" class="topbar-title">
-    <img src="img/logo-tsa.svg" alt="" style="width:32px;height:25px" />
-    Annuaire TSA
-  </a>
+      <img src="img/logo-tsa.svg" alt="" style="width:32px;height:25px" />
+      Annuaire TSA
+    </a>
     <div class="topbar-right">
       <a href="index.html" class="btn">← Retour à l'annuaire</a>
     </div>
@@ -49,6 +49,12 @@
     </div>
 
     <div class="form-actions">
+      <!-- Honeypot anti-bot (invisible pour les humains) -->
+      <div style="display:none;">
+        <label>Ne pas remplir ce champ :</label>
+        <input type="text" id="hp" name="hp" autocomplete="off" />
+      </div>
+
       <a href="index.html" class="btn">Annuler</a>
       <button class="btn btn-primary" onclick="soumettre()">Envoyer le signalement</button>
     </div>
@@ -72,6 +78,7 @@
   </footer>
 
 </div>
+
 <script src="js/config.js"></script>
 <script>
   // Récupération de l'id praticien depuis l'URL
@@ -88,6 +95,13 @@
   });
 
   async function soumettre() {
+    // Honeypot anti-bot : si rempli, bloquer la soumission
+    const hp = document.getElementById("hp").value.trim();
+    if (hp) {
+      console.warn("Honeypot activé : soumission bloquée");
+      return; // stoppe la fonction, robot détecté
+    }
+
     const motifEl = document.querySelector("#motifs input:checked");
     const notice = document.getElementById("notice");
 
@@ -105,10 +119,7 @@
     };
 
     try {
-      await supabaseFetch("signalements", {
-        method: "POST",
-        body: JSON.stringify(payload)
-      });
+      await apiFetch("signalements.php", { method: "POST", body: JSON.stringify(payload) });
       document.getElementById("form-wrap").style.display = "none";
       document.getElementById("success").style.display = "block";
       window.scrollTo(0, 0);

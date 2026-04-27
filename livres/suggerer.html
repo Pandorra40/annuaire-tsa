@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Suggérer un livre — Livres TSA</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .page-wrap { max-width: 600px; margin: 2rem auto; padding: 0 1.25rem 3rem; }
+    .page-header { margin-bottom: 1.75rem; }
+    .page-title { font-size: 1.4rem; font-weight: 700; color: var(--text); margin-bottom: .35rem; }
+    .page-sub { font-size: .9rem; color: var(--muted); line-height: 1.6; }
+    .form-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 1.1rem; }
+    .field { display: flex; flex-direction: column; gap: .4rem; }
+    .field label { font-size: .875rem; font-weight: 600; color: var(--text); }
+    .field-note { font-weight: 400; color: var(--muted); font-size: .8rem; }
+    .field input, .field select, .field textarea {
+      padding: .6rem .85rem; border: 1px solid var(--border); border-radius: 8px;
+      font-size: .9rem; font-family: inherit; color: var(--text); background: var(--bg);
+      outline: none; transition: border-color .15s, box-shadow .15s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus {
+      border-color: #93c5fd; box-shadow: 0 0 0 3px rgba(37,99,235,.1); background: #fff;
+    }
+    .field textarea { resize: vertical; min-height: 90px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; }
+    .notice { font-size: .825rem; color: var(--muted); background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: .75rem 1rem; line-height: 1.6; }
+    .notice.error { background: #fef2f2; border-color: #fca5a5; color: #dc2626; }
+    .form-actions { display: flex; gap: .75rem; justify-content: flex-end; margin-top: .5rem; }
+    .btn-cancel { padding: .5rem 1rem; border: 1.5px solid var(--border); border-radius: 8px; font-size: .875rem; font-weight: 500; background: #fff; color: var(--text); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-cancel:hover { border-color: #9ca3af; }
+    .btn-submit { padding: .5rem 1.25rem; background: #111827; color: #fff; border: none; border-radius: 8px; font-size: .875rem; font-weight: 600; cursor: pointer; transition: background .15s; }
+    .btn-submit:hover { background: #374151; }
+    .btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+    .success-wrap { text-align: center; padding: 3rem 1rem; }
+    .success-icon { width: 52px; height: 52px; border-radius: 50%; background: var(--green-light); display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; }
+    @media (max-width: 520px) { .field-row { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="10" cy="16" r="7" fill="#ef4444"/>
+          <circle cx="22" cy="16" r="7" fill="#3b82f6"/>
+          <ellipse cx="16" cy="16" rx="4" ry="7" fill="#a855f7" opacity=".75"/>
+        </svg>
+        <span class="navbar-title">Livres TSA</span>
+      </div>
+      <nav class="navbar-links">
+        <a href="https://www.annuaire-tsa.fr/" class="nav-link">Annuaire TSA</a>
+        <a href="index.html" class="btn-primary">← Retour aux livres</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-wrap">
+
+    <div id="form-section">
+      <div class="page-header">
+        <div class="page-title">Suggérer un livre</div>
+        <div class="page-sub">Vous connaissez un livre sur le TSA qui mériterait d'apparaître ici ? Signalez-le — titre et auteur suffisent. La suggestion sera examinée avant publication.</div>
+      </div>
+
+      <div class="form-card">
+        <div class="notice" id="notice">Les informations soumises sont utilisées uniquement pour alimenter la bibliothèque et ne sont pas transmises à des tiers.</div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Titre *</label>
+            <input type="text" id="titre" placeholder="Le titre du livre" />
+          </div>
+          <div class="field">
+            <label>Auteur *</label>
+            <input type="text" id="auteur" placeholder="Prénom Nom" />
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label>Année <span class="field-note">(optionnel)</span></label>
+            <input type="number" id="annee" placeholder="2024" min="1900" max="2099" />
+          </div>
+          <div class="field">
+            <label>Catégorie <span class="field-note">(optionnel)</span></label>
+            <select id="categorie">
+              <option value="">— Choisir —</option>
+              <option value="témoignage">Témoignage</option>
+              <option value="guide pratique">Guide pratique</option>
+              <option value="scientifique">Scientifique</option>
+              <option value="jeunesse">Jeunesse</option>
+              <option value="roman">Roman</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Pourquoi ce livre ? <span class="field-note">(optionnel)</span></label>
+          <textarea id="description" placeholder="En quelques mots, pourquoi recommandez-vous ce livre ?"></textarea>
+        </div>
+
+        <div class="field">
+          <label>Lien <span class="field-note">(optionnel — Amazon, éditeur, etc.)</span></label>
+          <input type="url" id="lien" placeholder="https://…" />
+        </div>
+
+        <!-- honeypot anti-spam -->
+        <div style="display:none"><input type="text" id="hp" /></div>
+
+        <div class="form-actions">
+          <a href="index.html" class="btn-cancel">Annuler</a>
+          <button class="btn-submit" id="submitBtn" onclick="soumettre()">Envoyer la suggestion</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="success-section" style="display:none">
+      <div class="success-wrap">
+        <div class="success-icon">
+          <svg width="22" height="22" fill="none" stroke="#16a34a" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div style="font-size:1.1rem;font-weight:600;margin-bottom:.5rem">Suggestion envoyée !</div>
+        <div style="font-size:.9rem;color:var(--muted);line-height:1.6">Merci pour votre contribution.<br>Le livre sera examiné avant publication.</div>
+        <a href="index.html" class="btn-primary" style="display:inline-block;margin-top:1.5rem;text-decoration:none">← Retour aux livres</a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="site-footer">
+    <div class="footer-left">
+      Projet open source · Données hébergées en France · RGPD<br>
+      Fait avec ♥ pour les familles concernées par les TSA
+    </div>
+    <nav class="footer-links">
+      <a href="https://www.annuaire-tsa.fr/mentions.html">Mentions légales</a>
+      <a href="https://www.annuaire-tsa.fr/contact.html">Contact</a>
+    </nav>
+  </footer>
+
+  <script>
+    const API = 'https://www.annuaire-tsa.fr/api/suggestions_livres.php';
+
+    async function soumettre() {
+      if (document.getElementById('hp').value) return;
+      const notice  = document.getElementById('notice');
+      const btn     = document.getElementById('submitBtn');
+      const titre   = document.getElementById('titre').value.trim();
+      const auteur  = document.getElementById('auteur').value.trim();
+
+      notice.className = 'notice';
+      if (!titre || !auteur) {
+        notice.className = 'notice error';
+        notice.textContent = 'Merci de renseigner au minimum le titre et l\'auteur.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Envoi…';
+
+      const payload = {
+        titre, auteur,
+        annee:       parseInt(document.getElementById('annee').value) || null,
+        categorie:   document.getElementById('categorie').value || null,
+        description: document.getElementById('description').value.trim() || null,
+        lien:        document.getElementById('lien').value.trim() || null,
+      };
+
+      try {
+        const res = await fetch(API, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error('Erreur ' + res.status);
+        document.getElementById('form-section').style.display = 'none';
+        document.getElementById('success-section').style.display = 'block';
+      } catch (e) {
+        notice.className = 'notice error';
+        notice.textContent = 'Une erreur est survenue : ' + e.message;
+        btn.disabled = false;
+        btn.textContent = 'Envoyer la suggestion';
+      }
+    }
+  </script>
+</body>
+</html>

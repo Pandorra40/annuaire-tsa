@@ -1,24 +1,43 @@
-const SUPABASE_URL = "https://wrkswbubfiesiapahbas.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indya3N3YnViZmllc2lhcGFoYmFzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM1MjA2MjgsImV4cCI6MjA4OTA5NjYyOH0.MjXg5Ut-YnFHWKAtqE22w8q48oEXsr-hL0ZAASgasrE";
+// ============================================================
+// ANNUAIRE TSA — Configuration API
+// Plus de Supabase — les appels vont vers les fichiers PHP
+// ============================================================
 
-const supabaseHeaders = {
-  "Content-Type": "application/json",
-  "apikey": SUPABASE_ANON_KEY,
-  "Authorization": "Bearer " + SUPABASE_ANON_KEY,
-  "Prefer": "return=minimal"
-};
+const API_BASE = '/api';
 
-async function supabaseFetch(endpoint, options = {}) {
-  const res = await fetch(SUPABASE_URL + "/rest/v1/" + endpoint, {
-    headers: supabaseHeaders,
-    ...options
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error("Erreur Supabase : " + res.status + " — " + err);
-  }
-  if (res.status === 204) return {};
-  const text = await res.text();
-  if (!text) return {};
-  return JSON.parse(text);
+// Requête publique
+async function apiFetch(endpoint, options = {}) {
+    const res = await fetch(API_BASE + '/' + endpoint, {
+        headers: { 'Content-Type': 'application/json' },
+        ...options
+    });
+    if (!res.ok) {
+        const err = await res.text();
+        throw new Error('Erreur ' + res.status + ' : ' + err);
+    }
+    if (res.status === 204) return {};
+    return res.json();
+}
+
+// Requête admin (avec token)
+async function adminFetch(endpoint, options = {}) {
+    const token = sessionStorage.getItem('admin_token');
+    const res = await fetch(API_BASE + '/' + endpoint, {
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Admin-Token': token || ''
+        },
+        ...options
+    });
+    if (res.status === 401) {
+        sessionStorage.removeItem('admin_token');
+        window.location.href = '/admin/login.html';
+        return;
+    }
+    if (!res.ok) {
+        const err = await res.text();
+        throw new Error('Erreur ' + res.status + ' : ' + err);
+    }
+    if (res.status === 204) return {};
+    return res.json();
 }

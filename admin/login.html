@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Connexion — Annuaire TSA</title>
-  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="/css/style.css" />
   <style>
     .login-page { min-height: 80vh; display: flex; align-items: center; justify-content: center; }
     .login-card {
@@ -31,10 +31,6 @@
 
       <div id="form-wrap">
         <div class="field">
-          <label>Adresse email</label>
-          <input type="email" id="email" placeholder="admin@exemple.fr" autocomplete="email" />
-        </div>
-        <div class="field">
           <label>Mot de passe</label>
           <input type="password" id="mdp" placeholder="••••••••••" autocomplete="current-password" />
         </div>
@@ -48,52 +44,61 @@
       </div>
 
       <div style="text-align:center;margin-top:16px">
-        <a href="../index.html" class="footer-link" style="font-size:12px">← Retour à l'annuaire</a>
+        <a href="/index.html" class="footer-link" style="font-size:12px">← Retour à l'annuaire</a>
       </div>
     </div>
   </div>
 </div>
 
-<script src="../js/config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/js/config.js"></script>
 <script>
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let tentatives = 0;
   const MAX = 5;
 
   // Rediriger si déjà connecté
-  client.auth.getSession().then(({ data }) => {
-    if (data.session) window.location.href = "index.html";
-  });
+  if (sessionStorage.getItem('admin_token')) {
+    window.location.href = "/admin/index.html";
+  }
 
   async function connexion() {
     if (tentatives >= MAX) return;
 
-    const email = document.getElementById("email").value.trim();
     const mdp = document.getElementById("mdp").value;
     const erreur = document.getElementById("erreur");
 
-    if (!email || !mdp) {
-      erreur.textContent = "Merci de renseigner votre email et mot de passe.";
+    if (!mdp) {
+      erreur.textContent = "Merci de renseigner votre mot de passe.";
       erreur.style.display = "block";
       return;
     }
 
-    const { error } = await client.auth.signInWithPassword({ email, password: mdp });
+    try {
+      const res = await fetch('/api/auth.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: mdp })
+      });
 
-    if (error) {
-      tentatives++;
-      const restantes = MAX - tentatives;
-      erreur.textContent = "Email ou mot de passe incorrect.";
-      erreur.style.display = "block";
-
-      if (tentatives >= MAX) {
-        bloquer();
-      } else if (restantes <= 3) {
-        document.getElementById("tentatives").textContent = restantes + " tentative" + (restantes > 1 ? "s" : "") + " restante" + (restantes > 1 ? "s" : "") + " avant blocage.";
+      if (!res.ok) {
+        tentatives++;
+        const restantes = MAX - tentatives;
+        erreur.textContent = "Mot de passe incorrect.";
+        erreur.style.display = "block";
+        if (tentatives >= MAX) {
+          bloquer();
+        } else if (restantes <= 3) {
+          document.getElementById("tentatives").textContent = restantes + " tentative" + (restantes > 1 ? "s" : "") + " restante" + (restantes > 1 ? "s" : "") + " avant blocage.";
+        }
+        return;
       }
-    } else {
-      window.location.href = "index.html";
+
+      const data = await res.json();
+      sessionStorage.setItem('admin_token', data.token);
+      window.location.href = "/admin/index.html";
+
+    } catch (e) {
+      erreur.textContent = "Erreur de connexion : " + e.message;
+      erreur.style.display = "block";
     }
   }
 

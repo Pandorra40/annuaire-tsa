@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Modifier une fiche — Annuaire TSA</title>
-  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
 <div class="container">
@@ -40,10 +40,10 @@
             <option>Psychiatre</option>
             <option>Pédopsychiatre</option>
             <option>Psychologue</option>
-            <option>Médecin généraliste</option>
             <option>Neuropsychologue</option>
             <option>Orthophoniste</option>
-            <option>Autre</option>
+            <option>Ergothérapeute</option>
+            <option>Psychomotricien</option>
           </select>
         </div>
       </div>
@@ -149,50 +149,23 @@
 
 </div>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-<script src="../js/config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/js/config.js"></script>
 <script>
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   const params = new URLSearchParams(window.location.search);
   const praticienId = params.get("id");
-  let authToken = null;
 
-  async function adminFetch(endpoint, options = {}) {
-    if (!authToken) throw new Error("Non authentifié");
-    const res = await fetch(SUPABASE_URL + "/rest/v1/" + endpoint, {
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": SUPABASE_ANON_KEY,
-        "Authorization": "Bearer " + authToken,
-        "Prefer": "return=minimal"
-      },
-      ...options
-    });
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error("Erreur : " + res.status + " — " + err);
-    }
-    if (res.status === 204) return {};
-    const text = await res.text();
-    if (!text) return {};
-    return JSON.parse(text);
+  if (!sessionStorage.getItem("admin_token")) {
+    window.location.href = "login.html";
+  } else {
+    chargerFiche();
   }
-
-  client.auth.getSession().then(({ data }) => {
-    if (!data.session) {
-      window.location.href = "login.html";
-    } else {
-      authToken = data.session.access_token;
-      chargerFiche();
-    }
-  });
 
   async function chargerFiche() {
     if (!praticienId) { document.getElementById("chargement").textContent = "Aucun praticien spécifié."; return; }
     try {
-      const data = await adminFetch("praticiens?id=eq." + praticienId);
-      if (!data.length) { document.getElementById("chargement").textContent = "Fiche introuvable."; return; }
-      preremplir(data[0]);
+      const data = await adminFetch("admin_praticiens.php?id=" + praticienId);
+      if (!data || !data.id) { document.getElementById("chargement").textContent = "Fiche introuvable."; return; }
+      preremplir(data);
       document.getElementById("chargement").style.display = "none";
       document.getElementById("form-wrap").style.display = "block";
     } catch (e) {
@@ -313,10 +286,7 @@
     };
 
     try {
-      await adminFetch("praticiens?id=eq." + praticienId, {
-        method: "PATCH",
-        body: JSON.stringify(payload)
-      });
+      await adminFetch("admin_praticiens.php?id=" + praticienId, { method: "PATCH", body: JSON.stringify(payload) });
       document.getElementById("form-wrap").style.display = "none";
       document.getElementById("success").style.display = "block";
       window.scrollTo(0, 0);

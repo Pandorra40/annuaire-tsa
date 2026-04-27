@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>À propos — Annuaire TSA</title>
+  <meta name="description" content="Présentation de l'Annuaire TSA, projet collaboratif et gratuit de praticiens spécialisés dans les troubles du spectre autistique." />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    .faq { max-width: 620px; }
+    .faq-item { margin-bottom: 32px; }
+    .faq-q {
+      font-size: 16px; font-weight: 700; color: var(--texte);
+      margin-bottom: 10px; display: flex; align-items: flex-start; gap: 10px;
+    }
+    .faq-q::before {
+      content: "Q";
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 22px; height: 22px; border-radius: 6px;
+      background: var(--bleu-clair); color: var(--bleu-fonce);
+      font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+    }
+    .faq-a {
+      font-size: 15px; color: var(--texte-2); line-height: 1.8;
+      padding-left: 32px;
+    }
+    .faq-a a { color: var(--bleu); text-decoration: underline; text-underline-offset: 3px; }
+    .faq-a a:hover { color: var(--bleu-fonce); }
+    .faq-divider { height: 1px; background: var(--bordure); margin-bottom: 32px; }
+    .intro {
+      background: var(--fond); border-radius: var(--rayon-lg);
+      padding: 28px; margin-bottom: 40px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .intro-title { font-size: 18px; font-weight: 700; color: var(--texte); margin-bottom: 10px; }
+    .intro-text { font-size: 15px; color: var(--texte-2); line-height: 1.8; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <nav class="topbar">
+    <a href="index.html" class="topbar-title">
+      <img src="img/logo-tsa.svg" alt="" style="width:32px;height:25px" />
+      Annuaire TSA
+    </a>
+    <div class="topbar-right">
+      <a href="index.html" class="btn">← Retour à l'annuaire</a>
+    </div>
+  </nav>
+
+  <div class="page-header">
+    <div class="page-title">À propos</div>
+    <div class="page-sub">Tout ce que vous devez savoir sur le projet Annuaire TSA.</div>
+  </div>
+
+  <div class="intro">
+    <div class="intro-title">Un projet né d'un besoin réel</div>
+    <div class="intro-text">
+      Trouver un professionnel de santé spécialisé dans les troubles du spectre autistique (TSA) en France reste un parcours du combattant pour de nombreuses familles. Les délais d'attente sont longs, les praticiens difficiles à identifier, et les informations souvent éparpillées ou obsolètes.<br><br>
+      L'Annuaire TSA est né de ce constat : centraliser, vérifier et rendre accessibles les informations sur les praticiens spécialisés TSA, gratuitement, sans publicité, et avec l'aide de la communauté. C'est un projet <strong>construit par les familles, pour les familles</strong> — chaque suggestion compte.
+    </div>
+  </div>
+
+  <div class="faq">
+
+    <div class="faq-item">
+      <div class="faq-q">Qu'est-ce que l'Annuaire TSA ?</div>
+      <div class="faq-a">
+        L'Annuaire TSA est un annuaire collaboratif et gratuit recensant les psychiatres, pédopsychiatres, psychologues, neuropsychologues, orthophonistes, ergothérapeutes et psychomotriciens spécialisés dans les troubles du spectre autistique en France.<br><br>
+        Chaque fiche est vérifiée manuellement avant publication. Les informations sont enrichies et confirmées par la communauté des familles et des praticiens eux-mêmes.
+      </div>
+    </div>
+    <div class="faq-divider"></div>
+
+    <div class="faq-item">
+      <div class="faq-q">Qui est derrière ce projet ?</div>
+      <div class="faq-a">
+        Ce projet est une initiative bénévole et personnelle, sans association formelle, sans financement commercial et sans publicité. Il est développé et maintenu par <strong>Pandorra40</strong>, à titre entièrement bénévole.<br><br>
+        Le code source est publié sous licence libre (AGPL-3.0) et disponible sur <a href="https://github.com/Pandorra40/annuaire-tsa" target="_blank">GitHub</a>, afin que d'autres puissent s'en inspirer ou le réutiliser librement.
+      </div>
+    </div>
+    <div class="faq-divider"></div>
+
+    <div class="faq-item">
+      <div class="faq-q">Comment les fiches sont-elles vérifiées ?</div>
+      <div class="faq-a">
+        Toute suggestion soumise par la communauté est examinée manuellement avant publication. L'administrateur vérifie l'existence du praticien via le répertoire RPPS officiel et complète les informations manquantes si nécessaire.<br><br>
+        Une fois publiée, la communauté peut confirmer l'exactitude d'une fiche ou signaler une erreur via le lien présent sur chaque fiche. Un système d'alerte interne signale les fiches ayant reçu plusieurs signalements afin qu'elles soient vérifiées en priorité.<br><br>
+        En cas de doute, pensez toujours à contacter directement le praticien avant de vous déplacer.
+      </div>
+    </div>
+    <div class="faq-divider"></div>
+
+    <div class="faq-item">
+      <div class="faq-q">Puis-je faire confiance aux informations ?</div>
+      <div class="faq-a">
+        Les informations sont fournies à titre indicatif et peuvent évoluer — un praticien peut changer d'adresse, fermer son cabinet ou ne plus accepter de nouveaux patients. Nous faisons de notre mieux pour maintenir l'annuaire à jour grâce à la communauté.<br><br>
+        Chaque fiche affiche le nombre de confirmations reçues de la part des visiteurs. Un système d'alerte interne signale automatiquement les fiches ayant reçu plusieurs signalements, afin qu'elles soient vérifiées en priorité.<br><br>
+        En cas de doute, pensez toujours à contacter directement le praticien avant de vous déplacer.
+      </div>
+    </div>
+    <div class="faq-divider"></div>
+
+    <div class="faq-item">
+      <div class="faq-q">Je connais un praticien qui n'est pas référencé, que faire ?</div>
+      <div class="faq-a">
+        Utilisez le formulaire <a href="suggerer.html">Suggérer un praticien</a>. Indiquez les informations dont vous disposez — nom, ville, spécialité suffisent pour commencer. Le téléphone, le site web et le numéro ADELI sont optionnels mais utiles si vous les avez.<br><br>
+        La fiche sera vérifiée, complétée si nécessaire et publiée dès validation. C'est la contribution la plus directe que vous puissiez apporter à la communauté.
+      </div>
+    </div>
+    <div class="faq-divider"></div>
+
+    <div class="faq-item">
+      <div class="faq-q">Comment signaler une erreur sur une fiche ?</div>
+      <div class="faq-a">
+        Chaque fiche détaillée comporte un lien "Signaler une erreur" en bas de page. Vous pouvez indiquer le motif et les détails de l'erreur constatée. Le signalement est transmis directement à l'administrateur pour vérification.
+      </div>
+    </div>
+    <div class="faq-divider"></div>
+
+    <div class="faq-item">
+      <div class="faq-q">Le projet est-il vraiment gratuit et sans publicité ?</div>
+      <div class="faq-a">
+        Oui, totalement. L'Annuaire TSA ne diffuse aucune publicité, ne vend aucune donnée, et ne propose aucun abonnement payant. L'accès est libre et gratuit pour tous, sans inscription requise.<br><br>
+        Les coûts d'hébergement sont pris en charge bénévolement par le créateur du projet. Ce projet vit grâce aux contributions de la communauté — chaque suggestion de praticien, chaque confirmation de fiche, chaque signalement d'erreur aide à maintenir l'annuaire à jour.
+      </div>
+    </div>
+    <div class="faq-divider"></div>
+
+    <div class="faq-item">
+      <div class="faq-q">Puis-je réutiliser ou adapter ce projet ?</div>
+      <div class="faq-a">
+        Oui. Le code source est publié sous licence <strong>AGPL-3.0</strong> sur <a href="https://github.com/Pandorra40/annuaire-tsa" target="_blank">GitHub</a>. Vous pouvez librement le télécharger, le modifier et l'adapter — par exemple pour créer un annuaire TSA régional ou dans un autre pays — à condition de publier vos modifications sous la même licence.
+      </div>
+    </div>
+
+  </div>
+
+  <footer class="footer">
+    <div class="footer-note">Projet open source · Données hébergées en France · RGPD</div>
+    <div class="footer-links">
+      <a href="mentions.html" class="footer-link">Mentions légales</a>
+      <a href="https://github.com/Pandorra40/annuaire-tsa" target="_blank" class="footer-link">GitHub</a>
+      <a href="contact.html" class="footer-link">Contact</a>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

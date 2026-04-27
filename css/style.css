@@ -2,8 +2,7 @@
    NOUVEAU DESIGN - ANNUAIRE TSA (Modernisé - Version Claire)
    ========================================================================== */
 
-/* 1. Import de la typographie (Inter) */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+/* 1. Typographie système — pas de dépendance externe */
 
 *, *::before, *::after { 
   box-sizing: border-box; 
@@ -41,11 +40,11 @@
   --rayon:       8px;
   --rayon-lg:    12px;
   --rayon-xl:    16px;
-  --max:         800px; /* Élargi pour respirer un peu plus sur PC */
+  --max:         1200px; /* Élargi pour respirer un peu plus sur PC */
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   font-size: 15px; /* Légèrement ajusté pour la police Inter */
   line-height: 1.6;
   color: var(--texte);
@@ -149,12 +148,13 @@ body {
   color: var(--texte); 
   margin-bottom: 10px; 
   letter-spacing: -0.03em; 
+  max-width: 800px;
 }
 .hero-sub { 
   font-size: 15px; 
   color: var(--texte-2); 
   line-height: 1.6; 
-  max-width: 580px; 
+  max-width: 800px; 
 }
 
 /* ---- STATS ---- */

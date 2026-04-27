@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Livres TSA — Recommandations</title>
+  <link rel="stylesheet" href="styles.css">
+  <meta name="description" content="Sélection collaborative et gratuite de livres sur le trouble du spectre autistique — grands classiques et dernières parutions.">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <circle cx="10" cy="16" r="7" fill="#ef4444"/>
+          <circle cx="22" cy="16" r="7" fill="#3b82f6"/>
+          <ellipse cx="16" cy="16" rx="4" ry="7" fill="#a855f7" opacity=".75"/>
+        </svg>
+        <span class="navbar-title">Livres TSA</span>
+      </div>
+      <nav class="navbar-links">
+        <a href="https://www.annuaire-tsa.fr/" class="nav-link">Annuaire TSA</a>
+        <a href="suggerer.html" class="btn-primary">Suggérer un livre</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <h1 class="hero-title">Trouvez le bon livre sur le TSA</h1>
+      <p class="hero-sub">Sélection collaborative et gratuite de livres sur le trouble du spectre autistique — grands classiques et dernières parutions en temps réel.</p>
+
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+          <circle cx="8.5" cy="8.5" r="5.5"/><path d="M14 14l3 3"/>
+        </svg>
+        <input id="search" type="search" placeholder="Titre, auteur ou mot-clé…" aria-label="Recherche">
+      </div>
+
+      <div class="hero-badges">
+        <span class="badge-pill">✓ Gratuit</span>
+        <span class="badge-pill">✓ Sans publicité</span>
+        <span class="badge-pill">✓ Sans inscription</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTRES -->
+  <div class="filters-bar">
+    <div class="container filters-inner">
+      <div class="filter-group" id="catFilters">
+        <button class="filter-btn active" data-cat="">Tous</button>
+        <button class="filter-btn" data-cat="témoignage">Témoignage</button>
+        <button class="filter-btn" data-cat="guide pratique">Guide pratique</button>
+        <button class="filter-btn" data-cat="scientifique">Scientifique</button>
+        <button class="filter-btn" data-cat="jeunesse">Jeunesse</button>
+        <button class="filter-btn" data-cat="roman">Roman</button>
+      </div>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- SECTION GRANDS CLASSIQUES -->
+    <section class="section-block">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title"><span class="section-icon">⭐</span> Grands classiques</h2>
+            <p class="section-sub">Les incontournables recommandés par la communauté</p>
+          </div>
+        </div>
+        <div id="classics" class="books-grid classics-grid" aria-live="polite">
+          <div class="spinner-wrap"><div class="spinner"></div><p>Chargement…</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECTION NOUVEAUTÉS -->
+    <section class="section-block section-block--alt">
+      <div class="container">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title"><span class="section-icon">🆕</span> Dernières parutions</h2>
+            <p class="section-sub">Mises à jour automatiquement depuis Open Library</p>
+          </div>
+          <span class="live-badge">En direct</span>
+        </div>
+        <div id="newReleases" class="books-grid" aria-live="polite">
+          <div class="spinner-wrap"><div class="spinner"></div><p>Chargement des nouveautés…</p></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-left">
+      Projet open source · Données hébergées en France · RGPD<br>
+      Fait avec ♥ pour les familles concernées par les TSA
+    </div>
+    <nav class="footer-links">
+      <a href="https://www.annuaire-tsa.fr/mentions.html">Mentions légales</a>
+      <a href="https://www.annuaire-tsa.fr/contact.html">Contact</a>
+    </nav>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

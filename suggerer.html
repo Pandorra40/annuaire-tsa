@@ -10,10 +10,10 @@
 <div class="container">
 
   <nav class="topbar">
-  <a href="index.html" class="topbar-title">
-     <img src="img/logo-tsa.svg" alt="" style="width:32px;height:25px" />
-  Annuaire TSA
-  </a>
+    <a href="index.html" class="topbar-title">
+      <img src="img/logo-tsa.svg" alt="" style="width:32px;height:25px" />
+      Annuaire TSA
+    </a>
     <div class="topbar-right">
       <a href="index.html" class="btn">← Retour à l'annuaire</a>
     </div>
@@ -21,7 +21,7 @@
 
   <div class="page-header">
     <div class="page-title">Suggérer un praticien</div>
-    <div class="page-sub">Vous connaissez un praticien spécialisé TSA qui n'apparaît pas dans l'annuaire ? Signalez-le ici. La fiche sera vérifiée avant publication.</div>
+    <div class="page-sub">Vous connaissez un praticien spécialisé TSA qui n'apparaît pas dans l'annuaire ? Signalez-le ici — nom, ville et spécialité suffisent. La fiche sera vérifiée et complétée avant publication.</div>
   </div>
 
   <div id="form-wrap">
@@ -41,10 +41,10 @@
             <option>Psychiatre</option>
             <option>Pédopsychiatre</option>
             <option>Psychologue</option>
-            <option>Médecin généraliste</option>
             <option>Neuropsychologue</option>
             <option>Orthophoniste</option>
-            <option>Autre</option>
+            <option>Ergothérapeute</option>
+            <option>Psychomotricien</option>
           </select>
         </div>
       </div>
@@ -55,6 +55,10 @@
           <label class="check-pill"><input type="checkbox" value="Adolescent" /><span>Adolescent</span></label>
           <label class="check-pill"><input type="checkbox" value="Adulte" /><span>Adulte</span></label>
         </div>
+      </div>
+      <div class="field">
+        <label>Numéro ADELI ou RPPS <span class="field-note">(optionnel — si vous le connaissez)</span></label>
+        <input type="text" id="adeli" placeholder="Ex. 123456789" />
       </div>
     </div>
 
@@ -94,6 +98,17 @@
       </div>
     </div>
 
+    <div class="form-section">
+      <div class="field">
+        <label>Consentement RGPD *</label>
+        <label class="check-pill">
+          <input type="checkbox" id="consentementRGPD" /> J'accepte que les informations soient utilisées pour l'annuaire
+        </label>
+      </div>
+    </div>
+
+    <div style="display:none"><input type="text" id="hp_email" /></div>
+
     <div class="form-actions">
       <a href="index.html" class="btn">Annuler</a>
       <button class="btn btn-primary" onclick="soumettre()">Envoyer la suggestion</button>
@@ -131,16 +146,18 @@
   });
 
   async function soumettre() {
+    const notice = document.getElementById("notice");
     const nom = document.getElementById("nom").value.trim();
     const type = document.getElementById("type").value;
     const ville = document.getElementById("ville").value.trim();
     const cp = document.getElementById("codepostal").value.trim();
     const ages = [...document.querySelectorAll("#ages input:checked")].map(i => i.value);
-    const notice = document.getElementById("notice");
+    const consent = document.getElementById("consentementRGPD").checked;
+    if (document.getElementById("hp_email").value.trim()) return;
 
-    if (!nom || !type || !ville || !cp || !ages.length) {
+    if (!nom || !type || !ville || !cp || !ages.length || !consent) {
       notice.classList.add("notice-error");
-      notice.textContent = "Merci de renseigner au minimum : nom, type, ville, code postal et public reçu.";
+      notice.textContent = "Merci de remplir tous les champs obligatoires et cocher le consentement RGPD.";
       return;
     }
 
@@ -150,16 +167,14 @@
       telephone: document.getElementById("telephone").value.trim() || null,
       site_web: document.getElementById("siteWeb").value.trim() || null,
       notes: document.getElementById("notes").value.trim() || null,
+      adeli: document.getElementById("adeli").value.trim() || null,
       ages,
       statut: "en_attente",
       source: "communaute"
     };
 
     try {
-      await supabaseFetch("suggestions", {
-        method: "POST",
-        body: JSON.stringify(payload)
-      });
+      await apiFetch("suggestions.php", { method: "POST", body: JSON.stringify(payload) });
       window.location.href = "merci.html";
     } catch (e) {
       notice.classList.add("notice-error");

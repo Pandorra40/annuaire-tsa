@@ -4,9 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Administration — Annuaire TSA</title>
-  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="stylesheet" href="/css/style.css" />
   <style>
-    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
     .stat-card { background: var(--fond-2); border-radius: var(--rayon); padding: 12px 14px; }
     .stat-val { font-size: 22px; font-weight: 500; }
     .stat-label { font-size: 12px; color: var(--texte-3); margin-top: 2px; }
@@ -15,7 +15,7 @@
     .tab.on { color: var(--texte); font-weight: 500; border-bottom-color: var(--texte); }
     .panel { display: none; }
     .panel.on { display: block; }
-    .badge { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; font-size: 11px; font-weight: 500; background: var(--rouge-bg); color: var(--rouge-txt); margin-left: 5px; vertical-align: middle; }
+    .badge { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; border-radius: 99px; padding: 0 5px; font-size: 11px; font-weight: 500; background: var(--rouge-bg); color: var(--rouge-txt); margin-left: 5px; vertical-align: middle; }
     .card-actions { display: flex; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 0.5px solid var(--bordure); flex-wrap: wrap; }
     .btn-valider { border-color: #9FE1CB; color: var(--vert-txt); }
     .btn-valider:hover { background: var(--vert-bg); }
@@ -27,6 +27,9 @@
     .search-admin input { width: 100%; padding: 8px 12px; border: 0.5px solid #ccc; border-radius: var(--rayon); font-size: 13px; font-family: inherit; background: var(--fond); color: var(--texte); outline: none; }
     .search-admin input:focus { border-color: var(--bleu); }
     .source-badge { font-size: 11px; padding: 2px 8px; border-radius: 4px; background: var(--fond-2); color: var(--texte-3); }
+    .alert-bar { background: var(--rouge-bg); border: 0.5px solid #f09595; border-radius: var(--rayon); padding: 10px 14px; margin-top: 8px; font-size: 13px; color: var(--rouge-txt); }
+    .confirm-bar { background: var(--vert-bg); border: 0.5px solid #9FE1CB; border-radius: var(--rayon); padding: 8px 14px; margin-top: 8px; font-size: 12px; color: var(--vert-txt); }
+    .seuil-note { font-size: 11px; color: var(--texte-3); margin-top: 6px; }
   </style>
 </head>
 <body>
@@ -35,7 +38,7 @@
   <nav class="topbar">
     <div class="topbar-title">Administration — Annuaire TSA</div>
     <div class="topbar-right">
-      <a href="../index.html" class="btn">Voir le site</a>
+      <a href="/index.html" class="btn">Voir le site</a>
       <button class="btn btn-admin" onclick="deconnexion()">Déconnexion</button>
     </div>
   </nav>
@@ -44,12 +47,14 @@
     <div class="stat-card"><div class="stat-val" id="s-publies">—</div><div class="stat-label">Praticiens publiés</div></div>
     <div class="stat-card"><div class="stat-val" id="s-attente">—</div><div class="stat-label">En attente</div></div>
     <div class="stat-card"><div class="stat-val" id="s-signalements">—</div><div class="stat-label">Signalements</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-alertes">—</div><div class="stat-label">Alertes fiches</div></div>
   </div>
 
   <div class="tabs">
     <button class="tab on" onclick="showTab('attente', this)">En attente <span class="badge" id="b-attente">0</span></button>
     <button class="tab" onclick="showTab('publies', this)">Publiés</button>
     <button class="tab" onclick="showTab('signalements', this)">Signalements <span class="badge" id="b-signalements">0</span></button>
+    <button class="tab" onclick="showTab('alertes', this)">Alertes <span class="badge" id="b-alertes">0</span></button>
   </div>
 
   <div id="tab-attente" class="panel on"><div id="liste-attente"></div></div>
@@ -58,71 +63,60 @@
     <div id="liste-publies"></div>
   </div>
   <div id="tab-signalements" class="panel"><div id="liste-signalements"></div></div>
+  <div id="tab-alertes" class="panel"><div id="liste-alertes"></div></div>
 
 </div>
 
-<script src="../js/config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/js/config.js"></script>
 <script>
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const SEUIL_ALERTES = 3;
   let publies = [], attente = [], signalements = [];
-  let authToken = null;
 
-  // Requête avec token authentifié
-  async function adminFetch(endpoint, options = {}) {
-    if (!authToken) throw new Error("Non authentifié");
-    const res = await fetch(SUPABASE_URL + "/rest/v1/" + endpoint, {
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": SUPABASE_ANON_KEY,
-        "Authorization": "Bearer " + authToken,
-        "Prefer": "return=minimal"
-      },
-      ...options
-    });
-    if (!res.ok) {
-      const err = await res.text();
-      throw new Error("Erreur : " + res.status + " — " + err);
-    }
-    if (res.status === 204) return {};
-    const text = await res.text();
-    if (!text) return {};
-    return JSON.parse(text);
+  if (!sessionStorage.getItem('admin_token')) {
+    window.location.href = "login.html";
+  } else {
+    charger();
   }
-
-  // Vérification session
-  client.auth.getSession().then(({ data }) => {
-    if (!data.session) {
-      window.location.href = "login.html";
-    } else {
-      authToken = data.session.access_token;
-      charger();
-    }
-  });
 
   async function charger() {
     try {
       const [p, a, s] = await Promise.all([
-        adminFetch("praticiens?statut=eq.publie&order=nom.asc"),
-        adminFetch("suggestions?statut=eq.en_attente&order=created_at.asc"),
-        adminFetch("signalements?statut=eq.ouvert&order=created_at.desc")
+        adminFetch("admin_praticiens.php"),
+        adminFetch("suggestions.php?statut=en_attente"),
+        adminFetch("signalements.php?statut=ouvert")
       ]);
       publies = p; attente = a; signalements = s;
       majStats();
       afficherAttente();
       afficherPublies("");
       afficherSignalements();
-    } catch (e) {
-      console.error(e);
-    }
+      afficherAlertes();
+      // Restaurer l'onglet actif
+      const tabActif = sessionStorage.getItem("admin_tab");
+      if (tabActif) {
+        const tabEl = document.querySelector(`.tab[onclick*="'${tabActif}'"]`);
+        if (tabEl) showTab(tabActif, tabEl);
+      }
+    } catch (e) { console.error(e); }
+  }
+
+  function nbSignalements(praticienId) {
+    return signalements.filter(s => s.praticien_id === praticienId).length;
+  }
+
+  function fichesEnAlertes() {
+    return publies.filter(p => nbSignalements(p.id) >= SEUIL_ALERTES);
   }
 
   function majStats() {
     document.getElementById("s-publies").textContent = publies.length;
     document.getElementById("s-attente").textContent = attente.length;
     document.getElementById("s-signalements").textContent = signalements.length;
+    const alertes = fichesEnAlertes();
+    document.getElementById("s-alertes").textContent = alertes.length;
     document.getElementById("b-attente").textContent = attente.length;
     document.getElementById("b-signalements").textContent = signalements.length;
+    document.getElementById("b-alertes").textContent = alertes.length;
   }
 
   function showTab(id, el) {
@@ -130,6 +124,7 @@
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("on"));
     document.getElementById("tab-" + id).classList.add("on");
     el.classList.add("on");
+    sessionStorage.setItem("admin_tab", id);
   }
 
   function tagsHtml(d) {
@@ -143,7 +138,7 @@
     const el = document.getElementById("liste-attente");
     if (!attente.length) { el.innerHTML = '<p class="empty">Aucune fiche en attente.</p>'; return; }
     el.innerHTML = attente.map(d => `
-      <div class="card" id="a${d.id}">
+      <div class="card">
         <div class="card-header">
           <div>
             <div class="card-name">${d.nom}</div>
@@ -151,6 +146,7 @@
           </div>
           <span class="source-badge">${d.source === "praticien" ? "Auto-déclaré" : "Communauté"}</span>
         </div>
+        ${d.adeli ? `<div style="font-size:12px;color:var(--texte-3);margin-top:6px">ADELI/RPPS : ${d.adeli}</div>` : ""}
         <div class="tags" style="margin-top:8px">${tagsHtml(d)}</div>
         ${d.notes ? `<div style="font-size:12px;color:var(--texte-3);margin-top:8px;padding:8px;background:var(--fond-2);border-radius:var(--rayon)">${d.notes}</div>` : ""}
         ${d.telephone ? `<div style="font-size:13px;color:var(--bleu-fonce);margin-top:8px">☎ ${d.telephone}</div>` : ""}
@@ -166,7 +162,10 @@
     const el = document.getElementById("liste-publies");
     const filtered = q ? publies.filter(d => d.nom.toLowerCase().includes(q.toLowerCase()) || d.ville.toLowerCase().includes(q.toLowerCase())) : publies;
     if (!filtered.length) { el.innerHTML = '<p class="empty">Aucun résultat.</p>'; return; }
-    el.innerHTML = filtered.map(d => `
+    el.innerHTML = filtered.map(d => {
+      const nbSig = nbSignalements(d.id);
+      const nbConf = d.confirmations || 0;
+      return `
       <div class="card">
         <div class="card-header">
           <div>
@@ -175,12 +174,16 @@
           </div>
         </div>
         <div class="tags" style="margin-top:8px">${tagsHtml(d)}</div>
+        <div style="font-size:12px;color:var(--texte-3);margin-top:8px;display:flex;gap:14px">
+          <span>✓ ${nbConf} confirmation${nbConf > 1 ? "s" : ""}</span>
+          ${nbSig > 0 ? `<span style="color:var(--rouge-txt)">⚠ ${nbSig} signalement${nbSig > 1 ? "s" : ""}</span>` : ""}
+        </div>
         <div class="card-actions">
           <a href="modifier.html?id=${d.id}" class="btn btn-modifier">Modifier</a>
-          <button class="btn btn-refuser" onclick="retirer(${d.id})">Retirer</button>
+          <button class="btn btn-refuser" onclick="supprimer(${d.id})">Supprimer</button>
         </div>
-      </div>
-    `).join("");
+      </div>`;
+    }).join("");
   }
 
   function afficherSignalements() {
@@ -197,58 +200,128 @@
         ${s.detail ? `<div style="font-size:12px;color:var(--texte-3);margin-top:8px;padding:8px;background:var(--fond-2);border-radius:var(--rayon)">${s.detail}</div>` : ""}
         <div class="card-actions">
           <a href="modifier.html?id=${s.praticien_id}" class="btn btn-modifier">Modifier la fiche</a>
-          <button class="btn btn-refuser" onclick="retirerSignalement(${s.id}, ${s.praticien_id})">Retirer</button>
+          <button class="btn btn-refuser" onclick="supprimerAvecSignalement(${s.id}, ${s.praticien_id})">Supprimer le praticien</button>
           <button class="btn" onclick="ignorerSignalement(${s.id})">Ignorer</button>
         </div>
       </div>
     `).join("");
   }
 
+  function afficherAlertes() {
+    const el = document.getElementById("liste-alertes");
+    const alertes = fichesEnAlertes();
+    if (!alertes.length) { el.innerHTML = '<p class="empty">Aucune fiche en alerte.</p>'; return; }
+    el.innerHTML = alertes.map(d => {
+      const nbSig = nbSignalements(d.id);
+      const nbConf = d.confirmations || 0;
+      return `
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-name">${d.nom}</div>
+            <div class="card-meta">${d.type} · ${d.ville} (${d.departement})</div>
+          </div>
+        </div>
+        <div class="alert-bar">⚠ ${nbSig} signalement${nbSig > 1 ? "s" : ""} reçu${nbSig > 1 ? "s" : ""} · vérification recommandée</div>
+        ${nbConf > 0 ? `<div class="confirm-bar">✓ ${nbConf} confirmation${nbConf > 1 ? "s" : ""} communautaire${nbConf > 1 ? "s" : ""}</div>` : ""}
+        <div class="seuil-note">Seuil d'alerte : ${SEUIL_ALERTES} signalements</div>
+        <div class="card-actions">
+          <a href="modifier.html?id=${d.id}" class="btn btn-modifier">Modifier la fiche</a>
+          <button class="btn btn-refuser" onclick="supprimer(${d.id})">Supprimer</button>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
   function filtrerPublies(q) { afficherPublies(q); }
 
+  let enCours = false;
+
+  function recharger(tab) {
+    if (tab) sessionStorage.setItem('admin_tab', tab);
+    window.location.reload();
+  }
+
   async function valider(id) {
-    const s = attente.find(d => d.id === id);
-    if (!s) return;
+    if (enCours) return;
+    enCours = true;
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = "En cours…";
     try {
-      const { id: _, created_at, statut, source, ...data } = s;
-      await adminFetch("praticiens", { method: "POST", body: JSON.stringify({ ...data, statut: "publie" }) });
-      await adminFetch("suggestions?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "valide" }) });
-      await charger();
-    } catch (e) { alert("Erreur lors de la validation : " + e.message); }
+      const res = await adminFetch("suggestions.php?id=" + id, { method: "PATCH", body: JSON.stringify({ statut: "valide" }) });
+      recharger('attente');
+    } catch (e) {
+      alert("Erreur lors de la validation : " + e.message);
+      btn.disabled = false;
+      btn.textContent = "Valider";
+      enCours = false;
+    }
   }
 
   async function refuser(id) {
+    if (enCours) return;
+    enCours = true;
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = "En cours…";
     try {
-      await adminFetch("suggestions?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "refuse" }) });
-      await charger();
-    } catch (e) { alert("Erreur lors du refus."); }
+      await adminFetch("suggestions.php?id=" + id, { method: "PATCH", body: JSON.stringify({ statut: "refuse" }) });
+      recharger('attente');
+    } catch (e) {
+      alert("Erreur lors du refus : " + e.message);
+      btn.disabled = false;
+      btn.textContent = "Refuser";
+      enCours = false;
+    }
   }
 
-  async function retirer(id) {
-    if (!confirm("Retirer ce praticien de l'annuaire ?")) return;
+  async function supprimer(id) {
+    if (enCours) return;
+    if (!confirm("Supprimer définitivement ce praticien ? Cette action est irréversible.")) return;
+    enCours = true;
+    const btn = event.target;
+    btn.disabled = true;
+    btn.textContent = "Suppression…";
     try {
-      await adminFetch("praticiens?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "retire" }) });
-      await charger();
-    } catch (e) { alert("Erreur lors du retrait."); }
+      await adminFetch("admin_praticiens.php?id=" + id, { method: "DELETE" });
+      recharger('publies');
+    } catch (e) {
+      alert("Erreur lors de la suppression : " + e.message);
+      btn.disabled = false;
+      btn.textContent = "Supprimer";
+      enCours = false;
+    }
   }
 
   async function ignorerSignalement(id) {
+    if (enCours) return;
+    enCours = true;
     try {
-      await adminFetch("signalements?id=eq." + id, { method: "PATCH", body: JSON.stringify({ statut: "ignore" }) });
-      await charger();
-    } catch (e) { alert("Erreur."); }
+      await adminFetch("signalements.php?id=" + id, { method: "PATCH", body: JSON.stringify({ statut: "ignore" }) });
+      recharger('signalements');
+    } catch (e) {
+      alert("Erreur : " + e.message);
+      enCours = false;
+    }
   }
 
-  async function retirerSignalement(sigId, praticienId) {
-    if (!confirm("Retirer le praticien et clôturer le signalement ?")) return;
+  async function supprimerAvecSignalement(sigId, praticienId) {
+    if (enCours) return;
+    if (!confirm("Supprimer définitivement ce praticien ? Cette action est irréversible.")) return;
+    enCours = true;
     try {
-      await retirer(praticienId);
-      await ignorerSignalement(sigId);
-    } catch (e) { alert("Erreur."); }
+      await adminFetch("admin_praticiens.php?id=" + praticienId, { method: "DELETE" });
+      recharger('signalements');
+    } catch (e) {
+      alert("Erreur : " + e.message);
+      enCours = false;
+    }
   }
 
   async function deconnexion() {
-    await client.auth.signOut();
+    try { await adminFetch("auth.php", { method: "DELETE" }); } catch(e) {}
+    sessionStorage.removeItem("admin_token");
     window.location.href = "login.html";
   }
 </script>
