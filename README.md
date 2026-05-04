@@ -1,4 +1,4 @@
-# Annuaire TSA — V3
+# Annuaire TSA — V4
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -13,10 +13,9 @@ Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, 
 - Suggestion de praticiens par la communauté
 
 ### 2. Livres TSA (`/livres/`)
-Sélection collaborative de livres sur le TSA, ajouté en V3.
+Sélection collaborative de livres sur le TSA.
 
 - **Grands classiques** — sélection éditoriale stockée en base de données
-- **Recommandations de la communauté** — livres suggérés et validés par les utilisateurs
 - **Dernières parutions** — mises à jour automatiquement via Open Library (sans clé API)
 - Formulaire de suggestion de livres sans inscription
 
@@ -24,57 +23,52 @@ Sélection collaborative de livres sur le TSA, ajouté en V3.
 
 | Composant | Technologie |
 |---|---|
-| Frontend | HTML / CSS / JavaScript vanilla |
+| Frontend | Nuxt 4 + Vue 3 + Nuxt UI + Tailwind CSS |
 | Backend | PHP 8.4 |
 | Base de données | MySQL |
 | Hébergement | LWS (serveur mutualisé) |
 | API externe | Open Library (nouveautés livres) |
+| Typage | TypeScript |
 
 ## Structure des fichiers
 
 ```
-annuaire-tsa/
-├── index.html              # Page principale annuaire
-├── suggerer.html           # Formulaire suggestion praticien
-├── fiche.html              # Fiche détaillée praticien
-├── signaler.html           # Signaler une erreur
-├── apropos.html
-├── contact.html
-├── mentions.html
-├── merci.html
-│
-├── css/
-│   └── style.css
-├── js/
-│   └── config.js           # Configuration API
-├── img/
-│   ├── logo-tsa.svg
-│   └── icon-192.png
-│
-├── api/
-│   ├── config.php           # Connexion BDD + fonctions communes
-│   ├── auth.php             # Authentification admin
-│   ├── praticiens.php       # CRUD praticiens (public + admin)
-│   ├── admin_praticiens.php # Gestion admin praticiens
-│   ├── suggestions.php      # Suggestions de praticiens
-│   ├── signalements.php     # Signalements
-│   ├── livres.php           # CRUD livres
-│   ├── suggestions_livres.php # Suggestions de livres
-│   └── openlibrary_proxy.php  # Proxy PHP vers Open Library
-│
-├── admin/
-│   ├── login.html           # Connexion admin
-│   ├── index.html           # Admin annuaire (praticiens)
-│   ├── modifier.html        # Modifier une fiche praticien
-│   └── livres.html          # Admin livres TSA
-│
-├── livres/                  # Site Livres TSA
-│   ├── index.html
-│   ├── suggerer.html
-│   ├── script.js
-│   └── styles.css
-│
-└── livres_tables.sql        # SQL à exécuter sur LWS pour les tables livres
+annuaire-tsa-nuxt/
+├── app/
+│   ├── app.vue                  # Layout global (navbar + footer)
+│   ├── app.config.ts            # Configuration Nuxt UI
+│   ├── assets/css/main.css      # Styles globaux
+│   ├── composables/
+│   │   └── useApi.ts            # Appels API centralisés
+│   ├── types/
+│   │   └── index.ts             # Types TypeScript
+│   └── pages/
+│       ├── index.vue            # Page d'accueil annuaire
+│       ├── praticien/[id].vue   # Fiche détaillée praticien
+│       ├── suggerer.vue         # Formulaire suggestion praticien
+│       ├── signaler.vue         # Signaler une erreur
+│       ├── livres/
+│       │   ├── index.vue        # Page livres TSA
+│       │   └── suggerer.vue     # Formulaire suggestion livre
+│       ├── apropos.vue
+│       ├── contact.vue
+│       ├── mentions.vue
+│       └── admin/
+│           ├── login.vue        # Connexion admin
+│           ├── index.vue        # Dashboard admin praticiens
+│           ├── modifier.vue     # Modifier une fiche praticien
+│           └── livres.vue       # Admin livres TSA
+
+api/                             # API PHP (à déployer sur LWS)
+├── config.php                   # Connexion BDD + fonctions communes
+├── auth.php                     # Authentification admin
+├── praticiens.php               # CRUD praticiens (public)
+├── admin_praticiens.php         # Gestion admin praticiens
+├── suggestions.php              # Suggestions de praticiens
+├── signalements.php             # Signalements
+├── livres.php                   # CRUD livres
+├── suggestions_livres.php       # Suggestions de livres
+└── openlibrary_proxy.php        # Proxy PHP vers Open Library
 ```
 
 ## Base de données
@@ -85,31 +79,66 @@ annuaire-tsa/
 - `signalements` — signalements d'erreurs sur les fiches
 - `admin_sessions` — sessions administrateur
 
-### Tables livres (V3)
+### Tables livres
 - `livres` — livres publiés (classiques + suggestions validées)
 - `suggestions_livres` — suggestions de livres en attente de validation
 
-Le fichier `livres_tables.sql` contient le SQL de création des tables livres ainsi que les données initiales des grands classiques.
+## Développement local
 
-## Installation sur LWS
+```bash
+npm install
+npm run dev
+```
 
-1. Uploader tous les fichiers via FTP à la racine `htdocs/`
-2. Exécuter `livres_tables.sql` dans phpMyAdmin
+Le site sera accessible sur `http://localhost:3000`.
+
+> **Note** : Les appels API vers `annuaire-tsa.fr` seront bloqués par CORS en local. Le site s'affiche correctement mais sans données. Les données seront visibles une fois déployé sur LWS.
+
+## Déploiement sur LWS
+
+1. Générer les fichiers statiques :
+```bash
+npm run generate
+```
+
+2. Uploader via FTP à la racine `htdocs/` :
+   - Le contenu du dossier `.output/public/`
+   - Le dossier `api/`
+   - Le fichier `.htaccess`
+   - Le fichier `sitemap.xml`
+
 3. Renseigner les identifiants BDD dans `api/config.php`
-4. Générer un hash bcrypt pour le mot de passe admin dans `api/config.php`
+
+4. Générer un hash bcrypt pour le mot de passe admin :
+```bash
+php -r "echo password_hash('votre_mdp', PASSWORD_BCRYPT);"
+```
+
+5. Coller le hash dans `api/config.php` (`ADMIN_HASH`)
 
 ## Accès admin
 
-- **Admin annuaire** : `https://www.annuaire-tsa.fr/admin/`
-- **Admin livres** : `https://www.annuaire-tsa.fr/admin/livres.html`
+- **Admin annuaire** : `https://www.annuaire-tsa.fr/admin/login`
+- **Admin livres** : `https://www.annuaire-tsa.fr/admin/livres`
+
+## Sécurité
+
+- Injection SQL impossible (PDO + prepared statements)
+- XSS impossible côté client (Vue.js échappe par défaut)
+- Rate limiting sur tous les formulaires publics (5 req/heure/IP)
+- Validation stricte des entrées (longueur, type, URLs)
+- HTTPS forcé + headers de sécurité (HSTS, X-Frame-Options, CSP…)
+- Authentification bcrypt + tokens de session 256 bits
+- Anti-spam honeypot sur les formulaires
 
 ## Historique des versions
 
 | Version | Contenu |
 |---|---|
-| V1 | Annuaire TSA — version initiale |
+| V1 | Annuaire TSA — version initiale HTML |
 | V2 | Refonte design, ajout signalements et confirmations communautaires |
 | V3 | Ajout du site Livres TSA intégré |
+| V4 | Réécriture complète en Nuxt 4 + Vue 3, admin moderne, sécurité renforcée |
 
 ## Licence
 
