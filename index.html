@@ -1,293 +1,97 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Annuaire TSA — Trouvez un spécialiste près de chez vous</title>
-  <meta name="description" content="Annuaire collaboratif et gratuit de praticiens spécialisés dans les troubles du spectre autistique (TSA)." />
-
-  <!-- PWA -->
-  <link rel="apple-touch-icon" href="/img/icon-192.png" />
-
-  <link rel="stylesheet" href="css/style.css" />
-</head>
-<body>
-
-<div class="container">
-
-  <nav class="topbar">
-    <a href="index.html" class="topbar-title">
-      <img src="img/logo-tsa.svg" alt="Symbole neurodiversité" />
-      Annuaire TSA
-    </a>
-    <div class="topbar-right">
-      <a href="/livres/" class="btn">📚 Livres TSA</a>
-      <a href="suggerer.html" class="btn btn-accent">Suggérer un praticien</a>
-      <a href="admin/login.html" class="btn btn-admin">Admin</a>
-    </div>
-  </nav>
-
-  <!-- Section Comment ça marche -->
-  <div id="comment-ca-marche" style="margin-bottom:24px">
-    <div style="font-size:18px;font-weight:600;color:var(--texte);margin-bottom:6px">Comment ça marche ?</div>
-    <div style="font-size:14px;color:var(--texte-2);margin-bottom:20px">Un projet construit par les familles, pour les familles.</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px" id="cm-grid">
-      <div style="background:var(--fond);border-radius:var(--rayon-lg);padding:20px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.05);border:1px solid var(--bordure)">
-        <svg width="28" height="28" fill="none" stroke="var(--bleu)" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:12px"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-        <div style="font-size:15px;font-weight:600;color:var(--texte);margin-bottom:6px">Trouver un spécialiste</div>
-        <div style="font-size:13px;color:var(--texte-2);line-height:1.6">Recherchez par ville, département ou spécialité. Filtrez selon vos besoins.</div>
-      </div>
-      <div style="background:var(--fond);border-radius:var(--rayon-lg);padding:20px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.05);border:1px solid var(--bordure)">
-        <svg width="28" height="28" fill="none" stroke="var(--bleu)" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:12px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        <div style="font-size:15px;font-weight:600;color:var(--texte);margin-bottom:6px">Suggérer un praticien</div>
-        <div style="font-size:13px;color:var(--texte-2);line-height:1.6">Vous connaissez un spécialiste qui n'apparaît pas ? Ajoutez-le en quelques clics.</div>
-      </div>
-      <div style="background:var(--fond);border-radius:var(--rayon-lg);padding:20px 18px;box-shadow:0 1px 3px rgba(0,0,0,0.05);border:1px solid var(--bordure)">
-        <svg width="28" height="28" fill="none" stroke="var(--bleu)" stroke-width="1.5" viewBox="0 0 24 24" style="margin-bottom:12px"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-        <div style="font-size:15px;font-weight:600;color:var(--texte);margin-bottom:6px">Veiller à la qualité</div>
-        <div style="font-size:13px;color:var(--texte-2);line-height:1.6">Confirmez l'exactitude des fiches ou signalez une erreur pour aider la communauté.</div>
-      </div>
-    </div>
-  </div>
-
-  <style>
-    @media (max-width: 580px) {
-      #cm-grid { grid-template-columns: 1fr !important; }
-    }
-    #cm-grid > div {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-      cursor: default;
-    }
-    #cm-grid > div:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08) !important;
-      border-color: var(--bleu) !important;
-    }
-  </style>
-
-  <div class="hero">
-    <h1 class="hero-title">Trouvez un spécialiste TSA près de chez vous</h1>
-    <p class="hero-sub">Annuaire collaboratif et gratuit de psychiatres, psychologues, neuropsychologues, orthophonistes, ergothérapeutes et psychomotriciens spécialisés dans les troubles du spectre autistique.</p>
-    <div class="search-wrap">
-      <div class="search-icon">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
-      </div>
-      <input type="text" id="search" placeholder="Ville, département ou code postal…" autocomplete="off" />
-    </div>
-    <div class="stats">
-      <div class="stat"><div class="stat-dot"></div><span id="nb-total">—</span> praticiens référencés</div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:16px;flex-wrap:wrap">
-      <span style="display:inline-flex;align-items:center;gap:6px;background:#111827;color:#fff;font-size:13px;font-weight:600;padding:7px 14px;border-radius:99px">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        Gratuit
-      </span>
-      <span style="display:inline-flex;align-items:center;gap:6px;background:#111827;color:#fff;font-size:13px;font-weight:600;padding:7px 14px;border-radius:99px">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        Sans publicité
-      </span>
-      <span style="display:inline-flex;align-items:center;gap:6px;background:#111827;color:#fff;font-size:13px;font-weight:600;padding:7px 14px;border-radius:99px">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-        Sans inscription
-      </span>
-    </div>
-  </div>
-
-  <div class="filters" id="filtres-type">
-    <button class="pill on" data-val="tous">Tous</button>
-    <button class="pill" data-val="Psychiatre">Psychiatre</button>
-    <button class="pill" data-val="Pédopsychiatre">Pédopsychiatre</button>
-    <button class="pill" data-val="Psychologue">Psychologue</button>
-    <button class="pill" data-val="Neuropsychologue">Neuropsychologue</button>
-    <button class="pill" data-val="Orthophoniste">Orthophoniste</button>
-    <button class="pill" data-val="Ergothérapeute">Ergothérapeute</button>
-    <button class="pill" data-val="Psychomotricien">Psychomotricien</button>
-  </div>
-  <div class="filters" id="filtres-age">
-    <button class="pill on" data-val="tous">Tous âges</button>
-    <button class="pill" data-val="Enfant">Enfant</button>
-    <button class="pill" data-val="Adolescent">Adolescent</button>
-    <button class="pill" data-val="Adulte">Adulte</button>
-  </div>
-  <div class="filters" id="filtres-tele">
-    <button class="pill on" data-val="tous">Présentiel & télé</button>
-    <button class="pill" data-val="oui">Téléconsultation uniquement</button>
-  </div>
-
-  <div class="results-count" id="count"></div>
-  <div id="liste"></div>
-
-  <footer class="footer">
-    <div>
-      <div class="footer-note">Projet open source · Données hébergées en France · RGPD</div>
-      <div style="font-size:12px;color:var(--texte-3);margin-top:4px">Fait avec ❤ pour les familles concernées par les TSA</div>
-    </div>
-    <div class="footer-links">
-      <a href="apropos.html" class="footer-link">À propos</a>
-      <a href="mentions.html" class="footer-link">Mentions légales</a>
-      <a href="https://github.com/Pandorra40/annuaire-tsa" target="_blank" class="footer-link">GitHub</a>
-      <a href="contact.html" class="footer-link">Contact</a>
-    </div>
-  </footer>
-
-</div>
-
-<script src="js/config.js"></script>
-<script>
-  const couleurs = [
-    {bg:"#EEF5FC",txt:"#2E6FAD"},
-    {bg:"#EEF7EC",txt:"#2D6B3A"},
-    {bg:"#FEF3E2",txt:"#8A5A0A"},
-    {bg:"#F3EEFF",txt:"#6B3FA0"},
-    {bg:"#FFF0F0",txt:"#9B2C2C"}
-  ];
-
-  // Protection XSS
-  function esc(str) {
-    if (!str) return "";
-    return String(str)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
+<!DOCTYPE html><html  lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Annuaire TSA — Trouvez un spécialiste près de chez vous</title><style id="nuxt-ui-colors">@layer theme {
+  :root, :host {
+  --ui-color-primary-50: var(--color-blue-50, oklch(97% 0.014 254.604));
+  --ui-color-primary-100: var(--color-blue-100, oklch(93.2% 0.032 255.585));
+  --ui-color-primary-200: var(--color-blue-200, oklch(88.2% 0.059 254.128));
+  --ui-color-primary-300: var(--color-blue-300, oklch(80.9% 0.105 251.813));
+  --ui-color-primary-400: var(--color-blue-400, oklch(70.7% 0.165 254.624));
+  --ui-color-primary-500: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ui-color-primary-600: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  --ui-color-primary-700: var(--color-blue-700, oklch(48.8% 0.243 264.376));
+  --ui-color-primary-800: var(--color-blue-800, oklch(42.4% 0.199 265.638));
+  --ui-color-primary-900: var(--color-blue-900, oklch(37.9% 0.146 265.522));
+  --ui-color-primary-950: var(--color-blue-950, oklch(28.2% 0.091 267.935));
+  --ui-color-secondary-50: var(--color-blue-50, oklch(97% 0.014 254.604));
+  --ui-color-secondary-100: var(--color-blue-100, oklch(93.2% 0.032 255.585));
+  --ui-color-secondary-200: var(--color-blue-200, oklch(88.2% 0.059 254.128));
+  --ui-color-secondary-300: var(--color-blue-300, oklch(80.9% 0.105 251.813));
+  --ui-color-secondary-400: var(--color-blue-400, oklch(70.7% 0.165 254.624));
+  --ui-color-secondary-500: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ui-color-secondary-600: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  --ui-color-secondary-700: var(--color-blue-700, oklch(48.8% 0.243 264.376));
+  --ui-color-secondary-800: var(--color-blue-800, oklch(42.4% 0.199 265.638));
+  --ui-color-secondary-900: var(--color-blue-900, oklch(37.9% 0.146 265.522));
+  --ui-color-secondary-950: var(--color-blue-950, oklch(28.2% 0.091 267.935));
+  --ui-color-success-50: var(--color-green-50, oklch(98.2% 0.018 155.826));
+  --ui-color-success-100: var(--color-green-100, oklch(96.2% 0.044 156.743));
+  --ui-color-success-200: var(--color-green-200, oklch(92.5% 0.084 155.995));
+  --ui-color-success-300: var(--color-green-300, oklch(87.1% 0.15 154.449));
+  --ui-color-success-400: var(--color-green-400, oklch(79.2% 0.209 151.711));
+  --ui-color-success-500: var(--color-green-500, oklch(72.3% 0.219 149.579));
+  --ui-color-success-600: var(--color-green-600, oklch(62.7% 0.194 149.214));
+  --ui-color-success-700: var(--color-green-700, oklch(52.7% 0.154 150.069));
+  --ui-color-success-800: var(--color-green-800, oklch(44.8% 0.119 151.328));
+  --ui-color-success-900: var(--color-green-900, oklch(39.3% 0.095 152.535));
+  --ui-color-success-950: var(--color-green-950, oklch(26.6% 0.065 152.934));
+  --ui-color-info-50: var(--color-blue-50, oklch(97% 0.014 254.604));
+  --ui-color-info-100: var(--color-blue-100, oklch(93.2% 0.032 255.585));
+  --ui-color-info-200: var(--color-blue-200, oklch(88.2% 0.059 254.128));
+  --ui-color-info-300: var(--color-blue-300, oklch(80.9% 0.105 251.813));
+  --ui-color-info-400: var(--color-blue-400, oklch(70.7% 0.165 254.624));
+  --ui-color-info-500: var(--color-blue-500, oklch(62.3% 0.214 259.815));
+  --ui-color-info-600: var(--color-blue-600, oklch(54.6% 0.245 262.881));
+  --ui-color-info-700: var(--color-blue-700, oklch(48.8% 0.243 264.376));
+  --ui-color-info-800: var(--color-blue-800, oklch(42.4% 0.199 265.638));
+  --ui-color-info-900: var(--color-blue-900, oklch(37.9% 0.146 265.522));
+  --ui-color-info-950: var(--color-blue-950, oklch(28.2% 0.091 267.935));
+  --ui-color-warning-50: var(--color-yellow-50, oklch(98.7% 0.026 102.212));
+  --ui-color-warning-100: var(--color-yellow-100, oklch(97.3% 0.071 103.193));
+  --ui-color-warning-200: var(--color-yellow-200, oklch(94.5% 0.129 101.54));
+  --ui-color-warning-300: var(--color-yellow-300, oklch(90.5% 0.182 98.111));
+  --ui-color-warning-400: var(--color-yellow-400, oklch(85.2% 0.199 91.936));
+  --ui-color-warning-500: var(--color-yellow-500, oklch(79.5% 0.184 86.047));
+  --ui-color-warning-600: var(--color-yellow-600, oklch(68.1% 0.162 75.834));
+  --ui-color-warning-700: var(--color-yellow-700, oklch(55.4% 0.135 66.442));
+  --ui-color-warning-800: var(--color-yellow-800, oklch(47.6% 0.114 61.907));
+  --ui-color-warning-900: var(--color-yellow-900, oklch(42.1% 0.095 57.708));
+  --ui-color-warning-950: var(--color-yellow-950, oklch(28.6% 0.066 53.813));
+  --ui-color-error-50: var(--color-red-50, oklch(97.1% 0.013 17.38));
+  --ui-color-error-100: var(--color-red-100, oklch(93.6% 0.032 17.717));
+  --ui-color-error-200: var(--color-red-200, oklch(88.5% 0.062 18.334));
+  --ui-color-error-300: var(--color-red-300, oklch(80.8% 0.114 19.571));
+  --ui-color-error-400: var(--color-red-400, oklch(70.4% 0.191 22.216));
+  --ui-color-error-500: var(--color-red-500, oklch(63.7% 0.237 25.331));
+  --ui-color-error-600: var(--color-red-600, oklch(57.7% 0.245 27.325));
+  --ui-color-error-700: var(--color-red-700, oklch(50.5% 0.213 27.518));
+  --ui-color-error-800: var(--color-red-800, oklch(44.4% 0.177 26.899));
+  --ui-color-error-900: var(--color-red-900, oklch(39.6% 0.141 25.723));
+  --ui-color-error-950: var(--color-red-950, oklch(25.8% 0.092 26.042));
+  --ui-color-neutral-50: var(--color-slate-50, oklch(98.4% 0.003 247.858));
+  --ui-color-neutral-100: var(--color-slate-100, oklch(96.8% 0.007 247.896));
+  --ui-color-neutral-200: var(--color-slate-200, oklch(92.9% 0.013 255.508));
+  --ui-color-neutral-300: var(--color-slate-300, oklch(86.9% 0.022 252.894));
+  --ui-color-neutral-400: var(--color-slate-400, oklch(70.4% 0.04 256.788));
+  --ui-color-neutral-500: var(--color-slate-500, oklch(55.4% 0.046 257.417));
+  --ui-color-neutral-600: var(--color-slate-600, oklch(44.6% 0.043 257.281));
+  --ui-color-neutral-700: var(--color-slate-700, oklch(37.2% 0.044 257.287));
+  --ui-color-neutral-800: var(--color-slate-800, oklch(27.9% 0.041 260.031));
+  --ui-color-neutral-900: var(--color-slate-900, oklch(20.8% 0.042 265.755));
+  --ui-color-neutral-950: var(--color-slate-950, oklch(12.9% 0.042 264.695));
   }
-
-  function initiales(nom) {
-    const parts = nom.trim().split(" ").filter(p => p !== "Dr" && p !== "Dr.");
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-    return nom.substring(0, 2).toUpperCase();
+  :root, :host, .light {
+  --ui-primary: var(--ui-color-primary-500);
+  --ui-secondary: var(--ui-color-secondary-500);
+  --ui-success: var(--ui-color-success-500);
+  --ui-info: var(--ui-color-info-500);
+  --ui-warning: var(--ui-color-warning-500);
+  --ui-error: var(--ui-color-error-500);
   }
-
-  function couleurAvatar(nom) {
-    let h = 0;
-    for (let i = 0; i < nom.length; i++) h = nom.charCodeAt(i) + ((h << 5) - h);
-    return couleurs[Math.abs(h) % couleurs.length];
+  .dark {
+  --ui-primary: var(--ui-color-primary-400);
+  --ui-secondary: var(--ui-color-secondary-400);
+  --ui-success: var(--ui-color-success-400);
+  --ui-info: var(--ui-color-info-400);
+  --ui-warning: var(--ui-color-warning-400);
+  --ui-error: var(--ui-color-error-400);
   }
-
-  let praticiens = [];
-  let filtres = { type: "tous", age: "tous", tele: "tous" };
-
-  async function charger() {
-    try {
-      const data = await apiFetch("praticiens.php");
-      praticiens = data;
-      animerCompteur(praticiens.length);
-      afficher();
-    } catch (e) {
-      document.getElementById("liste").innerHTML = '<p class="empty">Impossible de charger les praticiens. Réessayez dans quelques instants.</p>';
-    }
-  }
-
-  function afficher() {
-    const q = document.getElementById("search").value.toLowerCase().trim();
-    const filtered = praticiens.filter(d => {
-      const mQ = !q || d.ville.toLowerCase().includes(q) || d.departement.includes(q) || d.nom.toLowerCase().includes(q);
-      const mT = filtres.type === "tous" || d.type === filtres.type;
-      const mA = filtres.age === "tous" || (d.ages && d.ages.includes(filtres.age));
-      const mL = filtres.tele === "tous" || (filtres.tele === "oui" && d.teleconsultation);
-      return mQ && mT && mA && mL;
-    });
-
-    const n = filtered.length;
-    document.getElementById("count").textContent = n + " praticien" + (n > 1 ? "s" : "") + " trouvé" + (n > 1 ? "s" : "");
-
-    if (!n) {
-      document.getElementById("liste").innerHTML = '<p class="empty">Aucun résultat pour ces critères.</p>';
-      return;
-    }
-
-    document.getElementById("liste").innerHTML = filtered.map(d => {
-      const ini = initiales(d.nom);
-      const c = couleurAvatar(d.nom);
-      const isNew = d.created_at && (new Date() - new Date(d.created_at)) < 7 * 24 * 60 * 60 * 1000;
-      return `
-      <div class="card" onclick="window.location='fiche.html?id=${encodeURIComponent(d.id)}'" style="cursor:pointer">
-        <div class="card-header">
-          <div class="card-avatar" style="background:${c.bg};color:${c.txt}">${esc(ini)}</div>
-          <div style="flex:1">
-            <div class="card-name">${esc(d.nom)}${isNew ? ' <span style="font-size:10px;font-weight:600;background:#ECFDF5;color:#059669;padding:2px 7px;border-radius:99px;vertical-align:middle;margin-left:6px">Nouveau</span>' : ""}</div>
-            <div class="card-meta">${esc(d.type)} · ${esc(d.ville)} (${esc(d.departement)})</div>
-          </div>
-          <div class="card-dept">Dép. ${esc(d.departement)}</div>
-        </div>
-        <div class="tags">
-          ${d.ages ? d.ages.map(a => `<span class="tag tag-blue">${esc(a)}</span>`).join("") : ""}
-          ${d.teleconsultation ? '<span class="tag tag-green">Téléconsultation</span>' : ""}
-          ${d.delai ? `<span class="tag ${d.delai === "Disponible" ? "tag-green" : "tag-amber"}">Délai : ${esc(d.delai)}</span>` : ""}
-        </div>
-        <div class="card-divider"></div>
-        ${d.telephone ? `<a class="card-tel" href="tel:${esc(d.telephone)}" onclick="event.stopPropagation()">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.38 2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.27a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          ${esc(d.telephone)}
-        </a>` : '<span style="font-size:13px;color:var(--texte-3)">Téléphone non renseigné</span>'}
-        <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
-          <a href="signaler.html?id=${encodeURIComponent(d.id)}" onclick="event.stopPropagation()" style="font-size:12px;color:var(--texte-3);text-decoration:underline;text-underline-offset:2px">Signaler une erreur</a>
-          ${d.confirmations > 0 ? `<span onclick="event.stopPropagation()" style="font-size:12px;color:var(--vert-txt);display:flex;align-items:center;gap:4px">
-            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-            ${d.confirmations} confirmation${d.confirmations > 1 ? "s" : ""}
-          </span>` : ""}
-        </div>
-      </div>`;
-    }).join("");
-  }
-
-  function initFiltres(groupeId, cle) {
-    document.getElementById(groupeId).querySelectorAll(".pill").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.getElementById(groupeId).querySelectorAll(".pill").forEach(b => b.classList.remove("on"));
-        btn.classList.add("on");
-        filtres[cle] = btn.dataset.val;
-        afficher();
-      });
-    });
-  }
-
-  document.getElementById("search").addEventListener("input", afficher);
-  initFiltres("filtres-type", "type");
-  initFiltres("filtres-age", "age");
-  initFiltres("filtres-tele", "tele");
-
-  charger();
-
-  // --- Placeholder rotatif ---
-  const placeholders = [
-    "Bordeaux",
-    "75013",
-    "Psychologue Lyon",
-    "Orthophoniste Nantes",
-    "Psychiatre Marseille",
-    "Neuropsychologue Toulouse",
-    "33000",
-    "Pédopsychiatre Paris"
-  ];
-  let phIndex = 0;
-  const searchInput = document.getElementById("search");
-  setInterval(() => {
-    if (document.activeElement === searchInput) return;
-    phIndex = (phIndex + 1) % placeholders.length;
-    searchInput.style.transition = "opacity 0.4s";
-    searchInput.style.opacity = "0";
-    setTimeout(() => {
-      searchInput.placeholder = placeholders[phIndex];
-      searchInput.style.opacity = "1";
-    }, 400);
-  }, 3000);
-
-  // --- Compteur animé ---
-  function animerCompteur(cible) {
-    const el = document.getElementById("nb-total");
-    if (cible === 0) { el.textContent = "0"; return; }
-    let actuel = 0;
-    const pas = Math.max(1, Math.floor(cible / 30));
-    const timer = setInterval(() => {
-      actuel = Math.min(actuel + pas, cible);
-      el.textContent = actuel;
-      if (actuel >= cible) clearInterval(timer);
-    }, 40);
-  }
-
-</script>
-
-</body>
-</html>
+}</style><link rel="stylesheet" href="/_nuxt/entry.CgVBm-eN.css" crossorigin><style>@layer base {:where(.i-lucide\:moon){display:inline-block;width:1em;height:1em;background-color:currentColor;-webkit-mask-image:var(--svg);mask-image:var(--svg);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:100% 100%;mask-size:100% 100%;--svg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cpath fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401'/%3E%3C/svg%3E")}:where(.i-lucide\:search){display:inline-block;width:1em;height:1em;background-color:currentColor;-webkit-mask-image:var(--svg);mask-image:var(--svg);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:100% 100%;mask-size:100% 100%;--svg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cg fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Cpath d='m21 21l-4.34-4.34'/%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3C/g%3E%3C/svg%3E")}:where(.i-lucide\:sun){display:inline-block;width:1em;height:1em;background-color:currentColor;-webkit-mask-image:var(--svg);mask-image:var(--svg);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-size:100% 100%;mask-size:100% 100%;--svg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='24' height='24'%3E%3Cg fill='none' stroke='black' stroke-linecap='round' stroke-linejoin='round' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41'/%3E%3C/g%3E%3C/svg%3E")}}</style><link rel="preload" as="fetch" crossorigin="anonymous" href="/_payload.json?d554517f-cf72-42ce-9e9f-d53f21d6f304"><link rel="modulepreload" as="script" crossorigin href="/_nuxt/CxSSZpPW.js"><link rel="modulepreload" as="script" crossorigin href="/_nuxt/BUnK335C.js"><link rel="modulepreload" as="script" crossorigin href="/_nuxt/U-7OSIp7.js"><link rel="modulepreload" as="script" crossorigin href="/_nuxt/C_RjSlzK.js"><link rel="modulepreload" as="script" crossorigin href="/_nuxt/BECME5j2.js"><link rel="modulepreload" as="script" crossorigin href="/_nuxt/gQkUTYJN.js"><link rel="modulepreload" as="script" crossorigin href="/_nuxt/ueGNzHwm.js"><link rel="modulepreload" as="script" crossorigin href="/_nuxt/BAXSnOgJ.js"><script type="module" src="/_nuxt/CxSSZpPW.js" crossorigin></script><link rel="icon" href="/favicon.ico"><meta name="description" content="Annuaire collaboratif et gratuit de praticiens spécialisés dans les troubles du spectre autistique en France."><meta property="og:title" content="Annuaire TSA — Trouvez un spécialiste près de chez vous"><meta property="og:description" content="Annuaire collaboratif et gratuit de psychiatres, psychologues, neuropsychologues, orthophonistes et autres praticiens spécialisés dans les troubles du spectre autistique en France."><meta property="og:image" content="https://www.annuaire-tsa.fr/img/og-image.png"><meta name="twitter:card" content="summary_large_image"><script>"use strict";(()=>{const t=window,e=document.documentElement,c=["dark","light"],n=getStorageValue("localStorage","nuxt-color-mode")||"system";let i=n==="system"?u():n;const r=e.getAttribute("data-color-mode-forced");r&&(i=r),l(i),t["__NUXT_COLOR_MODE__"]={preference:n,value:i,getColorScheme:u,addColorScheme:l,removeColorScheme:d};function l(o){const s=""+o+"",a="";e.classList?e.classList.add(s):e.className+=" "+s,a&&e.setAttribute("data-"+a,o)}function d(o){const s=""+o+"",a="";e.classList?e.classList.remove(s):e.className=e.className.replace(new RegExp(s,"g"),""),a&&e.removeAttribute("data-"+a)}function f(o){return t.matchMedia("(prefers-color-scheme"+o+")")}function u(){if(t.matchMedia&&f("").media!=="not all"){for(const o of c)if(f(":"+o).matches)return o}return"light"}})();function getStorageValue(t,e){switch(t){case"localStorage":return window.localStorage.getItem(e);case"sessionStorage":return window.sessionStorage.getItem(e);case"cookie":return getCookie(e);default:return null}}function getCookie(t){const c=("; "+window.document.cookie).split("; "+t+"=");if(c.length===2)return c.pop()?.split(";").shift()}</script></head><body><div id="__nuxt" class="isolate"><!--[--><!--[--><!--[--><!--[--><!--[--><header class="sticky top-0 z-50 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800"><div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4"><div class="flex items-center gap-6"><a aria-current="page" href="/" class="router-link-active router-link-exact-active flex items-center gap-2 font-bold text-lg text-gray-900 dark:text-white shrink-0"><img src="/logo-tsa.svg" alt="Annuaire TSA" class="h-7 w-auto"> Annuaire TSA </a><nav class="hidden md:flex items-center gap-1"><!--[--><a aria-current="page" href="/" class="bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-semibold px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors">Annuaire</a><a href="/livres" class="px-3 py-1.5 rounded-lg text-sm font-medium text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-colors">Livres TSA</a><!--]--></nav></div><div class="flex items-center gap-2"><a href="/suggerer" class="hidden sm:inline-flex items-center px-4 py-2 rounded-lg text-sm font-semibold bg-gray-900 dark:bg-blue-600 text-white hover:bg-gray-700 dark:hover:bg-blue-700 transition-colors"> Suggérer un praticien </a><button type="button" aria-label="Switch to dark mode" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors text-sm gap-1.5 text-default hover:bg-elevated active:bg-elevated focus:outline-none focus-visible:bg-elevated hover:disabled:bg-transparent dark:hover:disabled:bg-transparent hover:aria-disabled:bg-transparent dark:hover:aria-disabled:bg-transparent p-1.5"><!--[--><!--[--><span class="iconify i-lucide:moon shrink-0 size-5 hidden dark:inline-block" aria-hidden="true" style=""></span><span class="iconify i-lucide:sun shrink-0 size-5 dark:hidden" aria-hidden="true" style=""></span><!--]--><!--[--><!----><!--]--><!--[--><!----><!--]--><!--]--></button><button class="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" aria-label="Ouvrir le menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg></button></div></div><!----></header><main class="min-h-[calc(100vh-var(--ui-header-height))]"><!--[--><div><div data-orientation="vertical" data-slot="root" class="relative isolate"><!--[--><!--]--><div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:grid py-24 sm:py-32 lg:py-40 gap-16 sm:gap-y-24" data-slot="container"><!--[--><div data-slot="wrapper" class="text-center"><div data-slot="header" class=""><!--[--><!----><h1 data-slot="title" class="text-5xl sm:text-7xl text-pretty tracking-tight font-bold text-highlighted"><!--[-->Trouvez un spécialiste TSA près de chez vous<!--]--></h1><div data-slot="description" class="text-lg sm:text-xl/8 text-muted text-balance mt-6"><!--[-->Annuaire collaboratif et gratuit de psychiatres, psychologues, neuropsychologues, orthophonistes, ergothérapeutes et psychomotriciens spécialisés dans les troubles du spectre autistique.<!--]--></div><!--]--></div><!----><div data-slot="footer" class="mt-10"><!--[--><div data-slot="links" class="flex flex-wrap gap-x-6 gap-y-3 justify-center"><!--[--><span data-slot="base" class="font-medium inline-flex items-center text-sm px-2 py-1 gap-1.5 rounded-md text-inverted bg-inverted"><!--[--><!----><!--]--><!--[-->✓ Gratuit<!--]--><!--[--><!----><!--]--></span><span data-slot="base" class="font-medium inline-flex items-center text-sm px-2 py-1 gap-1.5 rounded-md text-inverted bg-inverted"><!--[--><!----><!--]--><!--[-->✓ Sans publicité<!--]--><!--[--><!----><!--]--></span><span data-slot="base" class="font-medium inline-flex items-center text-sm px-2 py-1 gap-1.5 rounded-md text-inverted bg-inverted"><!--[--><!----><!--]--><!--[-->✓ Sans inscription<!--]--><!--[--><!----><!--]--></span><!--]--></div><!--]--></div></div><!----><!--]--></div><!--[--><!--]--></div><div class="bg-gray-50 dark:bg-gray-900 border-y border-gray-200 dark:border-gray-800 py-10 mb-2"><div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8"><!--[--><p class="text-sm font-semibold text-gray-500 dark:text-gray-400 mb-1">Comment ça marche ?</p><p class="text-xs text-gray-400 dark:text-gray-500 mb-6">Un projet construit par les familles, pour les familles.</p><div class="grid grid-cols-1 sm:grid-cols-3 gap-6"><!--[--><div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all"><div class="text-blue-500 mb-3"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></div><p class="font-semibold text-gray-900 dark:text-white mb-1">Trouver un spécialiste</p><p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Recherchez par ville, département ou spécialité. Filtrez selon vos besoins.</p></div><div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all"><div class="text-blue-500 mb-3"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div><p class="font-semibold text-gray-900 dark:text-white mb-1">Suggérer un praticien</p><p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Vous connaissez un spécialiste qui n&#39;apparaît pas ? Ajoutez-le en quelques clics.</p></div><div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-200 dark:border-gray-700 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all"><div class="text-blue-500 mb-3"><svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></div><p class="font-semibold text-gray-900 dark:text-white mb-1">Veiller à la qualité</p><p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">Confirmez l&#39;exactitude des fiches ou signalez une erreur pour aider la communauté.</p></div><!--]--></div><!--]--></div></div><div class="w-full max-w-(--ui-container) mx-auto px-4 sm:px-6 lg:px-8 py-8"><!--[--><div data-slot="root" class="relative inline-flex items-center mb-6 max-w-2xl"><input type="text" value placeholder="Ville, département ou code postal…" data-slot="base" class="w-full rounded-md border-0 appearance-none placeholder:text-dimmed focus:outline-none disabled:cursor-not-allowed disabled:opacity-75 transition-colors px-3 py-2 text-base gap-2 text-highlighted bg-default ring ring-inset ring-accented focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary ps-11" autocomplete="off"><!--[--><!--]--><span data-slot="leading" class="absolute inset-y-0 start-0 flex items-center ps-3"><!--[--><span class="iconify i-lucide:search shrink-0 text-dimmed size-6" aria-hidden="true" style="" data-slot="leadingIcon"></span><!--]--></span><!----></div><div class="flex flex-wrap gap-2 mb-3"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 text-inverted bg-inverted hover:bg-inverted/90 active:bg-inverted/90 disabled:bg-inverted aria-disabled:bg-inverted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Tous<!--]--><!--[--><!----><!--]--><!--]--></button><!--[--><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default focus:outline-none focus-visible:ring-2 focus-visible:ring-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Psychiatre<!--]--><!--[--><!----><!--]--><!--]--></button><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default focus:outline-none focus-visible:ring-2 focus-visible:ring-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Pédopsychiatre<!--]--><!--[--><!----><!--]--><!--]--></button><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default focus:outline-none focus-visible:ring-2 focus-visible:ring-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Psychologue<!--]--><!--[--><!----><!--]--><!--]--></button><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default focus:outline-none focus-visible:ring-2 focus-visible:ring-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Neuropsychologue<!--]--><!--[--><!----><!--]--><!--]--></button><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default focus:outline-none focus-visible:ring-2 focus-visible:ring-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Orthophoniste<!--]--><!--[--><!----><!--]--><!--]--></button><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default focus:outline-none focus-visible:ring-2 focus-visible:ring-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Ergothérapeute<!--]--><!--[--><!----><!--]--><!--]--></button><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default focus:outline-none focus-visible:ring-2 focus-visible:ring-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Psychomotricien<!--]--><!--[--><!----><!--]--><!--]--></button><!--]--></div><div class="flex flex-wrap gap-2 mb-3"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 text-inverted bg-inverted hover:bg-inverted/90 active:bg-inverted/90 disabled:bg-inverted aria-disabled:bg-inverted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Tous âges<!--]--><!--[--><!----><!--]--><!--]--></button><!--[--><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default focus:outline-none focus-visible:ring-2 focus-visible:ring-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Enfant<!--]--><!--[--><!----><!--]--><!--]--></button><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default focus:outline-none focus-visible:ring-2 focus-visible:ring-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Adolescent<!--]--><!--[--><!----><!--]--><!--]--></button><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default focus:outline-none focus-visible:ring-2 focus-visible:ring-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Adulte<!--]--><!--[--><!----><!--]--><!--]--></button><!--]--></div><div class="flex flex-wrap gap-2 mb-6"><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 text-inverted bg-inverted hover:bg-inverted/90 active:bg-inverted/90 disabled:bg-inverted aria-disabled:bg-inverted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Présentiel &amp; télé<!--]--><!--[--><!----><!--]--><!--]--></button><button type="button" data-slot="base" class="rounded-md font-medium inline-flex items-center disabled:cursor-not-allowed aria-disabled:cursor-not-allowed disabled:opacity-75 aria-disabled:opacity-75 transition-colors px-2.5 py-1.5 text-xs gap-1.5 ring ring-inset ring-accented text-default bg-default hover:bg-elevated active:bg-elevated disabled:bg-default aria-disabled:bg-default focus:outline-none focus-visible:ring-2 focus-visible:ring-inverted"><!--[--><!--[--><!----><!--]--><!--[-->Téléconsultation uniquement<!--]--><!--[--><!----><!--]--><!--]--></button></div><!--[--><p class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-4">0 praticien trouvé</p><div class="text-center py-16 text-gray-400"> Aucun résultat pour ces critères. </div><!--]--><!--]--></div></div><!--]--></main><footer class="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"><div class="max-w-7xl mx-auto px-4 py-6 flex flex-wrap items-center justify-between gap-4"><div><p class="text-sm text-gray-500 dark:text-gray-400"> Projet open source · Données hébergées en France · RGPD </p><p class="text-sm text-gray-500 dark:text-gray-400"> Fait avec ♥ pour les familles concernées par les TSA </p></div><div class="flex flex-wrap items-center gap-4"><a href="/apropos" class="text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">À propos</a><a href="/mentions" class="text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">Mentions légales</a><a href="/contact" class="text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors">Contact</a><a href="https://github.com/Pandorra40/annuaire-tsa" target="_blank" rel="noopener" class="text-sm text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors" aria-label="GitHub"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg></a></div></div></footer><!--]--><!--]--><!--[--><!--]--><!--v-if--><!--]--><!--[--><!--]--><!--]--><!--]--></div><div id="teleports"></div><script>window.__NUXT__={};window.__NUXT__.config={public:{apiBase:"https://www.annuaire-tsa.fr/api"},app:{baseURL:"/",buildId:"d554517f-cf72-42ce-9e9f-d53f21d6f304",buildAssetsDir:"/_nuxt/",cdnURL:""}}</script><script type="application/json" data-nuxt-data="nuxt-app" data-ssr="true" id="__NUXT_DATA__" data-src="/_payload.json?d554517f-cf72-42ce-9e9f-d53f21d6f304">[{"state":1,"once":8,"_errors":9,"serverRendered":5,"path":11,"prerenderedAt":12},["Reactive",2],{"$scolor-mode":3,"$stoasts":7},{"preference":4,"value":4,"unknown":5,"forced":6},"system",true,false,[],["Set"],["ShallowReactive",10],{"praticiens":-1},"\u002F",1777928315444]</script></body></html>

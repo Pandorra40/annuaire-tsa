@@ -5,19 +5,28 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 // POST — signalement public
 if ($method === 'POST') {
+    rateLimit('signalement', 5, 3600); // max 5 par heure par IP
+
     $data = json_decode(file_get_contents('php://input'), true);
     if (!$data) jsonResponse(['error' => 'Données invalides'], 400);
 
     $motif = trim($data['motif'] ?? '');
     if (!$motif) jsonResponse(['error' => 'Motif obligatoire'], 400);
+    validateLength($motif, 200, 'motif');
+
+    $detail = isset($data['detail']) ? strip_tags(trim($data['detail'])) : null;
+    if ($detail) validateLength($detail, 500, 'détails');
+
+    $praticienId = (int)($data['praticien_id'] ?? 0);
+    if (!$praticienId) jsonResponse(['error' => 'ID praticien manquant'], 400);
 
     $db = getDB();
     $stmt = $db->prepare('INSERT INTO signalements (praticien_id, praticien_nom, motif, detail, statut) VALUES (?, ?, ?, ?, "ouvert")');
     $stmt->execute([
-        $data['praticien_id']  ?? null,
+        $praticienId,
         $data['praticien_nom'] ?? null,
         $motif,
-        $data['detail']        ?? null,
+        $detail,
     ]);
     jsonResponse(['ok' => true], 201);
 }
@@ -39,6 +48,7 @@ if ($method === 'PATCH') {
     if (!$id) jsonResponse(['error' => 'ID manquant'], 400);
     $data = json_decode(file_get_contents('php://input'), true);
     $statut = $data['statut'] ?? 'ignore';
+    if (!in_array($statut, ['ignore', 'resolu'])) jsonResponse(['error' => 'Statut invalide'], 400);
     $db = getDB();
     $db->prepare('UPDATE signalements SET statut = ? WHERE id = ?')->execute([$statut, $id]);
     jsonResponse(['ok' => true]);

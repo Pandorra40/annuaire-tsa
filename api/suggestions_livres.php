@@ -5,6 +5,8 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 // POST — soumission publique d'une suggestion de livre
 if ($method === 'POST') {
+    rateLimit('suggestion_livre', 5, 3600); // max 5 par heure par IP
+
     $data = json_decode(file_get_contents('php://input'), true);
     if (!$data) jsonResponse(['error' => 'Données invalides'], 400);
 
@@ -15,6 +17,18 @@ if ($method === 'POST') {
         jsonResponse(['error' => 'Titre et auteur obligatoires'], 400);
     }
 
+    validateLength($titre, 200, 'titre');
+    validateLength($auteur, 100, 'auteur');
+
+    $desc = isset($data['description']) ? strip_tags(trim($data['description'])) : null;
+    if ($desc) validateLength($desc, 500, 'description');
+
+    $lien = validateUrl($data['lien'] ?? null);
+
+    $cats_valides = ['témoignage', 'guide pratique', 'scientifique', 'jeunesse', 'roman', ''];
+    $categorie = $data['categorie'] ?? '';
+    if (!in_array($categorie, $cats_valides)) $categorie = '';
+
     $db = getDB();
     $stmt = $db->prepare('
         INSERT INTO suggestions_livres (titre, auteur, annee, categorie, description, lien, statut)
@@ -23,9 +37,9 @@ if ($method === 'POST') {
     $stmt->execute([
         $titre, $auteur,
         (int)($data['annee'] ?? 0) ?: null,
-        $data['categorie'] ?? null,
-        $data['description'] ?? null,
-        $data['lien'] ?? null,
+        $categorie ?: null,
+        $desc,
+        $lien,
     ]);
     jsonResponse(['ok' => true], 201);
 }

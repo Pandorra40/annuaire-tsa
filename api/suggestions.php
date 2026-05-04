@@ -5,17 +5,32 @@ $method = $_SERVER['REQUEST_METHOD'];
 
 // POST — soumission publique d'une suggestion
 if ($method === 'POST') {
+    rateLimit('suggestion', 5, 3600); // max 5 par heure par IP
+
     $data = json_decode(file_get_contents('php://input'), true);
     if (!$data) jsonResponse(['error' => 'Données invalides'], 400);
 
-    $nom  = trim($data['nom']  ?? '');
-    $type = trim($data['type'] ?? '');
+    $nom   = trim($data['nom']  ?? '');
+    $type  = trim($data['type'] ?? '');
     $ville = trim($data['ville'] ?? '');
-    $dept = trim($data['departement'] ?? '');
+    $dept  = trim($data['departement'] ?? '');
 
     if (!$nom || !$type || !$ville || !$dept) {
         jsonResponse(['error' => 'Champs obligatoires manquants'], 400);
     }
+
+    validateLength($nom, 100, 'nom');
+    validateLength($type, 50, 'type');
+    validateLength($ville, 100, 'ville');
+
+    $types_valides = ['Psychiatre','Pédopsychiatre','Psychologue','Neuropsychologue','Orthophoniste','Ergothérapeute','Psychomotricien'];
+    if (!in_array($type, $types_valides)) {
+        jsonResponse(['error' => 'Type de professionnel invalide'], 400);
+    }
+
+    $site_web = validateUrl($data['site_web'] ?? null);
+    $notes    = isset($data['notes']) ? strip_tags(trim($data['notes'])) : null;
+    if ($notes) validateLength($notes, 1000, 'notes');
 
     $db = getDB();
     $stmt = $db->prepare('
@@ -24,15 +39,15 @@ if ($method === 'POST') {
     ');
     $stmt->execute([
         $nom, $type, $ville, $dept,
-        $data['adresse']   ?? null,
+        isset($data['adresse']) ? strip_tags(trim($data['adresse'])) : null,
         $data['telephone'] ?? null,
-        $data['site_web']  ?? null,
+        $site_web,
         !empty($data['teleconsultation']) ? 1 : 0,
-        $data['delai']     ?? null,
+        $data['delai'] ?? null,
         agesToString($data['ages'] ?? []),
-        $data['notes']     ?? null,
-        $data['adeli']     ?? null,
-        $data['source']    ?? 'communaute',
+        $notes,
+        $data['adeli'] ?? null,
+        $data['source'] ?? 'communaute',
     ]);
     jsonResponse(['ok' => true], 201);
 }
@@ -95,6 +110,7 @@ if ($method === 'PATCH') {
     }
 
     $db->prepare('UPDATE suggestions SET statut = ? WHERE id = ?')->execute([$statut, $id]);
+
     jsonResponse(['ok' => true]);
 }
 

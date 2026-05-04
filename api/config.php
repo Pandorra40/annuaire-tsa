@@ -50,6 +50,8 @@ function jsonHeaders(): void {
 function jsonResponse(mixed $data, int $code = 200): void {
     http_response_code($code);
     jsonHeaders();
+    header('Cache-Control: no-store, no-cache, must-revalidate');
+    header('Pragma: no-cache');
     echo json_encode($data, JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -73,4 +75,47 @@ function agesToString(?array $ages): ?string {
 function agesToArray(?string $ages): array {
     if (!$ages) return [];
     return explode(',', $ages);
+}
+
+// Rate limiting basé sur fichier (compatible tous hébergeurs)
+function rateLimit(string $action, int $max = 10, int $fenetre = 3600): void {
+    $ip   = preg_replace('/[^a-f0-9:.]/', '', $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0');
+    $file = sys_get_temp_dir() . '/tsa_rl_' . md5($action . $ip) . '.json';
+    $now  = time();
+    $data = [];
+
+    if (file_exists($file)) {
+        $data = json_decode(file_get_contents($file), true) ?: [];
+    }
+
+    // Nettoyer les entrées hors fenêtre
+    $data = array_filter($data, fn($t) => ($now - $t) < $fenetre);
+
+    if (count($data) >= $max) {
+        jsonResponse(['error' => 'Trop de requêtes. Réessayez plus tard.'], 429);
+    }
+
+    $data[] = $now;
+    file_put_contents($file, json_encode(array_values($data)));
+}
+
+// Validation longueur d'un champ
+function validateLength(string $value, int $max, string $field): void {
+    if (strlen($value) > $max) {
+        jsonResponse(['error' => "Le champ $field est trop long (max $max caractères)."], 400);
+    }
+}
+
+// Validation URL
+function validateUrl(?string $url): ?string {
+    if (!$url) return null;
+    $url = trim($url);
+    if (!filter_var($url, FILTER_VALIDATE_URL)) {
+        jsonResponse(['error' => 'URL invalide.'], 400);
+    }
+    $scheme = parse_url($url, PHP_URL_SCHEME);
+    if (!in_array($scheme, ['http', 'https'])) {
+        jsonResponse(['error' => 'URL invalide.'], 400);
+    }
+    return $url;
 }

@@ -6,6 +6,7 @@ $method = $_SERVER['REQUEST_METHOD'];
 $db = getDB();
 $id = (int)($_GET['id'] ?? 0);
 
+
 // GET — un seul praticien ou tous
 if ($method === 'GET') {
     if ($id) {
@@ -51,6 +52,7 @@ if ($method === 'PATCH') {
         $data['adeli'] ?? null,
         $id
     ]);
+
     jsonResponse(['ok' => true]);
 }
 
@@ -59,6 +61,7 @@ if ($method === 'DELETE') {
     if (!$id) jsonResponse(['error' => 'ID manquant'], 400);
     $db->prepare('DELETE FROM signalements WHERE praticien_id = ?')->execute([$id]);
     $db->prepare('DELETE FROM praticiens WHERE id = ?')->execute([$id]);
+
     jsonResponse(['ok' => true]);
 }
 
