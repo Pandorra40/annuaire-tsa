@@ -116,11 +116,6 @@ php -r "echo password_hash('votre_mdp', PASSWORD_BCRYPT);"
 
 5. Coller le hash dans `api/config.php` (`ADMIN_HASH`)
 
-## Accès admin
-
-- **Admin annuaire** : `https://www.annuaire-tsa.fr/admin/login`
-- **Admin livres** : `https://www.annuaire-tsa.fr/admin/livres`
-
 ## Sécurité
 
 - Injection SQL impossible (PDO + prepared statements)
