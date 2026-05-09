@@ -30,7 +30,7 @@ Sélection collaborative de livres sur le TSA.
 | API externe | Open Library (nouveautés livres) |
 | Éditeur rich text | Tiptap |
 | Typage | TypeScript |
-| SEO | Bing Webmaster Tools + IndexNow |
+| SEO | Bing Webmaster Tools + IndexNow + @nuxtjs/sitemap |
 
 ## Structure des fichiers
 
@@ -118,10 +118,7 @@ php -r "echo password_hash('votre_mdp', PASSWORD_BCRYPT);"
 
 5. Coller le hash dans `api/config.php` (`ADMIN_HASH`)
 
-6. Notifier Bing de la mise à jour :
-```bash
-node indexnow.mjs
-```
+> Le sitemap est généré automatiquement à chaque build via `@nuxtjs/sitemap`. Il inclut toutes les pages statiques + les pages `/departement/XX` dynamiquement depuis l'API. Bing est notifié automatiquement via IndexNow.
 
 ## Accès admin
 
