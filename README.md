@@ -149,6 +149,8 @@ php -r "echo password_hash('votre_mdp', PASSWORD_BCRYPT);"
 - Validation stricte des entrées (longueur, type, URLs)
 - HTTPS forcé + headers de sécurité (HSTS, X-Frame-Options, CSP…)
 - Authentification bcrypt + tokens de session 256 bits
+- Timeout de session automatique (2h d'inactivité)
+- Sanitisation HTML des notes (protection XSS sur le contenu Tiptap)
 - Anti-spam honeypot sur les formulaires
 
 ## Historique des versions
