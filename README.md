@@ -11,6 +11,9 @@ Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, 
 - Filtres par type de praticien, tranche d'âge et mode de consultation
 - Système de confirmation et signalement communautaire
 - Suggestion de praticiens par la communauté
+- Pages dédiées par département (`/departement/XX`) pour le SEO
+- Pagination (20 praticiens par page)
+- Bouton "Partager la fiche" sur chaque praticien
 
 ### 2. Livres TSA (`/livres/`)
 Sélection collaborative de livres sur le TSA.
@@ -31,15 +34,28 @@ Sélection collaborative de livres sur le TSA.
 | Éditeur rich text | Tiptap |
 | Typage | TypeScript |
 | SEO | Bing Webmaster Tools + IndexNow + @nuxtjs/sitemap |
+| PWA | @vite-pwa/nuxt — installable sur mobile |
+
+## Accessibilité
+
+- **A- / A+** — taille de police réglable (4 niveaux)
+- **Mode lecture** — police OpenDyslexic, espacement augmenté, animations réduites
+- **Contraste élevé** — noir pur sur blanc pur pour les malvoyants
+- **Dark mode** — thème sombre selon les préférences système ou manuel
+- Disponible sur desktop (navbar) et mobile (menu hamburger)
+- `prefers-reduced-motion` respecté automatiquement
 
 ## Structure des fichiers
 
 ```
 annuaire-tsa-nuxt/
 ├── app/
-│   ├── app.vue                  # Layout global (navbar + footer)
+│   ├── app.vue                  # Point d'entrée avec NuxtLayout
 │   ├── app.config.ts            # Configuration Nuxt UI
-│   ├── assets/css/main.css      # Styles globaux
+│   ├── assets/css/main.css      # Styles globaux + accessibilité
+│   ├── layouts/
+│   │   ├── default.vue          # Layout public (navbar + footer)
+│   │   └── admin.vue            # Layout admin isolé
 │   ├── composables/
 │   │   └── useApi.ts            # Appels API centralisés
 │   ├── types/
@@ -47,6 +63,7 @@ annuaire-tsa-nuxt/
 │   └── pages/
 │       ├── index.vue            # Page d'accueil annuaire
 │       ├── praticien/[id].vue   # Fiche détaillée praticien
+│       ├── departement/[num].vue # Praticiens par département
 │       ├── suggerer.vue         # Formulaire suggestion praticien
 │       ├── signaler.vue         # Signaler une erreur
 │       ├── livres/
@@ -107,7 +124,6 @@ npm run generate
    - Le contenu du dossier `.output/public/`
    - Le dossier `api/`
    - Le fichier `.htaccess`
-   - Le fichier `sitemap.xml`
 
 3. Renseigner les identifiants BDD dans `api/config.php`
 
@@ -143,6 +159,7 @@ php -r "echo password_hash('votre_mdp', PASSWORD_BCRYPT);"
 | V2 | Refonte design, ajout signalements et confirmations communautaires |
 | V3 | Ajout du site Livres TSA intégré |
 | V4 | Réécriture complète en Nuxt 4 + Vue 3, admin moderne, sécurité renforcée |
+| V4.1 | PWA, accessibilité (OpenDyslexic, contraste, taille police), pages département, pagination, partage fiche |
 
 ## Licence
 
