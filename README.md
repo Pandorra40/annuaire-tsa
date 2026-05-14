@@ -178,6 +178,10 @@ php -r "echo password_hash('votre_mdp', PASSWORD_BCRYPT);"
 | V4.1 | PWA, accessibilité (OpenDyslexic, contraste, taille police), pages département, pagination, partage fiche |
 | V4.2 | Ajout page Associations TSA (290 associations, source AIS Apache 2.0), schema.org WebSite, corrections SEO |
 
+## Vibe coding
+
+Ce projet a été entièrement vibecoder avec [Claude Code](https://claude.ai/code) (IA d'Anthropic). La vision, les choix fonctionnels et les orientations sont humains — le code a été généré par l'IA.
+
 ## Licence
 
 Projet open source — données hébergées en France — RGPD
