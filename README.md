@@ -15,7 +15,16 @@ Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, 
 - Pagination (20 praticiens par page)
 - Bouton "Partager la fiche" sur chaque praticien
 
-### 2. Livres TSA (`/livres/`)
+### 2. Associations TSA (`/associations/`)
+Annuaire de 290 associations spécialisées dans les troubles du spectre autistique en France.
+
+- Associations de familles, de personnes concernées et de professionnels
+- Recherche par nom, ville, département ou service
+- Informations de contact : téléphone, email, site web
+- Services proposés, public concerné, description
+- Données issues d'Autisme Info Service (licence Apache 2.0)
+
+### 3. Livres TSA (`/livres/`)
 Sélection collaborative de livres sur le TSA.
 
 - **Grands classiques** — sélection éditoriale stockée en base de données
@@ -66,6 +75,7 @@ annuaire-tsa-nuxt/
 │       ├── departement/[num].vue # Praticiens par département
 │       ├── suggerer.vue         # Formulaire suggestion praticien
 │       ├── signaler.vue         # Signaler une erreur
+│       ├── associations.vue     # Annuaire associations TSA
 │       ├── livres/
 │       │   ├── index.vue        # Page livres TSA
 │       │   └── suggerer.vue     # Formulaire suggestion livre
@@ -82,6 +92,7 @@ api/                             # API PHP (à déployer sur LWS)
 ├── config.php                   # Connexion BDD + fonctions communes
 ├── auth.php                     # Authentification admin
 ├── praticiens.php               # CRUD praticiens (public)
+├── associations.php             # Lecture associations (public)
 ├── admin_praticiens.php         # Gestion admin praticiens
 ├── suggestions.php              # Suggestions de praticiens
 ├── signalements.php             # Signalements
@@ -97,6 +108,9 @@ api/                             # API PHP (à déployer sur LWS)
 - `suggestions` — suggestions de praticiens en attente de validation
 - `signalements` — signalements d'erreurs sur les fiches
 - `admin_sessions` — sessions administrateur
+
+### Tables associations
+- `associations` — associations TSA publiées (source AIS Apache 2.0)
 
 ### Tables livres
 - `livres` — livres publiés (classiques + suggestions validées)
@@ -162,6 +176,7 @@ php -r "echo password_hash('votre_mdp', PASSWORD_BCRYPT);"
 | V3 | Ajout du site Livres TSA intégré |
 | V4 | Réécriture complète en Nuxt 4 + Vue 3, admin moderne, sécurité renforcée |
 | V4.1 | PWA, accessibilité (OpenDyslexic, contraste, taille police), pages département, pagination, partage fiche |
+| V4.2 | Ajout page Associations TSA (290 associations, source AIS Apache 2.0), schema.org WebSite, corrections SEO |
 
 ## Licence
 
