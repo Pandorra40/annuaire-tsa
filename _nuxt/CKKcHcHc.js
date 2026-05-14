@@ -1,0 +1,1 @@
+function i(e){const t=e.trim().split(" ").filter(r=>r!=="Dr"&&r!=="Dr.");return t.length>=2?(t[0][0]+t[1][0]).toUpperCase():e.substring(0,2).toUpperCase()}function n(e){return e?new Date().getTime()-new Date(e).getTime()<10080*60*1e3:!1}export{n as a,i};

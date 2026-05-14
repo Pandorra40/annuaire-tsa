@@ -1,0 +1,1 @@
+import{y as t,ao as a,l as o,r as s,g as r}from"./CjEWTPcV.js";const n={class:"min-h-screen bg-gray-50 text-gray-900"},m=t({__name:"admin",setup(c){return a({htmlAttrs:{"data-color-mode-forced":"light"}}),(e,l)=>(r(),o("div",n,[s(e.$slots,"default")]))}});export{m as default};
