@@ -50,9 +50,6 @@ Sélection collaborative de livres sur le TSA.
 - **A- / A+** — taille de police réglable (4 niveaux)
 - **Mode lecture** — police OpenDyslexic, espacement augmenté, animations réduites
 - **Contraste élevé** — noir pur sur blanc pur pour les malvoyants
-- **Dark mode** — thème sombre selon les préférences système ou manuel
-- Disponible sur desktop (navbar) et mobile (menu hamburger)
-- `prefers-reduced-motion` respecté automatiquement
 
 ## Structure des fichiers
 
