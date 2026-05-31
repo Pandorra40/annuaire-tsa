@@ -1,0 +1,100 @@
+@import "tailwindcss";
+@import "@nuxt/ui";
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-Italic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('/fonts/OpenDyslexic-BoldItalic.woff') format('woff');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@theme static {
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+}
+
+/* Transitions douces pour le mode sombre */
+html {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Améliore le rendu du texte */
+body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Line-clamp utilitaire */
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+
+/* ── TAILLE DE POLICE ── */
+html.text-sm { font-size: 14px; }
+html.text-md { font-size: 16px; }
+html.text-lg { font-size: 19px; }
+html.text-xl { font-size: 22px; }
+
+/* ── MODE LECTURE SIMPLIFIÉE ── */
+html.lecture {
+  font-family: 'OpenDyslexic', Arial, sans-serif !important;
+  letter-spacing: 0.05em;
+  word-spacing: 0.1em;
+  line-height: 1.8;
+}
+html.lecture * {
+  font-family: 'OpenDyslexic', Arial, sans-serif !important;
+  animation: none !important;
+  transition: none !important;
+}
+html.lecture .hover\:-translate-y-1:hover,
+html.lecture .hover\:-translate-y-0\.5:hover { transform: none !important; }
+
+/* ── MODE CONTRASTE ÉLEVÉ ── */
+html.contraste body { background: #ffffff !important; color: #000000 !important; }
+html.contraste .bg-white,
+html.contraste .bg-gray-50,
+html.contraste .bg-gray-100 { background: #ffffff !important; }
+html.contraste .text-gray-500,
+html.contraste .text-gray-400,
+html.contraste .text-gray-600 { color: #000000 !important; }
+html.contraste .border-gray-200,
+html.contraste .border-gray-100 { border-color: #000000 !important; }
+
+/* ── CONTENU TIPTAP (v-html) ── */
+.prose [style*="text-align: center"] { text-align: center; }
+.prose [style*="text-align: right"] { text-align: right; }
+.prose [style*="text-align: justify"] { text-align: justify; }
+.prose [style*="text-align: left"] { text-align: left; }
+
+/* ── RESPECT DES PRÉFÉRENCES SYSTÈME ── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

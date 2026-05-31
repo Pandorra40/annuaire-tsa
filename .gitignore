@@ -1,0 +1,36 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Sauvegardes locales
+*.backup
+
+# Lockfile npm (le projet utilise pnpm)
+package-lock.json
+
+# Secrets / config serveur (ne jamais committer)
+api/config.php
+*.sqlite
+.pssql_*
+.wpsql_*
