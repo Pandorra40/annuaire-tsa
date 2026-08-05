@@ -72,6 +72,7 @@ export default defineNuxtConfig({
     '/cra': { prerender: true },
     '/apropos': { prerender: true },
     '/mentions': { prerender: true },
+    '/couts': { prerender: true },
     '/contact': { prerender: true },
     '/suggerer': { prerender: true },
     '/livres/suggerer': { prerender: true },
@@ -140,7 +141,9 @@ export default defineNuxtConfig({
       icons: [
         { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
         { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
-        { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+        // Android recadre les icônes maskable en cercle : version dédiée, au
+        // symbole resserré, sinon les boucles de l'infini sont rognées.
+        { src: '/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
       ]
     },
     workbox: {
