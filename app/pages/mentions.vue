@@ -37,12 +37,46 @@ useSeoMeta({
           </p>
         </div>
 
+        <!-- Le pseudonyme suffit pour l'éditeur (LCEN art. 6-III, éditeur non
+             professionnel), mais le RGPD exige d'identifier le responsable du
+             traitement : c'est le seul endroit où le nom civil apparaît. -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+          <div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center mb-4 text-base">⚖️</div>
+          <h2 class="font-bold text-gray-900 mb-2">Responsable du traitement</h2>
+          <p class="text-sm text-gray-600 leading-relaxed">
+            <strong>M. Husic</strong><br>
+            <a href="mailto:annuaire.tsa@gmail.com" class="text-indigo-600 hover:underline">annuaire.tsa@gmail.com</a><br>
+            <span class="text-gray-500">
+              Identité complète communiquée sur demande à toute personne concernée
+              ou à la CNIL.
+            </span>
+          </p>
+          <p class="text-sm text-gray-600 leading-relaxed mt-3">
+            Vous disposez d'un droit d'accès, de rectification, d'effacement,
+            d'opposition, de limitation et de portabilité. Réponse sous un mois
+            maximum. Réclamation possible auprès de la
+            <a href="https://www.cnil.fr" target="_blank" rel="noopener" class="text-indigo-600 hover:underline">CNIL</a>.
+          </p>
+        </div>
+
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center mb-4 text-base">🛡️</div>
           <h2 class="font-bold text-gray-900 mb-2">Données personnelles</h2>
           <p class="text-sm text-gray-600 leading-relaxed">
-            Aucune donnée personnelle collectée. Aucun cookie de tracking. Aucune inscription requise.
-            Pour modification/suppression d'une fiche : <a href="mailto:annuaire.tsa@gmail.com" class="text-indigo-600 hover:underline">annuaire.tsa@gmail.com</a>
+            Aucune inscription requise. Aucun cookie publicitaire ni tracking.
+            Les suggestions et signalements peuvent contenir du texte libre : conservés le temps
+            de la modération, puis publiés ou supprimés.
+            Pour toute demande (modification, suppression) :
+            <a href="mailto:annuaire.tsa@gmail.com" class="text-indigo-600 hover:underline">annuaire.tsa@gmail.com</a>
+            <br><br>
+            <strong>Formulaire de contact d'une fiche :</strong> votre message est transmis
+            au praticien par courriel, avec votre adresse en « répondre à » pour qu'il vous
+            réponde directement. Son contenu n'est conservé nulle part — ni dans la base du
+            site, ni par son éditeur, qui n'en reçoit aucune copie. Seules la date, la fiche
+            concernée et votre adresse sont journalisées, pour pouvoir limiter les abus.
+            <br><br>
+            Vous êtes un praticien référencé ?
+            <NuxtLink to="/donnees-praticiens" class="text-indigo-600 hover:underline">Information dédiée sur vos données →</NuxtLink>
           </p>
         </div>
 

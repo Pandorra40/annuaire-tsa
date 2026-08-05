@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { MOTIF_RETRAIT } from '~/types/index'
+
 definePageMeta({ layout: 'admin' })
 useSeoMeta({ title: 'Administration — Annuaire TSA' })
 
 const token = ref('')
-const publies = ref<any[]>([])
+const fiches = ref<any[]>([])
 const attente = ref<any[]>([])
 const signalements = ref<any[]>([])
 const activeTab = ref('attente')
@@ -37,13 +39,16 @@ async function charger() {
       adminFetch('suggestions.php?statut=en_attente'),
       adminFetch('signalements.php?statut=ouvert')
     ])
-    publies.value = p
+    fiches.value = p
     attente.value = a
     signalements.value = s
   } catch (e: any) {
     loadError.value = 'Erreur de chargement : ' + (e.message ?? 'inconnue')
   } finally { loading.value = false }
 }
+
+const publies = computed(() => fiches.value.filter(p => p.statut === 'publie'))
+const masquees = computed(() => fiches.value.filter(p => p.statut !== 'publie'))
 
 const alertes = computed(() =>
   publies.value.filter(p => nbSignalements(p.id) >= SEUIL)
@@ -88,6 +93,13 @@ async function supprimer(id: number) {
   finally { enCours = false }
 }
 
+async function basculerVisibilite(id: number, statut: string) {
+  if (enCours) return; enCours = true
+  try { await adminFetch('admin_praticiens.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut }) }); await charger() }
+  catch (e: any) { alert('Erreur : ' + (e as Error).message) }
+  finally { enCours = false }
+}
+
 async function ignorerSignalement(id: number) {
   if (enCours) return; enCours = true
   try { await adminFetch('signalements.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'ignore' }) }); await charger() }
@@ -113,6 +125,9 @@ async function deconnexion() {
           <span class="font-bold text-gray-900">Administration</span>
         </div>
         <div class="flex items-center gap-2">
+          <NuxtLink to="/admin/contacts" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            ✉️ Contacts
+          </NuxtLink>
           <NuxtLink to="/admin/livres" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
             📚 Livres
           </NuxtLink>
@@ -132,9 +147,10 @@ async function deconnexion() {
     <div class="max-w-6xl mx-auto px-4 py-6">
 
       <!-- STATS -->
-      <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
         <UCard v-for="stat in [
           { val: publies.length, label: 'Praticiens publiés', color: 'text-blue-600' },
+          { val: masquees.length, label: 'Fiches en pause', color: 'text-gray-600' },
           { val: attente.length, label: 'En attente', color: 'text-amber-600' },
           { val: signalements.length, label: 'Signalements', color: 'text-red-600' },
           { val: alertes.length, label: 'Alertes', color: 'text-red-700' }
@@ -162,6 +178,7 @@ async function deconnexion() {
             v-for="tab in [
               { id: 'attente', label: 'En attente', count: attente.length },
               { id: 'publies', label: 'Publiés', count: null },
+              { id: 'masquees', label: 'En pause', count: masquees.length },
               { id: 'signalements', label: 'Signalements', count: signalements.length },
               { id: 'alertes', label: 'Alertes', count: alertes.length }
             ]"
@@ -222,6 +239,27 @@ async function deconnexion() {
               </div>
               <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100">
                 <NuxtLink :to="`/admin/modifier?id=${d.id}`" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Modifier</NuxtLink>
+                <button class="px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors" @click="basculerVisibilite(d.id, 'masquee')">Mettre en pause</button>
+                <button class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(d.id)">Supprimer</button>
+              </div>
+            </UCard>
+          </div>
+        </div>
+
+        <!-- EN PAUSE -->
+        <div v-if="activeTab === 'masquees'">
+          <div v-if="!masquees.length" class="text-center py-12 text-gray-400">Aucune fiche en pause.</div>
+          <div v-else class="space-y-3">
+            <p class="text-sm text-gray-500 mb-4">
+              Ces fiches n'apparaissent ni dans l'annuaire, ni dans les pages département,
+              ni dans le plan du site. Aucune donnée n'a été perdue.
+            </p>
+            <UCard v-for="d in masquees" :key="d.id" class="opacity-75">
+              <div class="font-bold text-gray-900">{{ d.nom }}</div>
+              <div class="text-sm text-gray-500">{{ d.type }} · {{ d.ville }} ({{ d.departement }})</div>
+              <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100 flex-wrap">
+                <button class="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors" @click="basculerVisibilite(d.id, 'publie')">Remettre en ligne</button>
+                <NuxtLink :to="`/admin/modifier?id=${d.id}`" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Modifier</NuxtLink>
                 <button class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(d.id)">Supprimer</button>
               </div>
             </UCard>
@@ -232,12 +270,16 @@ async function deconnexion() {
         <div v-if="activeTab === 'signalements'">
           <div v-if="!signalements.length" class="text-center py-12 text-gray-400">Aucun signalement en cours.</div>
           <div v-else class="space-y-3">
-            <UCard v-for="s in signalements" :key="s.id">
+            <UCard v-for="s in signalements" :key="s.id" :class="s.motif === MOTIF_RETRAIT ? 'ring-2 ring-red-400' : ''">
+              <div v-if="s.motif === MOTIF_RETRAIT" class="mb-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700 font-semibold">
+                ⚠ Demande de retrait par le praticien · délai légal : un mois maximum
+              </div>
               <div class="font-bold text-gray-900">{{ s.praticien_nom || 'Praticien #' + s.praticien_id }}</div>
               <div class="text-sm text-gray-500 mt-1">{{ s.motif }}</div>
               <div v-if="s.detail" class="text-xs text-gray-500 mt-2 p-2 bg-gray-50 rounded">{{ s.detail }}</div>
               <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100 flex-wrap">
                 <NuxtLink :to="`/admin/modifier?id=${s.praticien_id}`" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Modifier la fiche</NuxtLink>
+                <button v-if="s.motif === MOTIF_RETRAIT" class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(s.praticien_id)">Supprimer la fiche</button>
                 <button class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors" @click="ignorerSignalement(s.id)">Ignorer</button>
               </div>
             </UCard>

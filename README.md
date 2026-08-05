@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.3
+# Annuaire TSA — V4.4
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -10,6 +10,7 @@ Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, 
 - Recherche par ville, département ou spécialité
 - Filtres par type de praticien, tranche d'âge et mode de consultation
 - Système de confirmation et signalement communautaire
+- Formulaire de contact par praticien, pour les personnes qui ne peuvent pas téléphoner — activé uniquement avec l'accord écrit du praticien, son adresse n'est jamais publiée
 - Suggestion de praticiens par la communauté
 - Pages dédiées par département (`/departement/XX`) pour le SEO
 - Pagination (20 praticiens par page) — page et filtres conservés dans l'URL (recherches partageables, état restauré au retour navigateur)
@@ -84,16 +85,21 @@ annuaire-tsa-nuxt/
 │       ├── apropos.vue
 │       ├── contact.vue
 │       ├── mentions.vue
+│       ├── donnees-praticiens.vue # Information RGPD dédiée aux praticiens
 │       └── admin/
 │           ├── login.vue        # Connexion admin
 │           ├── index.vue        # Dashboard admin praticiens
 │           ├── modifier.vue     # Modifier une fiche praticien
+│           ├── contacts.vue     # Emails et consentements des formulaires
 │           └── livres.vue       # Admin livres TSA
 
 api/                             # API PHP (à déployer sur LWS)
 ├── config.php                   # Connexion BDD + fonctions communes
 ├── auth.php                     # Authentification admin
 ├── praticiens.php               # CRUD praticiens (public)
+├── contact.php                  # Formulaire de contact + lien de désactivation
+├── lib/PHPMailer/               # PHPMailer vendorisé (pas de composer sur le mutualisé)
+├── migrations/                  # Scripts SQL, appliqués via phpMyAdmin
 ├── associations.php             # Lecture associations (public)
 ├── admin_praticiens.php         # Gestion admin praticiens
 ├── suggestions.php              # Suggestions de praticiens
@@ -110,6 +116,8 @@ api/                             # API PHP (à déployer sur LWS)
 - `suggestions` — suggestions de praticiens en attente de validation
 - `signalements` — signalements d'erreurs sur les fiches
 - `admin_sessions` — sessions administrateur
+- `praticiens_contact` — email, consentement et jeton de désactivation du formulaire de contact. Table **séparée** de `praticiens` : `praticiens.php` fait `SELECT *` et publierait l'adresse
+- `contact_journal` — métadonnées des messages envoyés (date, fiche, IP, adresse de l'expéditeur). **Jamais le contenu des messages**
 
 ### Tables associations
 - `associations` — associations TSA publiées (source AIS Apache 2.0)
@@ -170,7 +178,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 
 - Injection SQL impossible (PDO + prepared statements)
 - XSS impossible côté client (Vue.js échappe par défaut)
-- Rate limiting sur tous les formulaires publics (5 req/heure/IP)
+- Rate limiting sur tous les formulaires publics (5 req/heure/IP ; formulaire de contact : 10/heure et 40/jour)
 - Validation stricte des entrées (longueur, type, URLs)
 - HTTPS forcé + headers de sécurité (HSTS, X-Frame-Options, CSP…)
 - Authentification bcrypt + tokens de session 256 bits
@@ -189,6 +197,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 | V4.1 | PWA, accessibilité (OpenDyslexic, contraste, taille police), pages département, pagination, partage fiche |
 | V4.2 | Ajout page Associations TSA (290 associations, source AIS Apache 2.0), schema.org WebSite, corrections SEO |
 | V4.3 | Base praticiens enrichie (ADELI + sources Tamis-Autisme), nouveautés livres via data.bnf.fr, affichage ADELI, refonte fiche praticien (partage Facebook, aération des notes), pagination/filtres dans l'URL, corrections de navigation et de cache PWA |
+| V4.4 | Formulaire de contact par praticien (SMTP, consentement explicite, lien de désactivation autonome), page `/donnees-praticiens` d'information RGPD, admin `/admin/contacts`, champ « détails » obligatoire sur les signalements, mentions légales complétées d'un responsable du traitement |
 
 ## Vibe coding
 

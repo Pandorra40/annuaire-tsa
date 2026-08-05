@@ -70,6 +70,37 @@ const faq = [
           </div>
         </div>
 
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0 text-xl">
+              ✉️
+            </div>
+            <div>
+              <h2 class="font-bold text-xl text-gray-900 mb-3">Écrire sans téléphoner</h2>
+              <p class="text-gray-600 leading-relaxed">
+                Beaucoup de personnes autistes ne peuvent pas passer d'appel téléphonique.
+                C'est une difficulté fréquente, rarement prise en compte, et elle suffit parfois
+                à interrompre une démarche de soin avant même qu'elle ne commence. Un annuaire
+                qui n'offre qu'un numéro reste donc inaccessible à une partie du public auquel
+                il s'adresse.
+              </p>
+              <p class="text-gray-600 leading-relaxed mt-3">
+                Depuis août 2026, un <strong>formulaire de contact</strong> peut être activé sur
+                la fiche d'un praticien. Vous écrivez depuis le site, il reçoit votre message par
+                courriel et vous répond directement. Son adresse n'est jamais affichée, la vôtre
+                ne sert qu'à recevoir sa réponse, et le contenu de l'échange n'est conservé nulle
+                part — ni dans la base du site, ni par son éditeur.
+              </p>
+              <p class="text-gray-600 leading-relaxed mt-3">
+                Chaque praticien a été informé individuellement et a donné son accord par écrit.
+                Sans cet accord, aucun formulaire n'apparaît : c'est pourquoi certaines fiches en
+                proposent un et d'autres non.
+                <NuxtLink to="/donnees-praticiens" class="text-indigo-600 hover:underline">En savoir plus →</NuxtLink>
+              </p>
+            </div>
+          </div>
+        </div>
+
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
           <div class="p-6 pb-4 border-b border-gray-100">
             <h2 class="font-bold text-lg text-gray-900 flex items-center gap-3">

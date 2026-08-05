@@ -10,6 +10,10 @@ export function useApi() {
     return await $fetch<Praticien[]>(`${base}/praticiens.php?id=${id}`)
   }
 
+  async function fetchPraticiensDepartement(departement: string) {
+    return await $fetch<Praticien[]>(`${base}/praticiens.php?departement=${encodeURIComponent(departement)}`)
+  }
+
   async function confirmerFiche(id: number) {
     return await $fetch(`${base}/praticiens.php?id=${id}`, { method: 'PATCH' })
   }
@@ -20,6 +24,13 @@ export function useApi() {
 
   async function suggererPraticien(payload: SuggestionPraticien) {
     return await $fetch(`${base}/suggestions.php`, {
+      method: 'POST',
+      body: payload
+    })
+  }
+
+  async function envoyerMessage(payload: MessageContact) {
+    return await $fetch(`${base}/contact.php`, {
       method: 'POST',
       body: payload
     })
@@ -43,9 +54,11 @@ export function useApi() {
   return {
     fetchPraticiens,
     fetchPraticien,
+    fetchPraticiensDepartement,
     confirmerFiche,
     fetchLivres,
     suggererPraticien,
+    envoyerMessage,
     suggererLivre,
     fetchAssociations,
     fetchAssociation

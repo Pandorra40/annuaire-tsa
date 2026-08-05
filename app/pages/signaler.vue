@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { MOTIF_RETRAIT } from '~/types/index'
+
 useSeoMeta({
   title: 'Signaler une erreur — Annuaire TSA'
 })
@@ -16,6 +18,7 @@ const form = reactive({
 })
 
 const motifs = [
+  MOTIF_RETRAIT,
   'Informations incorrectes (adresse, téléphone…)',
   'Praticien n\'exerce plus',
   'Praticien n\'est pas spécialisé TSA',
@@ -23,6 +26,8 @@ const motifs = [
   'Doublon',
   'Autre'
 ]
+
+const demandeRetrait = computed(() => form.motif === MOTIF_RETRAIT)
 
 const loading = ref(false)
 const success = ref(false)
@@ -34,11 +39,18 @@ async function soumettre() {
     error.value = 'Merci de sélectionner un motif.'
     return
   }
+  // Un signalement sans explication n'est pas exploitable : il faut réécrire au praticien
+  // pour savoir quoi corriger. Seule la demande de retrait en est dispensée — exiger une
+  // justification pour une opposition serait contraire à l'article 21 du RGPD.
+  if (!demandeRetrait.value && form.details.trim().length < 10) {
+    error.value = 'Merci de décrire ce qui est inexact, et si possible la bonne information.'
+    return
+  }
   loading.value = true
   try {
     await $fetch(`${config.public.apiBase}/signalements.php`, {
       method: 'POST',
-      body: { praticien_id: id, motif: form.motif, details: form.details || null }
+      body: { praticien_id: id, motif: form.motif, detail: form.details || null }
     })
     success.value = true
   } catch (e: any) {
@@ -68,8 +80,12 @@ async function soumettre() {
     <section v-if="success" class="bg-gray-50 py-20">
       <div class="max-w-3xl mx-auto px-6 text-center">
         <div class="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-5 text-3xl">✅</div>
-        <h2 class="text-2xl font-bold mb-3 text-gray-900">Signalement envoyé</h2>
-        <p class="text-gray-500 mb-8">Merci pour votre contribution. La fiche sera vérifiée rapidement.</p>
+        <h2 class="text-2xl font-bold mb-3 text-gray-900">{{ demandeRetrait ? 'Demande de retrait enregistrée' : 'Signalement envoyé' }}</h2>
+        <p class="text-gray-500 mb-8">
+          {{ demandeRetrait
+            ? 'Votre fiche sera retirée dans les meilleurs délais, et au plus tard sous un mois. Vous pouvez écrire à annuaire.tsa@gmail.com si vous souhaitez une confirmation.'
+            : 'Merci pour votre contribution. La fiche sera vérifiée rapidement.' }}
+        </p>
         <NuxtLink to="/" class="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors">
           ← Retour à l'annuaire
         </NuxtLink>
@@ -99,9 +115,22 @@ async function soumettre() {
               </select>
             </div>
 
+            <div v-if="demandeRetrait" class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-sm text-indigo-900 leading-relaxed">
+              Votre fiche sera retirée dans les meilleurs délais, et au plus tard sous un
+              mois, sans que vous ayez à vous justifier. Aucune donnée vous concernant ne
+              sera conservée.
+              <br><br>
+              Si vous préférez une confirmation écrite, écrivez plutôt à
+              <a href="mailto:annuaire.tsa@gmail.com?subject=Retrait%20de%20ma%20fiche" class="font-semibold underline">annuaire.tsa@gmail.com</a>.
+              <NuxtLink to="/donnees-praticiens" class="font-semibold underline">En savoir plus sur vos droits →</NuxtLink>
+            </div>
+
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Détails <span class="text-gray-400 font-normal">(optionnel)</span></label>
-              <textarea v-model="form.details" rows="4" placeholder="Décrivez l'erreur constatée…" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
+              <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+                Détails <span v-if="!demandeRetrait">*</span>
+                <span v-else class="text-gray-400 font-normal">(optionnel)</span>
+              </label>
+              <textarea v-model="form.details" rows="4" :placeholder="demandeRetrait ? 'Un mot si vous le souhaitez — ce n\'est pas nécessaire.' : 'Qu\'est-ce qui est inexact, et quelle est la bonne information ? Exemple : le téléphone est le 06 12 34 56 78, plus le 04…'" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
             </div>
           </div>
         </div>

@@ -5,7 +5,7 @@ import { initiales, isNew } from '~/composables/usePraticien'
 const route = useRoute()
 const router = useRouter()
 const id = Number(route.params.id)
-const { fetchPraticien, confirmerFiche } = useApi()
+const { fetchPraticien, confirmerFiche, envoyerMessage } = useApi()
 
 // « Retour à l'annuaire » : rejoue l'historique si on vient du site
 // (restaure pagination + position de défilement), sinon va à l'accueil.
@@ -15,9 +15,9 @@ function retourAnnuaire() {
   else router.push('/')
 }
 
-const { data, status } = await useAsyncData(`praticien-${id}`, () => fetchPraticien(id), {
-  server: false
-})
+// Rendu au build pour que les moteurs voient la fiche (SEO), puis rafraîchi
+// au montage pour refléter les modifications faites depuis l'admin.
+const { data, status, refresh } = await useAsyncData(`praticien-${id}`, () => fetchPraticien(id))
 
 const praticien = computed<Praticien | null>(() => data.value?.[0] ?? null)
 
@@ -45,11 +45,77 @@ onUnmounted(() => { if (copiedTimer) clearTimeout(copiedTimer) })
 onMounted(() => {
   alreadyVoted.value = localStorage.getItem(`verified_${id}`) === '1'
   if (praticien.value) voteCount.value = praticien.value.confirmations
+  refresh()
 })
 
 watch(praticien, (val) => {
   if (val) voteCount.value = val.confirmations
 })
+
+// ---- Formulaire de contact -------------------------------------------------
+// Affiché seulement si le praticien y a consenti. Son adresse n'est jamais
+// transmise au navigateur : le serveur ne publie que `contact_actif`.
+//
+// La valeur est relue directement au montage, sans passer par useAsyncData : la
+// page est prérendue au build, donc son payload date d'avant l'activation. Sans
+// cette requête dédiée, activer un formulaire dans l'admin imposerait de
+// régénérer et redéployer tout le site.
+const contactActif = ref(false)
+
+watch(() => praticien.value?.contact_actif, (v) => {
+  if (v) contactActif.value = true
+}, { immediate: true })
+
+onMounted(async () => {
+  try {
+    const frais = await fetchPraticien(id)
+    contactActif.value = !!frais?.[0]?.contact_actif
+  } catch {
+    // API injoignable : on garde la valeur du prérendu plutôt que de masquer
+    // un formulaire dont on sait qu'il était actif au dernier build.
+  }
+})
+
+const formOuvert = ref(false)
+const message = reactive({ nom: '', email: '', message: '', hp: '' })
+const consentDonnees = ref(false)
+const envoi = ref(false)
+const envoye = ref(false)
+const erreurEnvoi = ref('')
+const ouvertureTs = ref(0)
+
+function ouvrirFormulaire() {
+  formOuvert.value = true
+  ouvertureTs.value = Date.now()
+}
+
+async function envoyer() {
+  erreurEnvoi.value = ''
+  if (!message.nom.trim() || !message.email.trim() || !message.message.trim()) {
+    erreurEnvoi.value = 'Merci de remplir votre nom, votre email et votre message.'
+    return
+  }
+  if (!consentDonnees.value) {
+    erreurEnvoi.value = 'Merci de cocher la case avant l’envoi.'
+    return
+  }
+  envoi.value = true
+  try {
+    await envoyerMessage({
+      praticien_id: id,
+      nom: message.nom.trim(),
+      email: message.email.trim(),
+      message: message.message.trim(),
+      hp: message.hp,
+      elapsed: Date.now() - ouvertureTs.value
+    })
+    envoye.value = true
+  } catch (e: any) {
+    erreurEnvoi.value = e?.data?.error ?? 'L’envoi a échoué. Réessayez dans un instant.'
+  } finally {
+    envoi.value = false
+  }
+}
 
 async function confirmer() {
   if (alreadyVoted.value) return
@@ -73,7 +139,7 @@ async function confirmer() {
   <div>
 
     <!-- CHARGEMENT / ERREUR -->
-    <section v-if="status === 'pending'" class="bg-gray-50 min-h-screen flex justify-center items-center py-16">
+    <section v-if="status === 'pending' && !praticien" class="bg-gray-50 min-h-screen flex justify-center items-center py-16">
       <svg class="animate-spin text-gray-400 w-10 h-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
@@ -115,7 +181,7 @@ async function confirmer() {
               </div>
               <p class="text-gray-500 text-lg mb-4">
                 {{ praticien.type }} · {{ praticien.ville }}
-                <NuxtLink :to="`/departement/${praticien.departement}`" class="hover:text-indigo-600 transition-colors">({{ praticien.departement }})</NuxtLink>
+                <NuxtLink v-if="praticien.departement" :to="`/departement/${praticien.departement}`" class="hover:text-indigo-600 transition-colors">({{ praticien.departement }})</NuxtLink>
               </p>
               <div class="flex flex-wrap gap-2">
                 <span v-for="age in praticien.ages" :key="age" class="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm font-medium rounded-full border border-indigo-200">{{ age }}</span>
@@ -193,6 +259,91 @@ async function confirmer() {
                 <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-sm">🪪</div>
                 <span>N° ADELI : {{ praticien.adeli }}</span>
               </div>
+
+              <!-- FORMULAIRE DE CONTACT (si le praticien y a consenti) -->
+              <template v-if="contactActif">
+                <div class="border-t border-gray-100 mt-4 pt-4">
+
+                  <div v-if="envoye" class="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl p-4 leading-relaxed">
+                    <span class="font-semibold">Message envoyé.</span><br>
+                    {{ praticien.nom }} vous répondra directement à l’adresse que vous avez indiquée.
+                  </div>
+
+                  <button
+                    v-else-if="!formOuvert"
+                    class="w-full py-2.5 border-2 border-indigo-200 text-indigo-700 rounded-xl font-semibold text-sm hover:bg-indigo-50 transition-colors"
+                    @click="ouvrirFormulaire"
+                  >
+                    ✉️ Écrire à ce praticien
+                  </button>
+
+                  <form v-else class="space-y-3" @submit.prevent="envoyer">
+                    <p class="text-xs text-gray-500 leading-relaxed">
+                      Pas besoin d’appeler : votre message lui parvient par email, et sa réponse
+                      arrivera dans votre boîte.
+                    </p>
+
+                    <div v-if="erreurEnvoi" class="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl p-3">
+                      ⚠️ {{ erreurEnvoi }}
+                    </div>
+
+                    <input
+                      v-model="message.nom"
+                      type="text"
+                      placeholder="Votre nom"
+                      maxlength="100"
+                      class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                    />
+                    <input
+                      v-model="message.email"
+                      type="email"
+                      placeholder="Votre email"
+                      class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                    />
+                    <textarea
+                      v-model="message.message"
+                      rows="5"
+                      maxlength="2000"
+                      placeholder="Votre message. Décrivez votre demande — inutile d’entrer dans le détail médical."
+                      class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-vertical transition-all"
+                    />
+
+                    <!-- Champ piège : hors écran, jamais rempli par un humain -->
+                    <input
+                      v-model="message.hp"
+                      type="text"
+                      tabindex="-1"
+                      autocomplete="off"
+                      aria-hidden="true"
+                      class="absolute -left-[9999px] w-px h-px opacity-0"
+                    />
+
+                    <label class="flex items-start gap-2 text-xs text-gray-600 leading-relaxed cursor-pointer">
+                      <input v-model="consentDonnees" type="checkbox" class="mt-0.5 rounded border-gray-300" />
+                      <span>
+                        J’accepte que mon nom, mon email et mon message soient transmis à ce
+                        praticien pour qu’il puisse me répondre.
+                      </span>
+                    </label>
+
+                    <button
+                      :disabled="envoi"
+                      type="submit"
+                      class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm disabled:opacity-50 transition-colors"
+                    >
+                      {{ envoi ? 'Envoi…' : 'Envoyer le message →' }}
+                    </button>
+
+                    <p class="text-xs text-gray-500 leading-relaxed">
+                      Votre message est transmis directement à ce praticien. Il n’est lu par
+                      personne d’autre et n’est conservé nulle part — ni sur le site, ni par
+                      son éditeur.
+                      <NuxtLink to="/mentions" class="underline hover:text-gray-700">En savoir plus</NuxtLink>
+                    </p>
+                  </form>
+
+                </div>
+              </template>
             </div>
 
             <!-- Localisation -->
@@ -204,7 +355,7 @@ async function confirmer() {
               <p class="text-gray-600 text-sm mb-3">
                 {{ [praticien.adresse, praticien.ville, praticien.departement ? `(${praticien.departement})` : ''].filter(Boolean).join(', ') || 'Adresse non renseignée' }}
               </p>
-              <NuxtLink :to="`/departement/${praticien.departement}`" class="inline-flex items-center gap-1.5 text-indigo-600 text-sm hover:text-indigo-700 transition-colors font-medium">
+              <NuxtLink v-if="praticien.departement" :to="`/departement/${praticien.departement}`" class="inline-flex items-center gap-1.5 text-indigo-600 text-sm hover:text-indigo-700 transition-colors font-medium">
                 Voir tous les praticiens du {{ praticien.departement }} →
               </NuxtLink>
             </div>
@@ -244,6 +395,10 @@ async function confirmer() {
                 <UIcon name="i-lucide-flag" class="w-4 h-4" />
                 Signaler une erreur sur cette fiche
               </NuxtLink>
+              <p class="text-xs text-amber-700/80 mt-2">
+                Vous êtes ce praticien ?
+                <NuxtLink :to="`/signaler?id=${praticien.id}`" class="underline font-medium hover:text-amber-900">Demander le retrait de votre fiche</NuxtLink>
+              </p>
             </div>
 
           </div>
