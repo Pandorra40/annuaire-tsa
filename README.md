@@ -34,6 +34,15 @@ Sélection collaborative de livres sur le TSA.
 - **Dernières parutions** — mises à jour automatiquement via data.bnf.fr / BnF (SPARQL, sans clé API)
 - Formulaire de suggestion de livres sans inscription
 
+### 4. Centres Ressources Autisme (`/cra/`)
+Les 47 centres ressources publics de France, avec le parcours de diagnostic expliqué.
+
+- 28 Centres Ressources Autisme régionaux, 16 centres IntimAgir, 2 centres spécialisés et le GNCRA
+- Recherche par nom, région, ville ou département, filtrable par catégorie
+- Regroupement par région, coordonnées complètes (adresse, téléphone, email, site)
+- Le parcours de repérage et de diagnostic en trois niveaux, selon la Stratégie nationale pour l'autisme
+- Données institutionnelles publiques (GNCRA / Autisme Info Service) — **stockées en dur dans `app/data/cra.ts`, pas en base** : ces structures sont stables et ne se modifient pas depuis l'admin
+
 ## Stack technique
 
 | Composant | Technologie |
@@ -70,6 +79,8 @@ annuaire-tsa-nuxt/
 │   │   └── admin.vue            # Layout admin isolé
 │   ├── composables/
 │   │   └── useApi.ts            # Appels API centralisés
+│   ├── data/
+│   │   └── cra.ts               # Centres Ressources Autisme (données statiques, hors BDD)
 │   ├── types/
 │   │   └── index.ts             # Types TypeScript
 │   └── pages/
@@ -79,6 +90,7 @@ annuaire-tsa-nuxt/
 │       ├── suggerer.vue         # Formulaire suggestion praticien
 │       ├── signaler.vue         # Signaler une erreur
 │       ├── associations.vue     # Annuaire associations TSA
+│       ├── cra.vue              # Centres Ressources Autisme + parcours de diagnostic
 │       ├── livres/
 │       │   ├── index.vue        # Page livres TSA
 │       │   └── suggerer.vue     # Formulaire suggestion livre
@@ -197,7 +209,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 | V4.1 | PWA, accessibilité (OpenDyslexic, contraste, taille police), pages département, pagination, partage fiche |
 | V4.2 | Ajout page Associations TSA (290 associations, source AIS Apache 2.0), schema.org WebSite, corrections SEO |
 | V4.3 | Base praticiens enrichie (ADELI + sources Tamis-Autisme), nouveautés livres via data.bnf.fr, affichage ADELI, refonte fiche praticien (partage Facebook, aération des notes), pagination/filtres dans l'URL, corrections de navigation et de cache PWA |
-| V4.4 | Formulaire de contact par praticien (SMTP, consentement explicite, lien de désactivation autonome), page `/donnees-praticiens` d'information RGPD, admin `/admin/contacts`, champ « détails » obligatoire sur les signalements, mentions légales complétées d'un responsable du traitement |
+| V4.4 | Page Centres Ressources Autisme (47 centres, parcours de diagnostic en trois niveaux), formulaire de contact par praticien (SMTP, consentement explicite, lien de désactivation autonome), page `/donnees-praticiens` d'information RGPD, admin `/admin/contacts`, champ « détails » obligatoire sur les signalements, mentions légales complétées d'un responsable du traitement |
 
 ## Vibe coding
 
