@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Contact — Annuaire TSA',
-  description: 'Contactez l\'équipe de l\'Annuaire TSA.'
+  description: 'Contactez l\'équipe de l\'Annuaire TSA pour toute question, suggestion ou signalement concernant les praticiens et associations spécialisés dans l\'autisme référencés sur notre plateforme.'
 })
 </script>
 

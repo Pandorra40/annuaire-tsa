@@ -1,27 +1,30 @@
 name: ci
 
-on: push
+# Conservé pour compatibilité : délègue au workflow racine si le repo est cloné depuis annuaire-tsa-nuxt uniquement.
+# Le workflow principal est ../.github/workflows/ci.yml (monorepo TSA).
+
+on:
+  push:
+    paths:
+      - 'annuaire-tsa-nuxt/**'
 
 jobs:
   ci:
-    runs-on: ${{ matrix.os }}
-
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        node: [22]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Install pnpm
-        uses: pnpm/action-setup@v6
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
 
       - name: Install node
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 22
           cache: pnpm
 
       - name: Install dependencies
@@ -32,3 +35,6 @@ jobs:
 
       - name: Typecheck
         run: pnpm run typecheck
+
+      - name: Unit tests
+        run: pnpm run test

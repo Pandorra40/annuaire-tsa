@@ -4,7 +4,7 @@ import { initiales } from '~/composables/usePraticien'
 
 const route = useRoute()
 const num = route.params.num as string
-const { fetchPraticiens } = useApi()
+const { fetchPraticiensDepartement } = useApi()
 
 const DEPARTEMENTS: Record<string, string> = {
   '01': 'Ain', '02': 'Aisne', '03': 'Allier', '04': 'Alpes-de-Haute-Provence', '05': 'Hautes-Alpes',
@@ -37,8 +37,15 @@ useSeoMeta({
   description: computed(() => `Trouvez un praticien spécialisé TSA dans le département ${num} — ${nomDepartement.value}. Psychiatres, psychologues, orthophonistes, ergothérapeutes.`)
 })
 
-const { data: tous, status } = await useAsyncData(`praticiens-dep-${num}`, fetchPraticiens, { server: false })
+// Rendu au build pour que les moteurs voient la liste (SEO), puis rafraîchi
+// au montage pour refléter les modifications faites depuis l'admin.
+const { data: tous, status, refresh } = await useAsyncData(`praticiens-dep-${num}`, () => fetchPraticiensDepartement(num))
 
+onMounted(() => refresh())
+
+// Le filtre reste appliqué côté client : si l'API ne gère pas encore le
+// paramètre departement, elle renvoie tout et la page affiche quand même
+// les bons praticiens.
 const praticiens = computed<Praticien[]>(() =>
   (tous.value ?? []).filter((p: Praticien) => p.departement === num.toUpperCase() || p.departement === num)
 )
@@ -69,7 +76,7 @@ const praticiens = computed<Praticien[]>(() =>
     <section class="bg-gray-50 min-h-screen py-10">
       <div class="max-w-3xl mx-auto px-6">
 
-        <div v-if="status === 'pending'" class="flex justify-center py-16">
+        <div v-if="status === 'pending' && !tous" class="flex justify-center py-16">
           <svg class="animate-spin text-gray-400 w-10 h-10" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>

@@ -1,6 +1,9 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
-useSeoMeta({ title: 'Connexion — Administration TSA' })
+useSeoMeta({
+  title: 'Connexion — Administration TSA',
+  robots: 'noindex, nofollow'
+})
 
 const mdp = ref('')
 const erreur = ref('')

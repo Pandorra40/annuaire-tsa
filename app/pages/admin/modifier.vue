@@ -20,7 +20,7 @@ const notice = ref('')
 const form = reactive({
   nom: '', type: '', adresse: '', ville: '', departement: '',
   telephone: '', site_web: '', teleconsultation: false,
-  delai: '', notes: '', ages: [] as string[]
+  delai: '', notes: '', ages: [] as string[], adeli: ''
 })
 
 const types = TYPES_PRATICIENS
@@ -59,6 +59,7 @@ async function chargerFiche() {
     form.delai = data.delai || ''
     form.notes = data.notes || ''
     form.ages = data.ages || []
+    form.adeli = data.adeli || ''
     nextTick(() => { editor.value?.commands.setContent(form.notes) })
   } catch (e: any) { erreur.value = 'Erreur : ' + e.message }
   finally { loading.value = false }
@@ -96,7 +97,7 @@ onUnmounted(() => editor.value?.destroy())
 async function sauvegarder() {
   notice.value = ''
   if (!form.nom || !form.type || !form.ville || !form.departement || !form.ages.length) {
-    notice.value = 'Merci de renseigner : nom, type, ville, code postal et public reçu.'
+    notice.value = 'Merci de renseigner : nom, type, ville, département et public reçu.'
     return
   }
   try {
@@ -111,7 +112,8 @@ async function sauvegarder() {
         teleconsultation: form.teleconsultation,
         delai: form.delai || null,
         notes: editor.value?.getHTML() || null,
-        ages: form.ages
+        ages: form.ages,
+        adeli: form.adeli || null
       })
     })
     success.value = true
@@ -179,6 +181,9 @@ async function sauvegarder() {
               </select>
             </UFormField>
           </div>
+          <UFormField label="Numéro ADELI ou RPPS" class="mt-4">
+            <UInput v-model="form.adeli" />
+          </UFormField>
           <UFormField label="Public reçu *" class="mt-4">
             <div class="flex flex-wrap gap-3 mt-1">
               <label v-for="age in agesOptions" :key="age" class="flex items-center gap-2 cursor-pointer text-sm">
@@ -199,7 +204,7 @@ async function sauvegarder() {
             <UFormField label="Ville *">
               <UInput v-model="form.ville" />
             </UFormField>
-            <UFormField label="Code postal *">
+            <UFormField label="Département *">
               <UInput v-model="form.departement" maxlength="5" />
             </UFormField>
           </div>

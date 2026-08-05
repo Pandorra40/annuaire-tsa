@@ -1,3 +1,5 @@
+import { ofetch } from 'ofetch'
+
 export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
@@ -7,7 +9,7 @@ export default defineNuxtConfig({
   ],
 
   devtools: {
-    enabled: true
+    enabled: process.env.NODE_ENV === 'development'
   },
 
   css: ['~/assets/css/main.css'],
@@ -20,13 +22,54 @@ export default defineNuxtConfig({
 
   nitro: {
     prerender: {
-      crawlLinks: true
+      crawlLinks: true,
+      // L'API tourne sur un mutualisé : trop de requêtes simultanées la font
+      // échouer silencieusement et génère des pages vides.
+      concurrency: 3,
+      interval: 150,
+      retry: 3,
+      retryDelay: 1000
+    }
+  },
+
+  // Les fiches praticiens / associations / départements sont rendues côté client :
+  // le crawler de Nitro ne peut pas les découvrir. On interroge donc l'API au build
+  // pour lui fournir la liste explicite des routes à pré-rendre (SEO).
+  hooks: {
+    async 'nitro:config'(nitroConfig) {
+      if (nitroConfig.dev) return
+
+      const base = 'https://www.annuaire-tsa.fr/api'
+      const routes: string[] = []
+
+      try {
+        const [praticiens, associations] = await Promise.all([
+          ofetch<{ id: number, departement: string }[]>(`${base}/praticiens.php`),
+          ofetch<{ id: number }[]>(`${base}/associations.php`)
+        ])
+
+        for (const p of praticiens) routes.push(`/praticien/${p.id}`)
+        for (const a of associations) routes.push(`/association/${a.id}`)
+        for (const dep of new Set(praticiens.map(p => p.departement))) {
+          if (dep) routes.push(`/departement/${dep}`)
+        }
+
+        console.info(`[prerender] ${routes.length} fiches ajoutées au pré-rendu`)
+      } catch (e) {
+        // API injoignable : on génère le site sans les fiches plutôt que d'échouer
+        console.warn('[prerender] API injoignable, fiches non pré-rendues :', e)
+      }
+
+      nitroConfig.prerender ||= {}
+      nitroConfig.prerender.routes ||= []
+      nitroConfig.prerender.routes.push(...routes)
     }
   },
 
   routeRules: {
     '/': { prerender: true },
     '/livres': { prerender: true },
+    '/cra': { prerender: true },
     '/apropos': { prerender: true },
     '/mentions': { prerender: true },
     '/contact': { prerender: true },
@@ -42,12 +85,40 @@ export default defineNuxtConfig({
     url: 'https://www.annuaire-tsa.fr'
   },
 
+  // Embarque les SVG dans le build : sans cette liste, chaque visite déclenche
+  // une requête vers api.iconify.design pour récupérer les icônes.
+  icon: {
+    serverBundle: {
+      collections: ['lucide', 'simple-icons']
+    },
+    clientBundle: {
+      icons: [
+        'lucide:check',
+        'lucide:flag',
+        'lucide:link',
+        'lucide:search',
+        'lucide:bold',
+        'lucide:italic',
+        'lucide:underline',
+        'lucide:align-left',
+        'lucide:align-center',
+        'lucide:align-right',
+        'lucide:align-justify',
+        'lucide:list',
+        'lucide:quote',
+        'simple-icons:facebook'
+      ],
+      scan: true,
+      includeCustomCollections: true
+    }
+  },
+
   sitemap: {
     indexNow: {
       enabled: true,
       key: '6e19d24389e443a6af65195ef043b2f6'
     },
-    sources: ['/api/__sitemap__/departements'],
+    sources: ['/api/__sitemap__/fiches'],
     exclude: [
       '/admin',
       '/admin/**',

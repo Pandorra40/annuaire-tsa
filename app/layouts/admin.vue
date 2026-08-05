@@ -1,6 +1,7 @@
 <script setup lang="ts">
 useHead({
-  htmlAttrs: { 'data-color-mode-forced': 'light' }
+  htmlAttrs: { 'data-color-mode-forced': 'light' },
+  meta: [{ name: 'robots', content: 'noindex, nofollow' }]
 })
 </script>
 

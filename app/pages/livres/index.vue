@@ -14,7 +14,7 @@ const { data: livres, status } = await useAsyncData('livres', fetchLivres, {
 const search = ref('')
 const activecat = ref('')
 
-const categories = ['témoignage', 'guide pratique', 'scientifique', 'jeunesse', 'roman']
+const categories = ['témoignage', 'guide pratique', 'scientifique', 'bd', 'jeunesse', 'roman']
 
 const classiques = computed(() =>
   (livres.value ?? []).filter((l: Livre) => {
@@ -24,11 +24,6 @@ const classiques = computed(() =>
     return l.type === 'classique' && match && cat
   })
 )
-
-function flag(langs?: string[]) {
-  if (!langs || langs.length === 0) return ''
-  return langs.includes('fre') ? '🇫🇷' : '🇬🇧'
-}
 
 function cleanTags(subjects?: string[]) {
   if (!subjects) return []
@@ -54,7 +49,9 @@ const { data: newReleases, status: newReleasesStatus } = await useAsyncData('new
         const langs = d.language ?? []
         return {
           titre: d.title,
-          auteur: (d.author_name ?? []).slice(0, 2).join(', ') || 'Auteur inconnu',
+          // Auteur souvent absent de la BnF (SPARQL partiel) : on laisse vide
+          // plutôt que d'afficher un trompeur « Auteur inconnu ».
+          auteur: (d.author_name ?? []).slice(0, 2).join(', '),
           annee: d.first_publish_year,
           tags: cleanTags(d.subject),
           flag: langs.includes('fre') ? '🇫🇷' : '🇬🇧',
@@ -109,8 +106,8 @@ const loadingNewReleases = computed(() => newReleasesStatus.value === 'pending')
               :class="activecat === '' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
               @click="activecat = ''">Tous</button>
             <button v-for="cat in categories" :key="cat"
-              class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors capitalize"
-              :class="activecat === cat ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
+              class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
+              :class="[activecat === cat ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400', cat === 'bd' ? 'uppercase' : 'capitalize']"
               @click="activecat = cat">{{ cat }}</button>
           </div>
         </div>
@@ -148,9 +145,8 @@ const loadingNewReleases = computed(() => newReleasesStatus.value === 'pending')
                 <h3 class="font-bold text-sm leading-snug text-gray-900">{{ livre.titre }}</h3>
                 <p class="text-xs text-gray-500 mt-0.5">{{ livre.auteur }}{{ livre.annee ? ` · ${livre.annee}` : '' }}</p>
                 <p v-if="livre.description" class="text-xs text-gray-600 mt-2 line-clamp-3">{{ livre.description }}</p>
-                <div class="flex items-center justify-between mt-3">
-                  <span v-if="livre.categorie" class="px-2 py-0.5 bg-white/80 text-amber-700 text-xs font-medium rounded-full capitalize">{{ livre.categorie }}</span>
-                  <a v-if="livre.lien" :href="livre.lien" target="_blank" rel="noopener" class="text-xs text-amber-700 font-semibold hover:text-amber-900">En savoir plus →</a>
+                <div class="mt-3">
+                  <span v-if="livre.categorie" class="px-2 py-0.5 bg-white/80 text-amber-700 text-xs font-medium rounded-full" :class="livre.categorie === 'bd' ? 'uppercase' : 'capitalize'">{{ livre.categorie }}</span>
                 </div>
               </div>
             </div>
@@ -187,11 +183,15 @@ const loadingNewReleases = computed(() => newReleasesStatus.value === 'pending')
               </div>
               <div class="flex-1 min-w-0">
                 <h3 class="font-bold text-sm leading-snug text-gray-900">{{ livre.titre }}</h3>
-                <p class="text-xs text-gray-500 mt-0.5">{{ livre.flag }} {{ livre.auteur }}{{ livre.annee ? ` · ${livre.annee}` : '' }}</p>
+                <p class="text-xs text-gray-500 mt-0.5">
+                  {{ livre.flag }}
+                  <span v-if="livre.auteur">{{ livre.auteur }}</span>
+                  <span v-if="livre.auteur && livre.annee"> · </span>
+                  <span v-if="livre.annee">{{ livre.annee }}</span>
+                </p>
                 <div class="flex flex-wrap gap-1 mt-2">
                   <span v-for="tag in livre.tags" :key="tag" class="px-2 py-0.5 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full">{{ tag }}</span>
                 </div>
-                <a :href="livre.lien" target="_blank" rel="noopener" class="text-xs text-indigo-600 font-semibold hover:text-indigo-800 mt-3 block">En savoir plus →</a>
               </div>
             </div>
           </div>

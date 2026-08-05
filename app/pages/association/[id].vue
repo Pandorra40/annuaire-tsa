@@ -2,10 +2,23 @@
 import type { Association } from '~/types/index'
 
 const route = useRoute()
+const router = useRouter()
 const id = Number(route.params.id)
 const { fetchAssociation } = useApi()
 
-const { data, status } = await useAsyncData(`association-${id}`, () => fetchAssociation(id), { server: false })
+// « Retour aux associations » : rejoue l'historique si on vient du site
+// (restaure pagination + position de défilement), sinon va à la liste.
+function retourAssociations() {
+  const prev = import.meta.client ? (window.history.state?.back as string | undefined) : undefined
+  if (prev && prev.startsWith('/')) router.back()
+  else router.push('/associations')
+}
+
+// Rendu au build pour que les moteurs voient la fiche (SEO), puis rafraîchi
+// au montage pour refléter les modifications faites depuis l'admin.
+const { data, status, refresh } = await useAsyncData(`association-${id}`, () => fetchAssociation(id))
+
+onMounted(() => refresh())
 
 const association = computed<Association | null>(() => data.value?.[0] ?? null)
 
@@ -25,7 +38,7 @@ function initiales(nom: string) {
   <div>
 
     <!-- CHARGEMENT -->
-    <section v-if="status === 'pending'" class="bg-gray-50 min-h-screen flex justify-center items-center py-16">
+    <section v-if="status === 'pending' && !association" class="bg-gray-50 min-h-screen flex justify-center items-center py-16">
       <svg class="animate-spin text-gray-400 w-10 h-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
@@ -35,9 +48,9 @@ function initiales(nom: string) {
     <!-- ERREUR -->
     <section v-else-if="status === 'error' || !association" class="bg-gray-50 min-h-screen py-16">
       <div class="max-w-3xl mx-auto px-6">
-        <NuxtLink to="/associations" class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm mb-6 transition-colors font-medium">
+        <button type="button" class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm mb-6 transition-colors font-medium" @click="retourAssociations">
           ← Retour aux associations
-        </NuxtLink>
+        </button>
         <div class="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-700">
           Association introuvable.
         </div>
@@ -50,9 +63,9 @@ function initiales(nom: string) {
       <section class="relative overflow-hidden py-14" style="background: linear-gradient(160deg, #f0fdf4 0%, #f0f9ff 40%, #fdf4ff 70%, #fffbeb 100%)">
         <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #f87171, #fb923c, #fbbf24, #4ade80, #60a5fa, #a78bfa, #f472b6)" />
         <div class="relative max-w-4xl mx-auto px-6">
-          <NuxtLink to="/associations" class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm mb-8 transition-colors font-medium">
+          <button type="button" class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm mb-8 transition-colors font-medium" @click="retourAssociations">
             ← Retour aux associations
-          </NuxtLink>
+          </button>
 
           <div class="flex items-start gap-6">
             <div class="w-20 h-20 rounded-2xl flex items-center justify-center font-black text-white text-2xl shrink-0 shadow-lg" style="background: linear-gradient(135deg, #10b981, #059669)">

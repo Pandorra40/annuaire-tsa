@@ -8,7 +8,7 @@ import { TYPES_PRATICIENS, AGES_OPTIONS } from '~/types/index'
 
 useSeoMeta({
   title: 'Suggérer un praticien — Annuaire TSA',
-  description: 'Signalez un praticien spécialisé TSA qui n\'apparaît pas dans l\'annuaire.'
+  description: 'Vous connaissez un praticien spécialisé dans l\'autisme qui n\'apparaît pas encore dans l\'Annuaire TSA ? Signalez-le ici pour l\'ajouter et aider d\'autres familles à le trouver.'
 })
 
 const { suggererPraticien } = useApi()
@@ -296,14 +296,14 @@ onUnmounted(() => editor.value?.destroy())
 .checkbox-custom:checked::after {
   content: '';
   position: absolute;
-  left: 2px;
-  top: 0px;
+  inset: 0;
+  margin: auto;
   width: 5px;
   height: 9px;
   border: 2px solid white;
   border-top: none;
   border-left: none;
-  transform: rotate(45deg);
+  transform: translateY(-1px) rotate(45deg);
 }
 
 /* Boutons toolbar TipTap */
