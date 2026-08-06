@@ -15,11 +15,27 @@ function retourAnnuaire() {
   else router.push('/')
 }
 
-// Rendu au build pour que les moteurs voient la fiche (SEO), puis rafraîchi
-// au montage pour refléter les modifications faites depuis l'admin.
-const { data, status, refresh } = await useAsyncData(`praticien-${id}`, () => fetchPraticien(id))
+// Rendu au build pour que les moteurs voient la fiche (SEO) et que le contenu
+// s'affiche immédiatement.
+const { data, status } = await useAsyncData(`praticien-${id}`, () => fetchPraticien(id))
 
-const praticien = computed<Praticien | null>(() => data.value?.[0] ?? null)
+// La page étant prérendue, son contenu date du dernier build. `refresh()` ne
+// suffit pas à le remplacer : il faut relire l'API au montage et servir cette
+// version-là. Sans ça, une correction faite dans l'admin — adresse, tarifs,
+// notes, activation du formulaire — n'apparaîtrait qu'après avoir régénéré et
+// retransféré tout le site.
+const fraiche = ref<Praticien | null>(null)
+
+const praticien = computed<Praticien | null>(() => fraiche.value ?? data.value?.[0] ?? null)
+
+onMounted(async () => {
+  try {
+    const reponse = await fetchPraticien(id)
+    if (reponse?.[0]) fraiche.value = reponse[0]
+  } catch {
+    // Réseau indisponible : on garde la version du prérendu, déjà affichée.
+  }
+})
 
 useSeoMeta({
   title: computed(() => praticien.value ? `${praticien.value.nom} — Annuaire TSA` : 'Fiche praticien — Annuaire TSA'),
@@ -45,7 +61,6 @@ onUnmounted(() => { if (copiedTimer) clearTimeout(copiedTimer) })
 onMounted(() => {
   alreadyVoted.value = localStorage.getItem(`verified_${id}`) === '1'
   if (praticien.value) voteCount.value = praticien.value.confirmations
-  refresh()
 })
 
 watch(praticien, (val) => {
@@ -54,27 +69,9 @@ watch(praticien, (val) => {
 
 // ---- Formulaire de contact -------------------------------------------------
 // Affiché seulement si le praticien y a consenti. Son adresse n'est jamais
-// transmise au navigateur : le serveur ne publie que `contact_actif`.
-//
-// La valeur est relue directement au montage, sans passer par useAsyncData : la
-// page est prérendue au build, donc son payload date d'avant l'activation. Sans
-// cette requête dédiée, activer un formulaire dans l'admin imposerait de
-// régénérer et redéployer tout le site.
-const contactActif = ref(false)
-
-watch(() => praticien.value?.contact_actif, (v) => {
-  if (v) contactActif.value = true
-}, { immediate: true })
-
-onMounted(async () => {
-  try {
-    const frais = await fetchPraticien(id)
-    contactActif.value = !!frais?.[0]?.contact_actif
-  } catch {
-    // API injoignable : on garde la valeur du prérendu plutôt que de masquer
-    // un formulaire dont on sait qu'il était actif au dernier build.
-  }
-})
+// transmise au navigateur : le serveur ne publie que `contact_actif`, suivi
+// comme le reste de la fiche par la relecture au montage ci-dessus.
+const contactActif = computed(() => !!praticien.value?.contact_actif)
 
 const formOuvert = ref(false)
 const message = reactive({ nom: '', email: '', message: '', hp: '' })

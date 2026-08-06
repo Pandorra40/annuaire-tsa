@@ -91,6 +91,22 @@ html.contraste .border-gray-100 { border-color: #000000 !important; }
 .prose [style*="text-align: justify"] { text-align: justify; }
 .prose [style*="text-align: left"] { text-align: left; }
 
+/* Tailwind neutralise puces et retraits par défaut, et @tailwindcss/typography
+   n'est pas installé : sans ces règles, le bouton « Liste » de l'éditeur crée
+   un <ul> rigoureusement invisible, dans l'admin comme sur la fiche publique.
+   Mêmes styles des deux côtés, pour que l'aperçu corresponde au résultat. */
+.prose ul, .notes-content ul { list-style: disc; padding-left: 1.25rem; margin: 0.5rem 0; }
+.prose ol, .notes-content ol { list-style: decimal; padding-left: 1.25rem; margin: 0.5rem 0; }
+.prose li, .notes-content li { margin: 0.15rem 0; }
+.prose blockquote, .notes-content blockquote {
+  border-left: 3px solid #e5e7eb;
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  color: #6b7280;
+}
+html.contraste .prose blockquote,
+html.contraste .notes-content blockquote { border-left-color: #000000; color: #000000; }
+
 /* ── RESPECT DES PRÉFÉRENCES SYSTÈME ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

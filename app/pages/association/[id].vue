@@ -16,11 +16,23 @@ function retourAssociations() {
 
 // Rendu au build pour que les moteurs voient la fiche (SEO), puis rafraîchi
 // au montage pour refléter les modifications faites depuis l'admin.
-const { data, status, refresh } = await useAsyncData(`association-${id}`, () => fetchAssociation(id))
+const { data, status } = await useAsyncData(`association-${id}`, () => fetchAssociation(id))
 
-onMounted(() => refresh())
+// La page est prérendue : `refresh()` ne remplace pas son contenu. Il faut
+// relire l'API au montage et servir cette version-là, sinon une modification
+// faite dans l'admin n'apparaît qu'après avoir régénéré tout le site.
+const fraiche = ref<Association | null>(null)
 
-const association = computed<Association | null>(() => data.value?.[0] ?? null)
+onMounted(async () => {
+  try {
+    const reponse = await fetchAssociation(id)
+    if (reponse?.[0]) fraiche.value = reponse[0]
+  } catch {
+    // Réseau indisponible : on garde la version du prérendu, déjà affichée.
+  }
+})
+
+const association = computed<Association | null>(() => fraiche.value ?? data.value?.[0] ?? null)
 
 useSeoMeta({
   title: computed(() => association.value ? `${association.value.nom} — Associations TSA` : 'Association TSA'),

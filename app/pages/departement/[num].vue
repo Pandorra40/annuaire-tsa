@@ -37,17 +37,29 @@ useSeoMeta({
   description: computed(() => `Trouvez un praticien spécialisé TSA dans le département ${num} — ${nomDepartement.value}. Psychiatres, psychologues, orthophonistes, ergothérapeutes.`)
 })
 
-// Rendu au build pour que les moteurs voient la liste (SEO), puis rafraîchi
-// au montage pour refléter les modifications faites depuis l'admin.
-const { data: tous, status, refresh } = await useAsyncData(`praticiens-dep-${num}`, () => fetchPraticiensDepartement(num))
+// Rendu au build pour que les moteurs voient la liste (SEO) et qu'elle
+// s'affiche immédiatement.
+const { data: tous, status } = await useAsyncData(`praticiens-dep-${num}`, () => fetchPraticiensDepartement(num))
 
-onMounted(() => refresh())
+// La page est prérendue : `refresh()` ne remplace pas son contenu. Il faut
+// relire l'API au montage et servir cette version-là, sinon les corrections
+// faites dans l'admin n'apparaissent qu'après avoir régénéré tout le site.
+const fraiche = ref<Praticien[] | null>(null)
+
+onMounted(async () => {
+  try {
+    const reponse = await fetchPraticiensDepartement(num)
+    if (reponse) fraiche.value = reponse
+  } catch {
+    // Réseau indisponible : on garde la liste du prérendu, déjà affichée.
+  }
+})
 
 // Le filtre reste appliqué côté client : si l'API ne gère pas encore le
 // paramètre departement, elle renvoie tout et la page affiche quand même
 // les bons praticiens.
 const praticiens = computed<Praticien[]>(() =>
-  (tous.value ?? []).filter((p: Praticien) => p.departement === num.toUpperCase() || p.departement === num)
+  (fraiche.value ?? tous.value ?? []).filter((p: Praticien) => p.departement === num.toUpperCase() || p.departement === num)
 )
 
 </script>
