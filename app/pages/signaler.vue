@@ -6,11 +6,16 @@ useSeoMeta({
 })
 
 const route = useRoute()
-const id = route.query.id as string
 const config = useRuntimeConfig()
 
+// Cette page est prérendue : au premier rendu côté client, l'adresse est encore celle
+// figée au build, sans paramètres. Une lecture unique de route.query renverrait donc du
+// vide sur un chargement direct — et le signalement partait alors sans identifiant, que
+// l'API refuse. Tout ce qui vient de l'URL doit rester réactif.
+const id = computed(() => (route.query.id as string) || '')
+
 // Lien de retour : vers la fiche d'origine si on vient d'une fiche, sinon l'annuaire
-const retour = computed(() => (id ? `/praticien/${id}` : '/'))
+const retour = computed(() => (id.value ? `/praticien/${id.value}` : '/'))
 
 const MOTIF_CORRECTION = 'Informations incorrectes (adresse, téléphone…)'
 
@@ -32,9 +37,16 @@ const RACCOURCIS: Record<string, string> = {
 }
 
 const form = reactive({
-  motif: RACCOURCIS[route.query.motif as string] ?? '',
+  motif: '',
   details: ''
 })
+
+// Pour la même raison, le motif est appliqué dès que l'adresse réelle est connue, et
+// une seule fois : un choix déjà fait par le visiteur ne doit pas être écrasé.
+watch(() => route.query.motif, (valeur) => {
+  const cible = RACCOURCIS[valeur as string]
+  if (cible && !form.motif) form.motif = cible
+}, { immediate: true })
 
 const demandeRetrait = computed(() => form.motif === MOTIF_RETRAIT)
 const demandeCorrection = computed(() => form.motif === MOTIF_CORRECTION)
@@ -60,7 +72,7 @@ async function soumettre() {
   try {
     await $fetch(`${config.public.apiBase}/signalements.php`, {
       method: 'POST',
-      body: { praticien_id: id, motif: form.motif, detail: form.details || null }
+      body: { praticien_id: id.value, motif: form.motif, detail: form.details || null }
     })
     success.value = true
   } catch (e: any) {
