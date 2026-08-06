@@ -360,6 +360,58 @@ async function confirmer() {
               </NuxtLink>
             </div>
 
+            <!-- Exactitude de la fiche : un seul encadré pour les deux publics, placé
+                 avant « Partager » car un praticien arrive ici depuis son propre nom et
+                 n'ira pas chercher en bas de colonne. Le vocabulaire compte autant que
+                 la position : « signaler une erreur » est ce que fait un visiteur, un
+                 praticien pense « corriger ma fiche ». -->
+            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-base">🚩</div>
+                Cette fiche est-elle exacte ?
+              </h2>
+
+              <p class="font-semibold text-gray-900 text-sm mb-2">Vous consultez cette fiche ?</p>
+              <p class="text-sm text-gray-600 leading-relaxed">
+                Une information vous semble inexacte ou obsolète ?
+              </p>
+              <NuxtLink
+                :to="`/signaler?id=${praticien.id}`"
+                class="inline-flex items-center gap-1.5 mt-2 text-sm text-amber-700 hover:text-amber-900 transition-colors font-medium"
+              >
+                Signaler une erreur →
+              </NuxtLink>
+
+              <div class="border-t border-gray-100 mt-5 pt-5">
+                <p class="font-semibold text-gray-900 text-sm mb-2">Vous êtes ce praticien ?</p>
+                <p class="text-sm text-gray-600 leading-relaxed mb-4">
+                  Cette fiche vous concerne et reste modifiable à tout moment.
+                  Aucun justificatif ne vous sera demandé.
+                </p>
+                <div class="space-y-2">
+                  <NuxtLink
+                    :to="`/signaler?id=${praticien.id}&motif=correction`"
+                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors"
+                  >
+                    <UIcon name="i-lucide-pencil" class="w-4 h-4" />
+                    Corriger mes informations
+                  </NuxtLink>
+                  <NuxtLink
+                    :to="`/signaler?id=${praticien.id}&motif=retrait`"
+                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors"
+                  >
+                    <UIcon name="i-lucide-x" class="w-4 h-4" />
+                    Retirer ma fiche
+                  </NuxtLink>
+                </div>
+                <p class="text-xs text-gray-400 mt-3 text-center">
+                  <NuxtLink to="/donnees-praticiens" class="hover:text-gray-600 underline">
+                    D'où viennent ces informations et quels sont vos droits
+                  </NuxtLink>
+                </p>
+              </div>
+            </div>
+
             <!-- Partager -->
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
@@ -387,18 +439,6 @@ async function confirmer() {
                   {{ copied ? 'Lien copié !' : 'Copier le lien' }}
                 </button>
               </div>
-            </div>
-
-            <!-- Signaler -->
-            <div class="bg-amber-50 border border-amber-100 rounded-2xl p-4 text-center">
-              <NuxtLink :to="`/signaler?id=${praticien.id}`" class="inline-flex items-center justify-center gap-2 text-sm text-amber-700 hover:text-amber-900 transition-colors font-medium">
-                <UIcon name="i-lucide-flag" class="w-4 h-4" />
-                Signaler une erreur sur cette fiche
-              </NuxtLink>
-              <p class="text-xs text-amber-700/80 mt-2">
-                Vous êtes ce praticien ?
-                <NuxtLink :to="`/signaler?id=${praticien.id}`" class="underline font-medium hover:text-amber-900">Demander le retrait de votre fiche</NuxtLink>
-              </p>
             </div>
 
           </div>

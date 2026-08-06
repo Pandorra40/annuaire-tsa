@@ -43,6 +43,65 @@ useSeoMeta({
           </p>
         </div>
 
+        <!-- EN PRATIQUE — placé avant le juridique : c'est ce qu'un praticien vient
+             chercher, et la plupart n'ont pas besoin de lire la suite. -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-7">
+          <h2 class="font-black text-gray-900 text-xl mb-1">Votre fiche, en pratique</h2>
+          <p class="text-gray-500 mb-6">Trois situations, trois réponses courtes.</p>
+
+          <div class="space-y-5">
+            <div class="flex gap-4">
+              <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold text-sm flex items-center justify-center shrink-0">1</div>
+              <div>
+                <h3 class="font-bold text-gray-900 mb-1">Une information est fausse</h3>
+                <p class="text-gray-600 leading-relaxed">
+                  Sur votre fiche, cliquez sur <strong>« Corriger mes informations »</strong>.
+                  Dites ce qui doit changer et ce qu'il faut mettre à la place — c'est tout.
+                  Corrigé sous quelques jours.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold text-sm flex items-center justify-center shrink-0">2</div>
+              <div>
+                <h3 class="font-bold text-gray-900 mb-1">Vous ne voulez plus y figurer</h3>
+                <p class="text-gray-600 leading-relaxed">
+                  Même endroit, bouton <strong>« Retirer ma fiche »</strong>.
+                  Vous n'avez pas à vous justifier, et votre demande ne sera jamais discutée.
+                </p>
+              </div>
+            </div>
+
+            <div class="flex gap-4">
+              <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 font-bold text-sm flex items-center justify-center shrink-0">3</div>
+              <div>
+                <h3 class="font-bold text-gray-900 mb-1">Le formulaire de contact vous encombre</h3>
+                <p class="text-gray-600 leading-relaxed">
+                  Il n'existe que si vous avez dit oui par écrit. Chaque message que vous
+                  recevez porte un <strong>lien de désactivation</strong> : un clic, et il
+                  disparaît de votre fiche. Immédiat, sans nous écrire.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-gray-500 text-sm mt-6 pt-5 border-t border-gray-100">
+            Vous préférez écrire ?
+            <a href="mailto:annuaire.tsa@gmail.com?subject=Ma%20fiche%20dans%20l%27Annuaire%20TSA" class="text-indigo-600 hover:text-indigo-700 font-medium">annuaire.tsa@gmail.com</a>
+            — une seule adresse, pour tout.
+          </p>
+        </div>
+
+        <!-- SÉPARATEUR : signale au praticien qu'il peut s'arrêter là -->
+        <div class="pt-6 pb-1 text-center">
+          <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Le cadre juridique</p>
+          <p class="text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
+            Ce qui suit détaille vos droits et leur fondement. Vous n'avez pas besoin de
+            le lire pour faire corriger ou retirer votre fiche.
+          </p>
+        </div>
+
         <!-- POURQUOI CETTE PAGE -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-7">
           <h2 class="font-black text-gray-900 text-xl mb-3">Pourquoi cette page existe</h2>

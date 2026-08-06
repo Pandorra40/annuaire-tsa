@@ -12,14 +12,11 @@ const config = useRuntimeConfig()
 // Lien de retour : vers la fiche d'origine si on vient d'une fiche, sinon l'annuaire
 const retour = computed(() => (id ? `/praticien/${id}` : '/'))
 
-const form = reactive({
-  motif: '',
-  details: ''
-})
+const MOTIF_CORRECTION = 'Informations incorrectes (adresse, téléphone…)'
 
 const motifs = [
   MOTIF_RETRAIT,
-  'Informations incorrectes (adresse, téléphone…)',
+  MOTIF_CORRECTION,
   'Praticien n\'exerce plus',
   'Praticien n\'est pas spécialisé TSA',
   'Cabinet fermé',
@@ -27,7 +24,20 @@ const motifs = [
   'Autre'
 ]
 
+// La fiche praticien envoie ici avec un motif déjà choisi, pour que le praticien
+// n'ait pas à se reconnaître dans une liste écrite pour les visiteurs.
+const RACCOURCIS: Record<string, string> = {
+  correction: MOTIF_CORRECTION,
+  retrait: MOTIF_RETRAIT
+}
+
+const form = reactive({
+  motif: RACCOURCIS[route.query.motif as string] ?? '',
+  details: ''
+})
+
 const demandeRetrait = computed(() => form.motif === MOTIF_RETRAIT)
+const demandeCorrection = computed(() => form.motif === MOTIF_CORRECTION)
 
 const loading = ref(false)
 const success = ref(false)
@@ -103,7 +113,7 @@ async function soumettre() {
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
             <div class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center text-base">🚩</div>
-            Détails du signalement
+            {{ demandeCorrection ? 'Votre demande de correction' : 'Détails du signalement' }}
           </h2>
 
           <div class="space-y-5">
@@ -123,6 +133,15 @@ async function soumettre() {
               Si vous préférez une confirmation écrite, écrivez plutôt à
               <a href="mailto:annuaire.tsa@gmail.com?subject=Retrait%20de%20ma%20fiche" class="font-semibold underline">annuaire.tsa@gmail.com</a>.
               <NuxtLink to="/donnees-praticiens" class="font-semibold underline">En savoir plus sur vos droits →</NuxtLink>
+            </div>
+
+            <div v-if="demandeCorrection" class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-sm text-indigo-900 leading-relaxed">
+              Indiquez simplement ce qui doit changer et ce qu'il faut mettre à la place —
+              tarif, adresse, public reçu, spécialités. Aucun justificatif ne vous sera
+              demandé, et la correction est appliquée sous quelques jours.
+              <br><br>
+              Vous préférez écrire ?
+              <a href="mailto:annuaire.tsa@gmail.com?subject=Correction%20de%20ma%20fiche" class="font-semibold underline">annuaire.tsa@gmail.com</a>
             </div>
 
             <div>
