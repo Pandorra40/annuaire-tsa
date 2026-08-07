@@ -95,7 +95,7 @@ useSeoMeta({
 
         <!-- SÉPARATEUR : signale au praticien qu'il peut s'arrêter là -->
         <div class="pt-6 pb-1 text-center">
-          <p class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Le cadre juridique</p>
+          <p class="text-xs font-bold text-gray-500 uppercase tracking-widest mb-2">Le cadre juridique</p>
           <p class="text-sm text-gray-500 max-w-md mx-auto leading-relaxed">
             Ce qui suit détaille vos droits et leur fondement. Vous n'avez pas besoin de
             le lire pour faire corriger ou retirer votre fiche.
@@ -108,7 +108,7 @@ useSeoMeta({
           <p class="text-gray-600 leading-relaxed">
             Le RGPD impose d'informer toute personne dont les données sont collectées
             indirectement, c'est-à-dire sans qu'elle les ait fournies elle-même
-            <span class="text-gray-400">(article 14)</span>.
+            <span class="text-gray-500">(article 14)</span>.
           </p>
           <p class="text-gray-600 leading-relaxed mt-3">
             Les praticiens dont l'adresse électronique a pu être retrouvée ont reçu cette
@@ -125,7 +125,7 @@ useSeoMeta({
           <h2 class="font-black text-gray-900 text-xl mb-3">Qui traite ces données</h2>
           <p class="text-gray-600 leading-relaxed">
             <strong>M. Husic</strong>, éditeur du site annuaire-tsa.fr à titre bénévole
-            <span class="text-gray-400">(également identifié sous le pseudonyme Pandorra40 sur le dépôt public du projet)</span>.
+            <span class="text-gray-500">(également identifié sous le pseudonyme Pandorra40 sur le dépôt public du projet)</span>.
           </p>
           <p class="text-gray-600 leading-relaxed mt-3">
             Contact : <a href="mailto:annuaire.tsa@gmail.com" class="text-indigo-600 hover:text-indigo-700 font-medium">annuaire.tsa@gmail.com</a><br>
@@ -184,14 +184,14 @@ useSeoMeta({
           </p>
           <p class="text-gray-600 leading-relaxed mt-3">
             <strong>Base légale :</strong> l'intérêt légitime
-            <span class="text-gray-400">(article 6.1.f)</span>. Les données traitées sont
+            <span class="text-gray-500">(article 6.1.f)</span>. Les données traitées sont
             professionnelles et déjà publiques, le traitement se borne à les rendre plus
             faciles à trouver, et vous conservez à tout moment le droit de vous y opposer.
           </p>
           <p class="text-gray-600 leading-relaxed mt-3">
             Lorsqu'un formulaire de contact est activé sur une fiche, il repose sur le
             <strong>consentement explicite</strong> du praticien
-            <span class="text-gray-400">(article 6.1.a)</span>, recueilli par écrit et
+            <span class="text-gray-500">(article 6.1.a)</span>, recueilli par écrit et
             révocable à tout moment.
           </p>
         </div>
@@ -225,7 +225,7 @@ useSeoMeta({
             <li>
               <strong>Chaque message contient un lien de désactivation.</strong> Un clic
               coupe le formulaire immédiatement, sans avoir à écrire à qui que ce soit
-              <span class="text-gray-400">(article 7.3)</span>.
+              <span class="text-gray-500">(article 7.3)</span>.
             </li>
           </ul>
         </div>
@@ -274,7 +274,7 @@ useSeoMeta({
           </p>
           <p class="text-gray-600 leading-relaxed mt-3">
             <strong>Le droit d'opposition</strong>
-            <span class="text-gray-400">(article 21)</span> mérite une précision, car il
+            <span class="text-gray-500">(article 21)</span> mérite une précision, car il
             est celui qui vous concerne le plus directement : vous pouvez vous opposer à
             figurer dans cet annuaire <strong>sans avoir à motiver votre demande</strong>.
             Elle ne sera jamais contestée ni discutée, et vaut retrait de votre fiche.
@@ -291,7 +291,7 @@ useSeoMeta({
           </p>
         </div>
 
-        <p class="text-sm text-gray-400 text-center pt-2">
+        <p class="text-sm text-gray-500 text-center pt-2">
           Voir aussi les <NuxtLink to="/mentions" class="text-gray-500 hover:text-gray-900 underline">mentions légales</NuxtLink>.
         </p>
 

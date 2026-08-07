@@ -169,9 +169,9 @@ function dateCourte(iso: string | null) {
         </span>
       </div>
 
-      <div v-if="loading" class="text-center text-gray-400 py-16">Chargement…</div>
+      <div v-if="loading" class="text-center text-gray-500 py-16">Chargement…</div>
 
-      <p v-else-if="!filtrees.length" class="text-center text-gray-400 py-16">
+      <p v-else-if="!filtrees.length" class="text-center text-gray-500 py-16">
         Aucune fiche ne correspond à cette recherche.
       </p>
 

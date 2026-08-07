@@ -101,7 +101,7 @@ const praticiens = computed<Praticien[]>(() =>
           </p>
 
           <div v-if="praticiens.length === 0" class="text-center py-16">
-            <div class="text-gray-400 mb-4">Aucun praticien référencé dans ce département pour le moment.</div>
+            <div class="text-gray-500 mb-4">Aucun praticien référencé dans ce département pour le moment.</div>
             <NuxtLink to="/suggerer" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors">
               Suggérer un praticien →
             </NuxtLink>
@@ -131,7 +131,7 @@ const praticiens = computed<Praticien[]>(() =>
                 <span v-if="p.telephone" class="text-sm font-semibold text-indigo-600 flex items-center gap-1.5">
                   📞 {{ p.telephone }}
                 </span>
-                <span v-else class="text-sm text-gray-400">Téléphone non renseigné</span>
+                <span v-else class="text-sm text-gray-500">Téléphone non renseigné</span>
                 <span v-if="p.confirmations > 0" class="text-xs text-emerald-600 font-medium">✓ {{ p.confirmations }} confirmation{{ p.confirmations > 1 ? 's' : '' }}</span>
               </div>
             </NuxtLink>

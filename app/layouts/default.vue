@@ -70,7 +70,7 @@ function toggleContraste() {
 
         <div class="flex items-center gap-6">
           <NuxtLink to="/" class="flex items-center gap-2.5 font-black text-gray-900 text-lg tracking-tight shrink-0">
-            <img src="/logo-tsa.svg" alt="Annuaire TSA" class="h-7 w-auto" />
+            <img src="/logo-tsa.svg" alt="" class="h-7 w-auto" />
             Annuaire TSA
           </NuxtLink>
           <nav class="hidden md:flex items-center gap-5">
@@ -145,7 +145,7 @@ function toggleContraste() {
         </NuxtLink>
 
         <div class="border-t border-gray-100 pt-3 mt-2">
-          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Accessibilité</p>
+          <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-3">Accessibilité</p>
           <div class="flex items-center justify-between px-3 py-2">
             <div class="flex items-center gap-2">
               <button type="button" :disabled="tailleIdx === 0" class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-bold text-gray-700 disabled:opacity-40" @click="reduire">A-</button>

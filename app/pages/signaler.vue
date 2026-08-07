@@ -159,7 +159,7 @@ async function soumettre() {
             <div>
               <label for="details" class="block text-sm font-semibold text-gray-700 mb-1.5">
                 Détails <span v-if="!demandeRetrait">*</span>
-                <span v-else class="text-gray-400 font-normal">(optionnel)</span>
+                <span v-else class="text-gray-500 font-normal">(optionnel)</span>
               </label>
               <textarea id="details" v-model="form.details" rows="4" :placeholder="demandeRetrait ? 'Un mot si vous le souhaitez — ce n\'est pas nécessaire.' : 'Qu\'est-ce qui est inexact, et quelle est la bonne information ? Exemple : le téléphone est le 06 12 34 56 78, plus le 04…'" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
             </div>

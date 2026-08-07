@@ -45,7 +45,7 @@ const titre = computed(() => {
 
 useSeoMeta({
   title: titre,
-  description: computed(() => association.value ? `${association.value.nom} — Association TSA à ${association.value.ville} (${association.value.departement})` : '')
+  description: computed(() => association.value ? echapperMeta(`${association.value.nom} — Association TSA à ${association.value.ville} (${association.value.departement})`) : '')
 })
 
 function initiales(nom: string) {
@@ -159,7 +159,7 @@ function initiales(nom: string) {
                 <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center shrink-0 text-sm">🔗</div>
                 Site web
               </a>
-              <p v-if="!association.telephone && !association.email && !association.site_web" class="text-sm text-gray-400">
+              <p v-if="!association.telephone && !association.email && !association.site_web" class="text-sm text-gray-500">
                 Aucun contact renseigné
               </p>
             </div>

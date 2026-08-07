@@ -15,7 +15,7 @@ const handleError = () => clearError({ redirect: '/' })
     <UHeader>
       <template #left>
         <NuxtLink to="/" class="flex items-center gap-3 font-bold text-lg text-gray-900 dark:text-white">
-          <img src="/logo-tsa.svg" alt="Annuaire TSA" class="h-7 w-auto" />
+          <img src="/logo-tsa.svg" alt="" class="h-7 w-auto" />
           Annuaire TSA
         </NuxtLink>
       </template>

@@ -196,14 +196,14 @@ async function deconnexion() {
 
         <!-- EN ATTENTE -->
         <div v-if="activeTab === 'attente'">
-          <div v-if="!attente.length" class="text-center py-12 text-gray-400">Aucune fiche en attente.</div>
+          <div v-if="!attente.length" class="text-center py-12 text-gray-500">Aucune fiche en attente.</div>
           <div v-else class="space-y-3">
             <UCard v-for="d in attente" :key="d.id">
               <div class="flex items-start justify-between gap-4">
                 <div>
                   <div class="font-bold text-gray-900">{{ d.nom }}</div>
                   <div class="text-sm text-gray-500">{{ d.type }} · {{ d.ville }} ({{ d.departement }})</div>
-                  <div v-if="d.adeli" class="text-xs text-gray-400 mt-1">ADELI/RPPS : {{ d.adeli }}</div>
+                  <div v-if="d.adeli" class="text-xs text-gray-500 mt-1">ADELI/RPPS : {{ d.adeli }}</div>
                   <div class="flex flex-wrap gap-1.5 mt-2">
                     <UBadge v-for="age in d.ages" :key="age" color="primary" variant="soft" size="xs">{{ age }}</UBadge>
                     <UBadge v-if="d.teleconsultation" color="success" variant="soft" size="xs">Téléconsultation</UBadge>
@@ -224,14 +224,14 @@ async function deconnexion() {
         <!-- PUBLIÉS -->
         <div v-if="activeTab === 'publies'">
           <UInput v-model="searchPublies" placeholder="Rechercher un praticien publié…" icon="i-lucide-search" class="mb-4 max-w-md" />
-          <div v-if="!publiesFiltres.length" class="text-center py-12 text-gray-400">Aucun résultat.</div>
+          <div v-if="!publiesFiltres.length" class="text-center py-12 text-gray-500">Aucun résultat.</div>
           <div v-else class="space-y-3">
             <UCard v-for="d in publiesFiltres" :key="d.id">
               <div class="flex items-start justify-between gap-4">
                 <div>
                   <div class="font-bold text-gray-900">{{ d.nom }}</div>
                   <div class="text-sm text-gray-500">{{ d.type }} · {{ d.ville }} ({{ d.departement }})</div>
-                  <div class="flex gap-3 mt-2 text-xs text-gray-400">
+                  <div class="flex gap-3 mt-2 text-xs text-gray-500">
                     <span class="text-green-600">✓ {{ d.confirmations || 0 }} confirmation{{ (d.confirmations || 0) > 1 ? 's' : '' }}</span>
                     <span v-if="nbSignalements(d.id) > 0" class="text-red-600">⚠ {{ nbSignalements(d.id) }} signalement{{ nbSignalements(d.id) > 1 ? 's' : '' }}</span>
                   </div>
@@ -248,7 +248,7 @@ async function deconnexion() {
 
         <!-- EN PAUSE -->
         <div v-if="activeTab === 'masquees'">
-          <div v-if="!masquees.length" class="text-center py-12 text-gray-400">Aucune fiche en pause.</div>
+          <div v-if="!masquees.length" class="text-center py-12 text-gray-500">Aucune fiche en pause.</div>
           <div v-else class="space-y-3">
             <p class="text-sm text-gray-500 mb-4">
               Ces fiches n'apparaissent ni dans l'annuaire, ni dans les pages département,
@@ -268,7 +268,7 @@ async function deconnexion() {
 
         <!-- SIGNALEMENTS -->
         <div v-if="activeTab === 'signalements'">
-          <div v-if="!signalements.length" class="text-center py-12 text-gray-400">Aucun signalement en cours.</div>
+          <div v-if="!signalements.length" class="text-center py-12 text-gray-500">Aucun signalement en cours.</div>
           <div v-else class="space-y-3">
             <UCard v-for="s in signalements" :key="s.id" :class="s.motif === MOTIF_RETRAIT ? 'ring-2 ring-red-400' : ''">
               <div v-if="s.motif === MOTIF_RETRAIT" class="mb-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700 font-semibold">
@@ -288,7 +288,7 @@ async function deconnexion() {
 
         <!-- ALERTES -->
         <div v-if="activeTab === 'alertes'">
-          <div v-if="!alertes.length" class="text-center py-12 text-gray-400">Aucune fiche en alerte.</div>
+          <div v-if="!alertes.length" class="text-center py-12 text-gray-500">Aucune fiche en alerte.</div>
           <div v-else class="space-y-3">
             <UCard v-for="d in alertes" :key="d.id">
               <div class="font-bold text-gray-900">{{ d.nom }}</div>

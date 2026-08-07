@@ -166,7 +166,7 @@ onUnmounted(() => editor.value?.destroy())
           <div class="mt-5">
             <label for="adeli" class="block text-sm font-semibold text-gray-700 mb-1.5">
               Numéro ADELI ou RPPS
-              <span class="text-gray-400 font-normal ml-1">(optionnel)</span>
+              <span class="text-gray-500 font-normal ml-1">(optionnel)</span>
             </label>
             <input id="adeli" v-model="form.adeli" type="text" placeholder="Ex. 123456789" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
           </div>
@@ -195,7 +195,7 @@ onUnmounted(() => editor.value?.destroy())
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
             <span class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-base">📞</span>
             Contact
-            <span class="ml-auto text-xs text-gray-400 font-normal">Optionnel</span>
+            <span class="ml-auto text-xs text-gray-500 font-normal">Optionnel</span>
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
@@ -214,7 +214,7 @@ onUnmounted(() => editor.value?.destroy())
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
             <span class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-base">📝</span>
             Notes
-            <span class="ml-auto text-xs text-gray-400 font-normal">Optionnel</span>
+            <span class="ml-auto text-xs text-gray-500 font-normal">Optionnel</span>
           </h2>
 
           <div v-if="editor" class="flex flex-wrap gap-1 mb-3 pb-3 border-b border-gray-100">
@@ -246,7 +246,7 @@ onUnmounted(() => editor.value?.destroy())
           <div class="border border-gray-200 rounded-xl overflow-hidden focus-within:border-indigo-400 transition-colors min-h-[180px]">
             <EditorContent :editor="editor" />
           </div>
-          <p class="text-xs text-gray-400 mt-2">Approche thérapeutique, accessibilité, langues parlées, délai d'attente estimé…</p>
+          <p class="text-xs text-gray-500 mt-2">Approche thérapeutique, accessibilité, langues parlées, délai d'attente estimé…</p>
         </div>
 
         <!-- Honeypot -->

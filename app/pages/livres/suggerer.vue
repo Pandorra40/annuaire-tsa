@@ -98,11 +98,11 @@ async function soumettre() {
               <input id="auteur" v-model="form.auteur" type="text" placeholder="Prénom Nom" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
-              <label for="annee" class="block text-sm font-semibold text-gray-700 mb-1.5">Année <span class="text-gray-400 font-normal">(optionnel)</span></label>
+              <label for="annee" class="block text-sm font-semibold text-gray-700 mb-1.5">Année <span class="text-gray-500 font-normal">(optionnel)</span></label>
               <input id="annee" v-model="form.annee" type="number" placeholder="2024" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
-              <label for="categorie" class="block text-sm font-semibold text-gray-700 mb-1.5">Catégorie <span class="text-gray-400 font-normal">(optionnel)</span></label>
+              <label for="categorie" class="block text-sm font-semibold text-gray-700 mb-1.5">Catégorie <span class="text-gray-500 font-normal">(optionnel)</span></label>
               <select id="categorie" v-model="form.categorie" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all capitalize">
                 <option value="">— Choisir —</option>
                 <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
@@ -115,7 +115,7 @@ async function soumettre() {
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
             <span class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-base">📝</span>
             Détails
-            <span class="ml-auto text-xs text-gray-400 font-normal">Optionnel</span>
+            <span class="ml-auto text-xs text-gray-500 font-normal">Optionnel</span>
           </h2>
           <div class="space-y-5">
             <div>

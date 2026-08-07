@@ -262,7 +262,7 @@ function initiales(nom: string) {
           {{ centresFiltres.length }} centre{{ centresFiltres.length > 1 ? 's' : '' }} trouvé{{ centresFiltres.length > 1 ? 's' : '' }}
         </p>
 
-        <div v-if="centresFiltres.length === 0" class="text-center py-16 text-gray-400">
+        <div v-if="centresFiltres.length === 0" class="text-center py-16 text-gray-500">
           Aucun centre pour ces critères.
         </div>
 
@@ -341,7 +341,7 @@ function initiales(nom: string) {
           </div>
         </div>
 
-        <p class="text-xs text-gray-400 text-center mt-10 leading-relaxed">
+        <p class="text-xs text-gray-500 text-center mt-10 leading-relaxed">
           Sources : annuaire des ressources Autisme Info Service et Groupement National des Centres Ressources Autisme.<br>
           Une information est inexacte ? <NuxtLink to="/contact" class="text-indigo-500 hover:text-indigo-700 underline">Signalez-le nous</NuxtLink>.
         </p>

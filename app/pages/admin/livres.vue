@@ -187,14 +187,14 @@ async function deconnexion() {
       <!-- PUBLIÉS -->
       <div v-if="activeTab === 'publies'">
         <UInput v-model="searchPublies" placeholder="Rechercher un livre…" class="mb-4 max-w-md" />
-        <div v-if="!publiesFiltres.length" class="text-center py-12 text-gray-400">Aucun livre publié.</div>
+        <div v-if="!publiesFiltres.length" class="text-center py-12 text-gray-500">Aucun livre publié.</div>
         <div v-else class="space-y-3">
           <UCard v-for="d in publiesFiltres" :key="d.id">
             <div class="flex items-start justify-between">
               <div>
                 <div class="font-bold text-gray-900">{{ d.titre }}</div>
                 <div class="text-sm text-gray-500">{{ d.auteur }}{{ d.annee ? ' · ' + d.annee : '' }} · {{ d.categorie }}</div>
-                <div v-if="d.description" class="text-xs text-gray-400 mt-1">{{ d.description }}</div>
+                <div v-if="d.description" class="text-xs text-gray-500 mt-1">{{ d.description }}</div>
               </div>
               <UBadge color="neutral" variant="soft" size="xs">{{ d.type }}</UBadge>
             </div>
@@ -207,7 +207,7 @@ async function deconnexion() {
 
       <!-- SUGGESTIONS -->
       <div v-if="activeTab === 'suggestions'">
-        <div v-if="!suggestions.length" class="text-center py-12 text-gray-400">Aucune suggestion en attente.</div>
+        <div v-if="!suggestions.length" class="text-center py-12 text-gray-500">Aucune suggestion en attente.</div>
         <div v-else class="space-y-3">
           <UCard v-for="s in suggestions" :key="s.id">
             <div class="font-bold text-gray-900">{{ s.titre }}</div>

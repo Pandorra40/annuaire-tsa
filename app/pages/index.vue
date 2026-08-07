@@ -222,11 +222,8 @@ function scrollToAnnuaire() {
         </div>
 
         <!-- États -->
-        <div v-if="status === 'pending'" class="flex justify-center py-16">
-          <svg class="animate-spin text-gray-400 w-10 h-10" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-          </svg>
+        <div v-if="status === 'pending' || status === 'idle'" class="text-center py-16 text-gray-500 text-sm">
+          Chargement de l'annuaire…
         </div>
 
         <div v-else-if="status === 'error'" class="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-700 text-sm">
@@ -239,7 +236,7 @@ function scrollToAnnuaire() {
             <span v-if="totalPages > 1"> — page {{ pageActuelle }} / {{ totalPages }}</span>
           </p>
 
-          <div v-if="praticiensFiltres.length === 0" class="text-center py-16 text-gray-400">
+          <div v-if="praticiensFiltres.length === 0" class="text-center py-16 text-gray-500">
             Aucun résultat pour ces critères.
           </div>
 

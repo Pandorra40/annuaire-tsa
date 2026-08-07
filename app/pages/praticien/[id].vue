@@ -39,7 +39,7 @@ onMounted(async () => {
 
 useSeoMeta({
   title: computed(() => praticien.value ? `${praticien.value.nom} — Annuaire TSA` : 'Fiche praticien — Annuaire TSA'),
-  description: computed(() => praticien.value ? `${praticien.value.type} spécialisé TSA à ${praticien.value.ville}` : '')
+  description: computed(() => praticien.value ? echapperMeta(`${praticien.value.type} spécialisé TSA à ${praticien.value.ville}`) : '')
 })
 
 const alreadyVoted = ref(false)
@@ -247,7 +247,7 @@ async function confirmer() {
                 <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-sm">📞</div>
                 {{ praticien.telephone }}
               </a>
-              <p v-else class="text-sm text-gray-400 mb-3">Téléphone non renseigné</p>
+              <p v-else class="text-sm text-gray-500 mb-3">Téléphone non renseigné</p>
               <a v-if="praticien.site_web" :href="praticien.site_web" target="_blank" rel="noopener" class="flex items-center gap-3 text-indigo-600 hover:text-indigo-700 transition-colors text-sm">
                 <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-sm">🔗</div>
                 Site web / Doctolib
@@ -405,7 +405,7 @@ async function confirmer() {
                     Retirer ma fiche
                   </NuxtLink>
                 </div>
-                <p class="text-xs text-gray-400 mt-3 text-center">
+                <p class="text-xs text-gray-500 mt-3 text-center">
                   <NuxtLink to="/donnees-praticiens" class="hover:text-gray-600 underline">
                     D'où viennent ces informations et quels sont vos droits
                   </NuxtLink>

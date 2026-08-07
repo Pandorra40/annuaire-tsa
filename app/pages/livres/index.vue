@@ -123,14 +123,11 @@ const loadingNewReleases = computed(() => newReleasesStatus.value === 'pending')
           <p class="text-gray-500 mt-2">Les incontournables recommandés par la communauté</p>
         </div>
 
-        <div v-if="status === 'pending'" class="flex justify-center py-8">
-          <svg class="animate-spin text-gray-400 w-8 h-8" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
-          </svg>
+        <div v-if="status === 'pending' || status === 'idle'" class="text-center py-8 text-gray-500 text-sm">
+          Chargement des livres…
         </div>
 
-        <div v-else-if="classiques.length === 0" class="text-center py-12 text-gray-400">
+        <div v-else-if="classiques.length === 0" class="text-center py-12 text-gray-500">
           Aucun classique pour ce filtre.
         </div>
 
@@ -170,7 +167,7 @@ const loadingNewReleases = computed(() => newReleasesStatus.value === 'pending')
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
           </svg>
         </div>
-        <div v-else-if="!newReleases || newReleases.length === 0" class="text-center py-12 text-gray-400">
+        <div v-else-if="!newReleases || newReleases.length === 0" class="text-center py-12 text-gray-500">
           Aucune nouveauté trouvée pour le moment.
         </div>
 
