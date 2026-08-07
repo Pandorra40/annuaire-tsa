@@ -50,6 +50,22 @@ const editor = useEditor({
   }
 })
 
+// L'API mesure le HTML produit par l'éditeur, pas le texte saisi : les balises
+// comptent. On mesure donc la même chose qu'elle, sinon le compteur mentirait.
+const MAX_NOTES = 4000
+const longueurNotes = ref(0)
+const notesTropLongues = computed(() => longueurNotes.value > MAX_NOTES)
+
+watch(editor, (e) => {
+  if (!e) return
+  const maj = () => {
+    const html = e.getHTML()
+    longueurNotes.value = html === '<p></p>' ? 0 : html.length
+  }
+  maj()
+  e.on('update', maj)
+}, { immediate: true })
+
 function setLink() {
   const url = prompt('URL du lien :')
   if (!url) return
@@ -65,6 +81,10 @@ async function soumettre() {
   if (form.hp) return
   if (!form.nom || !form.type || !form.ville || !form.codepostal || !form.ages.length || !form.consentement) {
     error.value = 'Merci de remplir tous les champs obligatoires et cocher le consentement RGPD.'
+    return
+  }
+  if (notesTropLongues.value) {
+    error.value = `Les informations complémentaires font ${longueurNotes.value} caractères, pour ${MAX_NOTES} au maximum. Merci de raccourcir le texte.`
     return
   }
   loading.value = true
@@ -84,7 +104,7 @@ async function soumettre() {
     })
     success.value = true
   } catch (e: any) {
-    error.value = 'Une erreur est survenue : ' + e.message
+    error.value = e?.data?.error ?? 'Une erreur est survenue. Réessayez dans un instant.'
   } finally {
     loading.value = false
   }
@@ -246,7 +266,12 @@ onUnmounted(() => editor.value?.destroy())
           <div class="border border-gray-200 rounded-xl overflow-hidden focus-within:border-indigo-400 transition-colors min-h-[180px]">
             <EditorContent :editor="editor" />
           </div>
-          <p class="text-xs text-gray-500 mt-2">Approche thérapeutique, accessibilité, langues parlées, délai d'attente estimé…</p>
+          <div class="flex items-baseline justify-between gap-3 mt-2">
+            <p class="text-xs text-gray-500">Approche thérapeutique, accessibilité, langues parlées, délai d'attente estimé…</p>
+            <p class="text-xs shrink-0 tabular-nums" :class="notesTropLongues ? 'text-red-600 font-semibold' : 'text-gray-500'">
+              {{ longueurNotes }} / {{ MAX_NOTES }}
+            </p>
+          </div>
         </div>
 
         <!-- Honeypot -->
@@ -262,7 +287,7 @@ onUnmounted(() => editor.value?.destroy())
             <NuxtLink to="/" class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
               Annuler
             </NuxtLink>
-            <button type="button" :disabled="loading" class="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 disabled:opacity-50 transition-colors" @click="soumettre">
+            <button type="button" :disabled="loading || notesTropLongues" class="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 disabled:opacity-50 transition-colors" @click="soumettre">
               {{ loading ? 'Envoi…' : 'Envoyer la suggestion →' }}
             </button>
           </div>
