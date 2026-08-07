@@ -80,7 +80,7 @@ function toggleContraste() {
               :to="link.to"
               class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
               active-class="text-gray-900"
-              exact-active-class="text-gray-900 font-semibold"
+              exact-active-class="font-semibold"
             >
               {{ link.label }}
             </NuxtLink>
@@ -92,10 +92,10 @@ function toggleContraste() {
             Suggérer un praticien
           </NuxtLink>
 
-          <button class="hidden sm:flex p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors font-bold text-sm leading-none" :disabled="tailleIdx === 0" aria-label="Réduire la taille du texte" @click="reduire">A-</button>
-          <button class="hidden sm:flex p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors font-bold text-sm leading-none" :disabled="tailleIdx === 3" aria-label="Agrandir la taille du texte" @click="agrandir">A+</button>
+          <button type="button" class="hidden sm:flex p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors font-bold text-sm leading-none" :disabled="tailleIdx === 0" aria-label="Réduire la taille du texte" @click="reduire">A-</button>
+          <button type="button" class="hidden sm:flex p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors font-bold text-sm leading-none" :disabled="tailleIdx === 3" aria-label="Agrandir la taille du texte" @click="agrandir">A+</button>
 
-          <button
+          <button type="button"
             :class="['hidden sm:flex p-2 rounded-lg transition-colors text-sm', lectureMode ? 'bg-amber-100 text-amber-700' : 'text-gray-600 hover:bg-gray-100']"
             aria-label="Mode lecture simplifiée"
             @click="toggleLecture"
@@ -103,7 +103,7 @@ function toggleContraste() {
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
           </button>
 
-          <button
+          <button type="button"
             :class="['hidden sm:flex p-2 rounded-lg transition-colors', contrasteMode ? 'bg-gray-900 text-white' : 'text-gray-600 hover:bg-gray-100']"
             aria-label="Mode contraste élevé"
             @click="toggleContraste"
@@ -111,7 +111,7 @@ function toggleContraste() {
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor"/></svg>
           </button>
 
-          <button
+          <button type="button"
             class="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
             :aria-label="mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'"
             :aria-expanded="mobileMenuOpen"
@@ -128,7 +128,9 @@ function toggleContraste() {
         </div>
       </div>
 
-      <div v-if="mobileMenuOpen" id="mobile-menu" class="md:hidden border-t border-gray-200 bg-white px-4 py-3 space-y-1">
+      <!-- v-show et non v-if : le bouton ci-dessus pointe vers cet identifiant par
+           aria-controls, qui doit exister dans la page même menu fermé. -->
+      <div v-show="mobileMenuOpen" id="mobile-menu" class="md:hidden border-t border-gray-200 bg-white px-4 py-3 space-y-1">
         <NuxtLink
           v-for="link in navLinks"
           :key="link.to"
@@ -146,12 +148,12 @@ function toggleContraste() {
           <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Accessibilité</p>
           <div class="flex items-center justify-between px-3 py-2">
             <div class="flex items-center gap-2">
-              <button :disabled="tailleIdx === 0" class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-bold text-gray-700 disabled:opacity-40" @click="reduire">A-</button>
-              <button :disabled="tailleIdx === 3" class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-bold text-gray-700 disabled:opacity-40" @click="agrandir">A+</button>
+              <button type="button" :disabled="tailleIdx === 0" class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-bold text-gray-700 disabled:opacity-40" @click="reduire">A-</button>
+              <button type="button" :disabled="tailleIdx === 3" class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-bold text-gray-700 disabled:opacity-40" @click="agrandir">A+</button>
             </div>
             <div class="flex items-center gap-2">
-              <button :class="['px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors', lectureMode ? 'bg-amber-100 border-amber-300 text-amber-700' : 'border-gray-300 text-gray-700']" @click="toggleLecture">Lecture</button>
-              <button :class="['px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors', contrasteMode ? 'bg-gray-900 border-gray-900 text-white' : 'border-gray-300 text-gray-700']" @click="toggleContraste">Contraste</button>
+              <button type="button" :class="['px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors', lectureMode ? 'bg-amber-100 border-amber-300 text-amber-700' : 'border-gray-300 text-gray-700']" @click="toggleLecture">Lecture</button>
+              <button type="button" :class="['px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors', contrasteMode ? 'bg-gray-900 border-gray-900 text-white' : 'border-gray-300 text-gray-700']" @click="toggleContraste">Contraste</button>
             </div>
           </div>
         </div>

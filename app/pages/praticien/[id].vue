@@ -202,7 +202,7 @@ async function confirmer() {
             <!-- Notes -->
             <div v-if="praticien.notes" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 text-lg mb-4 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-base">📝</div>
+                <span class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-base">📝</span>
                 Informations complémentaires
               </h2>
               <div class="notes-content text-gray-600 text-sm leading-relaxed" v-html="praticien.notes" />
@@ -211,7 +211,7 @@ async function confirmer() {
             <!-- Confirmations -->
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 text-lg mb-4 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">👥</div>
+                <span class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">👥</span>
                 Avis de la communauté
               </h2>
               <div class="flex items-center gap-4 mb-4">
@@ -221,7 +221,7 @@ async function confirmer() {
                   <div class="text-sm text-gray-500">Des familles ont vérifié cette fiche</div>
                 </div>
               </div>
-              <button
+              <button type="button"
                 :disabled="alreadyVoted"
                 class="w-full py-2.5 border-2 rounded-xl font-semibold text-sm transition-colors"
                 :class="alreadyVoted ? 'border-emerald-200 bg-emerald-50 text-emerald-700 cursor-default' : 'border-emerald-200 text-emerald-700 hover:bg-emerald-50'"
@@ -240,7 +240,7 @@ async function confirmer() {
             <!-- Contact -->
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base">📞</div>
+                <span class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base">📞</span>
                 Contact
               </h2>
               <a v-if="praticien.telephone" :href="`tel:${praticien.telephone}`" class="flex items-center gap-3 text-indigo-600 font-semibold hover:text-indigo-700 transition-colors mb-3">
@@ -266,7 +266,7 @@ async function confirmer() {
                     {{ praticien.nom }} vous répondra directement à l’adresse que vous avez indiquée.
                   </div>
 
-                  <button
+                  <button type="button"
                     v-else-if="!formOuvert"
                     class="w-full py-2.5 border-2 border-indigo-200 text-indigo-700 rounded-xl font-semibold text-sm hover:bg-indigo-50 transition-colors"
                     @click="ouvrirFormulaire"
@@ -287,6 +287,7 @@ async function confirmer() {
                     <input
                       v-model="message.nom"
                       type="text"
+                      aria-label="Votre nom"
                       placeholder="Votre nom"
                       maxlength="100"
                       class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
@@ -294,6 +295,7 @@ async function confirmer() {
                     <input
                       v-model="message.email"
                       type="email"
+                      aria-label="Votre adresse email, pour que le praticien puisse vous répondre"
                       placeholder="Votre email"
                       class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
                     />
@@ -301,6 +303,7 @@ async function confirmer() {
                       v-model="message.message"
                       rows="5"
                       maxlength="2000"
+                      aria-label="Votre message"
                       placeholder="Votre message. Décrivez votre demande — inutile d’entrer dans le détail médical."
                       class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-vertical transition-all"
                     />
@@ -309,6 +312,7 @@ async function confirmer() {
                     <input
                       v-model="message.hp"
                       type="text"
+                      aria-label="Ne pas remplir"
                       tabindex="-1"
                       autocomplete="off"
                       aria-hidden="true"
@@ -346,7 +350,7 @@ async function confirmer() {
             <!-- Localisation -->
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">📍</div>
+                <span class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">📍</span>
                 Localisation
               </h2>
               <p class="text-gray-600 text-sm mb-3">
@@ -364,7 +368,7 @@ async function confirmer() {
                  praticien pense « corriger ma fiche ». -->
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-base">🚩</div>
+                <span class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-base">🚩</span>
                 Cette fiche est-elle exacte ?
               </h2>
 
@@ -412,7 +416,7 @@ async function confirmer() {
             <!-- Partager -->
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-sky-100 flex items-center justify-center text-base">🔗</div>
+                <span class="w-9 h-9 rounded-xl bg-sky-100 flex items-center justify-center text-base">🔗</span>
                 Partager
               </h2>
               <div class="flex items-center gap-3">
@@ -426,7 +430,7 @@ async function confirmer() {
                 >
                   <UIcon name="i-simple-icons-facebook" class="w-5 h-5" />
                 </a>
-                <button
+                <button type="button"
                   aria-label="Copier le lien de la fiche"
                   title="Copier le lien"
                   class="flex-1 h-11 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium flex items-center justify-center gap-2 hover:bg-gray-50 transition-colors"

@@ -138,17 +138,17 @@ onUnmounted(() => editor.value?.destroy())
         <!-- Identité -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
-            <div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base">👤</div>
+            <span class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base">👤</span>
             Identité du praticien
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Nom et prénom *</label>
-              <input v-model="form.nom" type="text" placeholder="Dr Marie Dupont" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <label for="nom" class="block text-sm font-semibold text-gray-700 mb-1.5">Nom et prénom *</label>
+              <input id="nom" v-model="form.nom" type="text" placeholder="Dr Marie Dupont" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Type de professionnel *</label>
-              <select v-model="form.type" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all">
+              <label for="type" class="block text-sm font-semibold text-gray-700 mb-1.5">Type de professionnel *</label>
+              <select id="type" v-model="form.type" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all">
                 <option value="">— Choisir —</option>
                 <option v-for="t in types" :key="t" :value="t">{{ t }}</option>
               </select>
@@ -164,28 +164,28 @@ onUnmounted(() => editor.value?.destroy())
             </div>
           </div>
           <div class="mt-5">
-            <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+            <label for="adeli" class="block text-sm font-semibold text-gray-700 mb-1.5">
               Numéro ADELI ou RPPS
               <span class="text-gray-400 font-normal ml-1">(optionnel)</span>
             </label>
-            <input v-model="form.adeli" type="text" placeholder="Ex. 123456789" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+            <input id="adeli" v-model="form.adeli" type="text" placeholder="Ex. 123456789" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
           </div>
         </div>
 
         <!-- Localisation -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
-            <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">📍</div>
+            <span class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">📍</span>
             Localisation
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Ville *</label>
-              <input v-model="form.ville" type="text" placeholder="Bordeaux" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <label for="ville" class="block text-sm font-semibold text-gray-700 mb-1.5">Ville *</label>
+              <input id="ville" v-model="form.ville" type="text" placeholder="Bordeaux" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Code postal *</label>
-              <input v-model="form.codepostal" type="text" placeholder="33000" maxlength="5" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <label for="codepostal" class="block text-sm font-semibold text-gray-700 mb-1.5">Code postal *</label>
+              <input id="codepostal" v-model="form.codepostal" type="text" placeholder="33000" maxlength="5" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
             </div>
           </div>
         </div>
@@ -193,18 +193,18 @@ onUnmounted(() => editor.value?.destroy())
         <!-- Contact -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
-            <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-base">📞</div>
+            <span class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-base">📞</span>
             Contact
             <span class="ml-auto text-xs text-gray-400 font-normal">Optionnel</span>
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Téléphone</label>
-              <input v-model="form.telephone" type="tel" placeholder="05 56 12 34 56" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <label for="telephone" class="block text-sm font-semibold text-gray-700 mb-1.5">Téléphone</label>
+              <input id="telephone" v-model="form.telephone" type="tel" placeholder="05 56 12 34 56" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Site web ou Doctolib</label>
-              <input v-model="form.site_web" type="url" placeholder="https://…" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <label for="site_web" class="block text-sm font-semibold text-gray-700 mb-1.5">Site web ou Doctolib</label>
+              <input id="site_web" v-model="form.site_web" type="url" placeholder="https://…" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
             </div>
           </div>
         </div>
@@ -212,33 +212,33 @@ onUnmounted(() => editor.value?.destroy())
         <!-- Notes avec Tiptap -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
-            <div class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-base">📝</div>
+            <span class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-base">📝</span>
             Notes
             <span class="ml-auto text-xs text-gray-400 font-normal">Optionnel</span>
           </h2>
 
           <div v-if="editor" class="flex flex-wrap gap-1 mb-3 pb-3 border-b border-gray-100">
-            <button title="Gras" :class="['toolbar-btn', editor.isActive('bold') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleBold().run()">
+            <button type="button" title="Gras" :class="['toolbar-btn', editor.isActive('bold') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleBold().run()">
               <strong>G</strong>
             </button>
-            <button title="Italique" :class="['toolbar-btn', editor.isActive('italic') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleItalic().run()">
+            <button type="button" title="Italique" :class="['toolbar-btn', editor.isActive('italic') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleItalic().run()">
               <em>I</em>
             </button>
-            <button title="Souligné" :class="['toolbar-btn', editor.isActive('underline') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleUnderline().run()">
+            <button type="button" title="Souligné" :class="['toolbar-btn', editor.isActive('underline') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleUnderline().run()">
               <span style="text-decoration:underline">S</span>
             </button>
             <span class="w-px bg-gray-200 mx-1" />
-            <button title="Titre H2" :class="['toolbar-btn font-bold', editor.isActive('heading', { level: 2 }) ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleHeading({ level: 2 }).run()">
+            <button type="button" title="Titre H2" :class="['toolbar-btn font-bold', editor.isActive('heading', { level: 2 }) ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleHeading({ level: 2 }).run()">
               H2
             </button>
-            <button title="Sous-titre H3" :class="['toolbar-btn font-bold', editor.isActive('heading', { level: 3 }) ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleHeading({ level: 3 }).run()">
+            <button type="button" title="Sous-titre H3" :class="['toolbar-btn font-bold', editor.isActive('heading', { level: 3 }) ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleHeading({ level: 3 }).run()">
               H3
             </button>
             <span class="w-px bg-gray-200 mx-1" />
-            <button title="Liste à puces" :class="['toolbar-btn', editor.isActive('bulletList') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleBulletList().run()">
+            <button type="button" title="Liste à puces" :class="['toolbar-btn', editor.isActive('bulletList') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleBulletList().run()">
               — liste
             </button>
-            <button title="Citation" :class="['toolbar-btn', editor.isActive('blockquote') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleBlockquote().run()">
+            <button type="button" title="Citation" :class="['toolbar-btn', editor.isActive('blockquote') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleBlockquote().run()">
               « »
             </button>
           </div>
@@ -262,7 +262,7 @@ onUnmounted(() => editor.value?.destroy())
             <NuxtLink to="/" class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
               Annuler
             </NuxtLink>
-            <button :disabled="loading" class="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 disabled:opacity-50 transition-colors" @click="soumettre">
+            <button type="button" :disabled="loading" class="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 disabled:opacity-50 transition-colors" @click="soumettre">
               {{ loading ? 'Envoi…' : 'Envoyer la suggestion →' }}
             </button>
           </div>

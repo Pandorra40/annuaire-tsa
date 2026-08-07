@@ -5,8 +5,21 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/ui',
     '@nuxtjs/sitemap',
+    '@nuxtjs/robots',
+    '@nuxtjs/html-validator',
     '@vite-pwa/nuxt'
   ],
+
+  // Déclaré ici et pas seulement dans app.vue : 200.html et 404.html sont
+  // produits sans passer par le composant racine. Or 200.html est servi pour
+  // toute adresse inconnue — sans `lang`, un lecteur d'écran ne sait pas dans
+  // quelle langue lire la page.
+  app: {
+    head: {
+      htmlAttrs: { lang: 'fr' },
+      title: 'Annuaire TSA'
+    }
+  },
 
   devtools: {
     enabled: process.env.NODE_ENV === 'development'
@@ -111,6 +124,30 @@ export default defineNuxtConfig({
       ],
       scan: true,
       includeCustomCollections: true
+    }
+  },
+
+  // Sans ce module, le serveur sert le robots.txt par défaut de LWS : un
+  // Crawl-delay de 60 s (soit plus de cinq heures pour explorer les 335 fiches),
+  // des règles pour un livre d'or inexistant, et aucune mention du sitemap.
+  // Les mêmes exclusions que celles du sitemap ci-dessous.
+  robots: {
+    disallow: ['/admin', '/signaler']
+  },
+
+  // Vérifie le HTML produit au build. Les fiches affichent des notes saisies
+  // dans Tiptap : une balise mal fermée y passerait sinon inaperçue.
+  // Signale sans interrompre la génération — à nous de trier les alertes.
+  htmlValidator: {
+    failOnError: false,
+    options: {
+      rules: {
+        // Les numéros viennent de la base : y insérer des espaces insécables
+        // reviendrait à retoucher la donnée pour un gain purement typographique.
+        'tel-non-breaking': 'off',
+        // Balisage produit par l'accordéon de Nuxt UI, pas par nos gabarits.
+        'prefer-native-element': 'off'
+      }
     }
   },
 

@@ -94,6 +94,7 @@ function initiales(nom: string) {
               <input
                 v-model="search"
                 type="search"
+                aria-label="Rechercher une association par nom, ville, département ou service"
                 placeholder="Nom, ville, département, service…"
                 class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
               />
@@ -101,6 +102,7 @@ function initiales(nom: string) {
             <input
               v-model="filtreDept"
               type="text"
+              aria-label="Filtrer par numéro de département"
               placeholder="N° département (ex: 75)"
               maxlength="3"
               class="w-full sm:w-44 px-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
@@ -191,14 +193,14 @@ function initiales(nom: string) {
 
           <!-- PAGINATION -->
           <div v-if="totalPages > 1" class="flex items-center justify-center gap-2 mt-8 flex-wrap">
-            <button
+            <button type="button"
               :disabled="pageActuelle === 1"
               class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 disabled:opacity-40 hover:border-gray-400 transition-colors"
               @click="page = pageActuelle - 1; scrollTop()"
             >← Précédent</button>
             <div class="flex gap-1 flex-wrap justify-center">
               <template v-for="p in totalPages" :key="p">
-                <button
+                <button type="button"
                   v-if="p === 1 || p === totalPages || (p >= pageActuelle - 2 && p <= pageActuelle + 2)"
                   class="w-9 h-9 rounded-lg text-sm font-semibold border transition-colors"
                   :class="p === pageActuelle ? 'bg-gray-900 text-white border-gray-900' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400'"
@@ -207,7 +209,7 @@ function initiales(nom: string) {
                 <span v-else-if="p === pageActuelle - 3 || p === pageActuelle + 3" class="w-9 h-9 flex items-center justify-center text-gray-400 text-sm">…</span>
               </template>
             </div>
-            <button
+            <button type="button"
               :disabled="pageActuelle === totalPages"
               class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 disabled:opacity-40 hover:border-gray-400 transition-colors"
               @click="page = pageActuelle + 1; scrollTop()"

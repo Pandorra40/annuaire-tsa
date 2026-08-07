@@ -156,6 +156,7 @@ function dateCourte(iso: string | null) {
         <input
           v-model="search"
           type="search"
+          aria-label="Rechercher un nom, une ville ou un département"
           placeholder="Rechercher un nom, une ville, un département…"
           class="flex-1 min-w-60 border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
         />
@@ -198,6 +199,7 @@ function dateCourte(iso: string | null) {
           <input
             v-model="brouillons[f.id]"
             type="email"
+            :aria-label="`Adresse email de ${f.nom}`"
             placeholder="adresse email du praticien"
             class="flex-1 min-w-64 border rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
             :class="modifie(f) ? 'border-amber-300' : 'border-gray-200'"
@@ -210,7 +212,7 @@ function dateCourte(iso: string | null) {
           </div>
 
           <div class="flex items-center gap-2">
-            <button
+            <button type="button"
               v-if="modifie(f)"
               :disabled="enregistrement === f.id"
               class="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 transition-colors"
@@ -220,7 +222,7 @@ function dateCourte(iso: string | null) {
             </button>
             <span v-else-if="enregistre === f.id" class="text-xs text-emerald-600 font-medium">✓ enregistré</span>
 
-            <button
+            <button type="button"
               :disabled="enregistrement === f.id"
               class="px-3 py-1.5 text-xs font-semibold rounded-lg border-2 disabled:opacity-50 transition-colors whitespace-nowrap"
               :class="f.contact_actif

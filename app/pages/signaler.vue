@@ -124,14 +124,14 @@ async function soumettre() {
 
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
-            <div class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center text-base">🚩</div>
+            <span class="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center text-base">🚩</span>
             {{ demandeCorrection ? 'Votre demande de correction' : 'Détails du signalement' }}
           </h2>
 
           <div class="space-y-5">
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Motif *</label>
-              <select v-model="form.motif" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition-all">
+              <label for="motif" class="block text-sm font-semibold text-gray-700 mb-1.5">Motif *</label>
+              <select id="motif" v-model="form.motif" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition-all">
                 <option value="">— Choisir un motif —</option>
                 <option v-for="m in motifs" :key="m" :value="m">{{ m }}</option>
               </select>
@@ -157,11 +157,11 @@ async function soumettre() {
             </div>
 
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">
+              <label for="details" class="block text-sm font-semibold text-gray-700 mb-1.5">
                 Détails <span v-if="!demandeRetrait">*</span>
                 <span v-else class="text-gray-400 font-normal">(optionnel)</span>
               </label>
-              <textarea v-model="form.details" rows="4" :placeholder="demandeRetrait ? 'Un mot si vous le souhaitez — ce n\'est pas nécessaire.' : 'Qu\'est-ce qui est inexact, et quelle est la bonne information ? Exemple : le téléphone est le 06 12 34 56 78, plus le 04…'" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
+              <textarea id="details" v-model="form.details" rows="4" :placeholder="demandeRetrait ? 'Un mot si vous le souhaitez — ce n\'est pas nécessaire.' : 'Qu\'est-ce qui est inexact, et quelle est la bonne information ? Exemple : le téléphone est le 06 12 34 56 78, plus le 04…'" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
             </div>
           </div>
         </div>
@@ -171,7 +171,7 @@ async function soumettre() {
             <NuxtLink :to="retour" class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
               Annuler
             </NuxtLink>
-            <button :disabled="loading" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-semibold disabled:opacity-50 transition-colors" @click="soumettre">
+            <button type="button" :disabled="loading" class="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-sm font-semibold disabled:opacity-50 transition-colors" @click="soumettre">
               {{ loading ? 'Envoi…' : 'Envoyer le signalement →' }}
             </button>
           </div>

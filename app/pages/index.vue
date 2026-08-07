@@ -171,18 +171,19 @@ function scrollToAnnuaire() {
             <input
               v-model="search"
               type="search"
+              aria-label="Rechercher un praticien par ville, département ou nom"
               placeholder="Bordeaux, 33, Dr Dupont…"
               class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
             />
           </div>
 
           <div class="flex flex-wrap gap-2 mb-3">
-            <button
+            <button type="button"
               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
               :class="filtreType === 'tous' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
               @click="filtreType = 'tous'"
             >Tous</button>
-            <button
+            <button type="button"
               v-for="t in types"
               :key="t"
               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
@@ -192,12 +193,12 @@ function scrollToAnnuaire() {
           </div>
 
           <div class="flex flex-wrap gap-2 mb-3">
-            <button
+            <button type="button"
               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
               :class="filtreAge === 'tous' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
               @click="filtreAge = 'tous'"
             >Tous âges</button>
-            <button
+            <button type="button"
               v-for="a in ages"
               :key="a"
               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
@@ -207,12 +208,12 @@ function scrollToAnnuaire() {
           </div>
 
           <div class="flex flex-wrap gap-2">
-            <button
+            <button type="button"
               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
               :class="filtreTele === 'tous' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
               @click="filtreTele = 'tous'"
             >Présentiel & télé</button>
-            <button
+            <button type="button"
               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
               :class="filtreTele === 'oui' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
               @click="filtreTele = 'oui'"
@@ -266,7 +267,7 @@ function scrollToAnnuaire() {
                   </div>
                 </div>
                 <div class="hidden sm:flex flex-col items-end gap-2 shrink-0">
-                  <button class="text-xs font-bold bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg hover:bg-gray-200 transition-colors" @click.prevent.stop="navigateTo(`/departement/${p.departement}`)">Dép. {{ p.departement }}</button>
+                  <button type="button" class="text-xs font-bold bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg hover:bg-gray-200 transition-colors" @click.prevent.stop="navigateTo(`/departement/${p.departement}`)">Dép. {{ p.departement }}</button>
                   <span v-if="p.confirmations > 0" class="text-xs text-emerald-700 font-medium">✓ {{ p.confirmations }} confirmation{{ p.confirmations > 1 ? 's' : '' }}</span>
                 </div>
               </div>
@@ -282,14 +283,14 @@ function scrollToAnnuaire() {
 
           <!-- PAGINATION -->
           <div v-if="totalPages > 1" class="flex items-center justify-center gap-2 mt-8 flex-wrap">
-            <button
+            <button type="button"
               :disabled="pageActuelle === 1"
               class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 disabled:opacity-40 hover:border-gray-400 transition-colors"
               @click="page = pageActuelle - 1; scrollToAnnuaire()"
             >← Précédent</button>
             <div class="flex gap-1 flex-wrap justify-center">
               <template v-for="p in totalPages" :key="p">
-                <button
+                <button type="button"
                   v-if="p === 1 || p === totalPages || (p >= pageActuelle - 2 && p <= pageActuelle + 2)"
                   class="w-9 h-9 rounded-lg text-sm font-semibold border transition-colors"
                   :class="p === pageActuelle ? 'bg-gray-900 text-white border-gray-900' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400'"
@@ -298,7 +299,7 @@ function scrollToAnnuaire() {
                 <span v-else-if="p === pageActuelle - 3 || p === pageActuelle + 3" class="w-9 h-9 flex items-center justify-center text-gray-400 text-sm">…</span>
               </template>
             </div>
-            <button
+            <button type="button"
               :disabled="pageActuelle === totalPages"
               class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 disabled:opacity-40 hover:border-gray-400 transition-colors"
               @click="page = pageActuelle + 1; scrollToAnnuaire()"

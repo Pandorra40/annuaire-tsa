@@ -104,7 +104,7 @@ const faq = [
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
           <div class="p-6 pb-4 border-b border-gray-100">
             <h2 class="font-bold text-lg text-gray-900 flex items-center gap-3">
-              <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-base">❓</div>
+              <span class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-base">❓</span>
               Questions fréquentes
             </h2>
           </div>

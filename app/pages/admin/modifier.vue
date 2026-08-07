@@ -176,7 +176,7 @@ async function sauvegarder() {
               <UInput v-model="form.nom" />
             </UFormField>
             <UFormField label="Type de professionnel *">
-              <select v-model="form.type" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-900">
+              <select v-model="form.type" aria-label="Type de professionnel" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-900">
                 <option v-for="t in types" :key="t" :value="t">{{ t }}</option>
               </select>
             </UFormField>
@@ -222,7 +222,7 @@ async function sauvegarder() {
             </UFormField>
           </div>
           <UFormField label="Délai d'attente" class="mb-4">
-            <select v-model="form.delai" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-900">
+            <select v-model="form.delai" aria-label="Délai d'attente" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-900">
               <option value="">— Non renseigné —</option>
               <option v-for="d in delais.slice(1)" :key="d" :value="d">{{ d }}</option>
             </select>
@@ -246,7 +246,7 @@ async function sauvegarder() {
                 { cmd: () => editor!.chain().focus().toggleItalic().run(), active: editor.isActive('italic'), icon: 'i-lucide-italic', title: 'Italique' },
                 { cmd: () => editor!.chain().focus().toggleUnderline().run(), active: editor.isActive('underline'), icon: 'i-lucide-underline', title: 'Souligné' },
               ]" :key="action.title">
-                <button :title="action.title" :class="['p-1.5 rounded transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
+                <button type="button" :title="action.title" :class="['p-1.5 rounded transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
                   <UIcon :name="action.icon" class="w-4 h-4" />
                 </button>
               </template>
@@ -255,7 +255,7 @@ async function sauvegarder() {
                 { cmd: () => editor!.chain().focus().toggleHeading({ level: 2 }).run(), active: editor.isActive('heading', { level: 2 }), label: 'H2', title: 'Titre' },
                 { cmd: () => editor!.chain().focus().toggleHeading({ level: 3 }).run(), active: editor.isActive('heading', { level: 3 }), label: 'H3', title: 'Sous-titre' },
               ]" :key="action.title">
-                <button :title="action.title" :class="['px-2 py-1 rounded text-xs font-bold transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
+                <button type="button" :title="action.title" :class="['px-2 py-1 rounded text-xs font-bold transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
                   {{ action.label }}
                 </button>
               </template>
@@ -266,7 +266,7 @@ async function sauvegarder() {
                 { cmd: () => editor!.chain().focus().setTextAlign('right').run(), active: editor.isActive({ textAlign: 'right' }), icon: 'i-lucide-align-right', title: 'Droite' },
                 { cmd: () => editor!.chain().focus().setTextAlign('justify').run(), active: editor.isActive({ textAlign: 'justify' }), icon: 'i-lucide-align-justify', title: 'Justifier' },
               ]" :key="action.title">
-                <button :title="action.title" :class="['p-1.5 rounded transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
+                <button type="button" :title="action.title" :class="['p-1.5 rounded transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
                   <UIcon :name="action.icon" class="w-4 h-4" />
                 </button>
               </template>
@@ -276,7 +276,7 @@ async function sauvegarder() {
                 { cmd: () => editor!.chain().focus().toggleBlockquote().run(), active: editor.isActive('blockquote'), icon: 'i-lucide-quote', title: 'Citation' },
                 { cmd: setLink, active: editor.isActive('link'), icon: 'i-lucide-link', title: 'Lien' },
               ]" :key="action.title">
-                <button :title="action.title" :class="['p-1.5 rounded transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
+                <button type="button" :title="action.title" :class="['p-1.5 rounded transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
                   <UIcon :name="action.icon" class="w-4 h-4" />
                 </button>
               </template>
@@ -291,7 +291,7 @@ async function sauvegarder() {
         <!-- Actions -->
         <div class="flex justify-end gap-3">
           <NuxtLink to="/admin" class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Annuler</NuxtLink>
-          <button class="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-700 transition-colors" @click="sauvegarder">Enregistrer</button>
+          <button type="button" class="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-700 transition-colors" @click="sauvegarder">Enregistrer</button>
         </div>
       </div>
     </div>

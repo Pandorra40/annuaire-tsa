@@ -78,9 +78,9 @@ const euro = (montant: number) =>
             <table class="w-full text-sm min-w-[28rem]">
               <thead>
                 <tr class="text-xs text-gray-500 uppercase tracking-wider">
-                  <th class="text-left font-semibold pb-2">Dépense</th>
-                  <th class="text-right font-semibold pb-2 px-3 whitespace-nowrap">Payé en {{ ANNEE }}</th>
-                  <th class="text-right font-semibold pb-2 whitespace-nowrap">Dès {{ ANNEE + 1 }}</th>
+                  <th scope="col" class="text-left font-semibold pb-2">Dépense</th>
+                  <th scope="col" class="text-right font-semibold pb-2 px-3 whitespace-nowrap">Payé en {{ ANNEE }}</th>
+                  <th scope="col" class="text-right font-semibold pb-2 whitespace-nowrap">Dès {{ ANNEE + 1 }}</th>
                 </tr>
               </thead>
               <tbody>

@@ -34,8 +34,17 @@ onMounted(async () => {
 
 const association = computed<Association | null>(() => fraiche.value ?? data.value?.[0] ?? null)
 
+// Certains noms d'association sont très longs : on n'ajoute le suffixe que s'il
+// tient dans les 70 caractères affichés par les moteurs de recherche.
+const titre = computed(() => {
+  const nom = association.value?.nom
+  if (!nom) return 'Association TSA'
+  const complet = `${nom} — Associations TSA`
+  return complet.length <= 70 ? complet : nom
+})
+
 useSeoMeta({
-  title: computed(() => association.value ? `${association.value.nom} — Associations TSA` : 'Association TSA'),
+  title: titre,
   description: computed(() => association.value ? `${association.value.nom} — Association TSA à ${association.value.ville} (${association.value.departement})` : '')
 })
 
@@ -112,7 +121,7 @@ function initiales(nom: string) {
             <!-- Description -->
             <div v-if="association.description" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 text-lg mb-4 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">📄</div>
+                <span class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">📄</span>
                 Présentation
               </h2>
               <p class="text-gray-600 text-sm leading-relaxed whitespace-pre-line">{{ association.description }}</p>
@@ -121,7 +130,7 @@ function initiales(nom: string) {
             <!-- Public -->
             <div v-if="association.age_public" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 text-lg mb-4 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base">👥</div>
+                <span class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base">👥</span>
                 Public concerné
               </h2>
               <p class="text-gray-600 text-sm">{{ association.age_public }}</p>
@@ -135,7 +144,7 @@ function initiales(nom: string) {
             <!-- Contact -->
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base">📞</div>
+                <span class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base">📞</span>
                 Contact
               </h2>
               <a v-if="association.telephone" :href="`tel:${association.telephone}`" class="flex items-center gap-3 text-indigo-600 font-semibold hover:text-indigo-700 transition-colors mb-3">
@@ -158,7 +167,7 @@ function initiales(nom: string) {
             <!-- Localisation -->
             <div v-if="association.adresse || association.ville" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
-                <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">📍</div>
+                <span class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">📍</span>
                 Localisation
               </h2>
               <p class="text-gray-600 text-sm">

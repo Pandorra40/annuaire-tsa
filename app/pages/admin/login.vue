@@ -93,8 +93,9 @@ function onKeydown(e: KeyboardEvent) {
 
         <!-- Formulaire -->
         <div v-if="!bloque">
-          <label style="display:block; font-size:0.875rem; font-weight:500; color:#374151; margin-bottom:0.375rem;">Mot de passe</label>
+          <label for="mdp" style="display:block; font-size:0.875rem; font-weight:500; color:#374151; margin-bottom:0.375rem;">Mot de passe</label>
           <input
+            id="mdp"
             v-model="mdp"
             type="password"
             placeholder="••••••••••"
@@ -102,7 +103,7 @@ function onKeydown(e: KeyboardEvent) {
             style="width:100%; padding:0.625rem 0.875rem; border:1px solid #d1d5db; border-radius:0.5rem; font-size:0.875rem; color:#111827; background:#ffffff; outline:none; box-sizing:border-box; margin-bottom:1rem;"
             @keydown="onKeydown"
           />
-          <button
+          <button type="button"
             :disabled="loading"
             style="width:100%; padding:0.625rem; background:#111827; color:#ffffff; border:none; border-radius:0.5rem; font-size:0.875rem; font-weight:600; cursor:pointer;"
             @click="connexion"

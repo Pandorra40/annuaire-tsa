@@ -115,12 +115,12 @@ async function deconnexion() {
       <div class="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
         <div class="flex items-center gap-3">
           <img src="/logo-tsa.svg" alt="" class="h-6 w-auto" />
-          <span class="font-bold text-gray-900">📚 Livres TSA</span>
+          <h1 class="font-bold text-gray-900">📚 Livres TSA</h1>
         </div>
         <div class="flex items-center gap-2">
           <NuxtLink to="/admin" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Admin Annuaire</NuxtLink>
           <NuxtLink to="/livres" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Voir le site</NuxtLink>
-          <button class="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors" @click="deconnexion">Déconnexion</button>
+          <button type="button" class="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors" @click="deconnexion">Déconnexion</button>
         </div>
       </div>
     </header>
@@ -131,7 +131,7 @@ async function deconnexion() {
 
       <!-- ONGLETS -->
       <div class="flex gap-1 border-b border-gray-200 mb-6">
-        <button
+        <button type="button"
           v-for="tab in [
             { id: 'ajouter', label: 'Ajouter un livre' },
             { id: 'publies', label: 'Publiés' },
@@ -162,13 +162,13 @@ async function deconnexion() {
               <UFormField label="Auteur *"><UInput v-model="form.auteur" placeholder="Prénom Nom" /></UFormField>
               <UFormField label="Année"><UInput v-model="form.annee" type="number" placeholder="2024" /></UFormField>
               <UFormField label="Catégorie *">
-                <select v-model="form.categorie" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-900">
+                <select v-model="form.categorie" aria-label="Catégorie du livre" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-900">
                   <option value="">— Choisir —</option>
                   <option v-for="c in categories" :key="c" :value="c">{{ c.charAt(0).toUpperCase() + c.slice(1) }}</option>
                 </select>
               </UFormField>
               <UFormField label="Type">
-                <select v-model="form.type" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-900">
+                <select v-model="form.type" aria-label="Type de livre" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-900">
                   <option value="classique">Classique</option>
                   <option value="suggestion">Suggestion communauté</option>
                 </select>
@@ -177,8 +177,8 @@ async function deconnexion() {
             </div>
             <UFormField label="Description"><UTextarea v-model="form.description" placeholder="Résumé du livre…" /></UFormField>
             <div class="flex justify-end gap-3">
-              <button class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors" @click="Object.assign(form, { titre: '', auteur: '', annee: '', categorie: '', type: 'classique', description: '', lien: '' })">Réinitialiser</button>
-              <button class="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-700 transition-colors" @click="ajouterLivre">Publier le livre</button>
+              <button type="button" class="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors" @click="Object.assign(form, { titre: '', auteur: '', annee: '', categorie: '', type: 'classique', description: '', lien: '' })">Réinitialiser</button>
+              <button type="button" class="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-semibold hover:bg-gray-700 transition-colors" @click="ajouterLivre">Publier le livre</button>
             </div>
           </div>
         </UCard>
@@ -199,7 +199,7 @@ async function deconnexion() {
               <UBadge color="neutral" variant="soft" size="xs">{{ d.type }}</UBadge>
             </div>
             <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-              <button class="px-3 py-1.5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(d.id)">Supprimer</button>
+              <button type="button" class="px-3 py-1.5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(d.id)">Supprimer</button>
             </div>
           </UCard>
         </div>
@@ -215,8 +215,8 @@ async function deconnexion() {
             <div v-if="s.description" class="text-xs text-gray-500 mt-2 p-2 bg-gray-50 rounded">{{ s.description }}</div>
             <div v-if="s.lien" class="text-xs mt-1"><a :href="s.lien" target="_blank" class="text-blue-600 hover:underline">{{ s.lien }}</a></div>
             <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-              <button class="px-3 py-1.5 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors" @click="validerSuggestion(s.id)">Valider → Publier</button>
-              <button class="px-3 py-1.5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="refuserSuggestion(s.id)">Refuser</button>
+              <button type="button" class="px-3 py-1.5 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors" @click="validerSuggestion(s.id)">Valider → Publier</button>
+              <button type="button" class="px-3 py-1.5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="refuserSuggestion(s.id)">Refuser</button>
             </div>
           </UCard>
         </div>

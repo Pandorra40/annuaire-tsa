@@ -134,7 +134,7 @@ async function deconnexion() {
           <NuxtLink to="/" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
             Voir le site
           </NuxtLink>
-          <button
+          <button type="button"
             class="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             @click="deconnexion"
           >
@@ -174,7 +174,7 @@ async function deconnexion() {
       <template v-else>
         <!-- ONGLETS -->
         <div class="flex gap-1 border-b border-gray-200 mb-6">
-          <button
+          <button type="button"
             v-for="tab in [
               { id: 'attente', label: 'En attente', count: attente.length },
               { id: 'publies', label: 'Publiés', count: null },
@@ -214,8 +214,8 @@ async function deconnexion() {
                 <UBadge color="neutral" variant="soft" size="xs">{{ d.source === 'praticien' ? 'Auto-déclaré' : 'Communauté' }}</UBadge>
               </div>
               <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100">
-                <button class="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors" @click="valider(d.id)">Valider</button>
-                <button class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="refuser(d.id)">Refuser</button>
+                <button type="button" class="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors" @click="valider(d.id)">Valider</button>
+                <button type="button" class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="refuser(d.id)">Refuser</button>
               </div>
             </UCard>
           </div>
@@ -239,8 +239,8 @@ async function deconnexion() {
               </div>
               <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100">
                 <NuxtLink :to="`/admin/modifier?id=${d.id}`" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Modifier</NuxtLink>
-                <button class="px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors" @click="basculerVisibilite(d.id, 'masquee')">Mettre en pause</button>
-                <button class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(d.id)">Supprimer</button>
+                <button type="button" class="px-3 py-1.5 text-sm font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg hover:bg-amber-100 transition-colors" @click="basculerVisibilite(d.id, 'masquee')">Mettre en pause</button>
+                <button type="button" class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(d.id)">Supprimer</button>
               </div>
             </UCard>
           </div>
@@ -258,9 +258,9 @@ async function deconnexion() {
               <div class="font-bold text-gray-900">{{ d.nom }}</div>
               <div class="text-sm text-gray-500">{{ d.type }} · {{ d.ville }} ({{ d.departement }})</div>
               <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100 flex-wrap">
-                <button class="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors" @click="basculerVisibilite(d.id, 'publie')">Remettre en ligne</button>
+                <button type="button" class="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors" @click="basculerVisibilite(d.id, 'publie')">Remettre en ligne</button>
                 <NuxtLink :to="`/admin/modifier?id=${d.id}`" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Modifier</NuxtLink>
-                <button class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(d.id)">Supprimer</button>
+                <button type="button" class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(d.id)">Supprimer</button>
               </div>
             </UCard>
           </div>
@@ -279,8 +279,8 @@ async function deconnexion() {
               <div v-if="s.detail" class="text-xs text-gray-500 mt-2 p-2 bg-gray-50 rounded">{{ s.detail }}</div>
               <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100 flex-wrap">
                 <NuxtLink :to="`/admin/modifier?id=${s.praticien_id}`" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Modifier la fiche</NuxtLink>
-                <button v-if="s.motif === MOTIF_RETRAIT" class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(s.praticien_id)">Supprimer la fiche</button>
-                <button class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors" @click="ignorerSignalement(s.id)">Ignorer</button>
+                <button type="button" v-if="s.motif === MOTIF_RETRAIT" class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(s.praticien_id)">Supprimer la fiche</button>
+                <button type="button" class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors" @click="ignorerSignalement(s.id)">Ignorer</button>
               </div>
             </UCard>
           </div>
@@ -301,7 +301,7 @@ async function deconnexion() {
               </div>
               <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100">
                 <NuxtLink :to="`/admin/modifier?id=${d.id}`" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Modifier la fiche</NuxtLink>
-                <button class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(d.id)">Supprimer</button>
+                <button type="button" class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(d.id)">Supprimer</button>
               </div>
             </UCard>
           </div>

@@ -85,25 +85,25 @@ async function soumettre() {
 
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
-            <div class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-base">📚</div>
+            <span class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-base">📚</span>
             Le livre
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Titre *</label>
-              <input v-model="form.titre" type="text" placeholder="Le titre du livre" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <label for="titre" class="block text-sm font-semibold text-gray-700 mb-1.5">Titre *</label>
+              <input id="titre" v-model="form.titre" type="text" placeholder="Le titre du livre" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Auteur *</label>
-              <input v-model="form.auteur" type="text" placeholder="Prénom Nom" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <label for="auteur" class="block text-sm font-semibold text-gray-700 mb-1.5">Auteur *</label>
+              <input id="auteur" v-model="form.auteur" type="text" placeholder="Prénom Nom" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Année <span class="text-gray-400 font-normal">(optionnel)</span></label>
-              <input v-model="form.annee" type="number" placeholder="2024" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <label for="annee" class="block text-sm font-semibold text-gray-700 mb-1.5">Année <span class="text-gray-400 font-normal">(optionnel)</span></label>
+              <input id="annee" v-model="form.annee" type="number" placeholder="2024" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Catégorie <span class="text-gray-400 font-normal">(optionnel)</span></label>
-              <select v-model="form.categorie" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all capitalize">
+              <label for="categorie" class="block text-sm font-semibold text-gray-700 mb-1.5">Catégorie <span class="text-gray-400 font-normal">(optionnel)</span></label>
+              <select id="categorie" v-model="form.categorie" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all capitalize">
                 <option value="">— Choisir —</option>
                 <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
               </select>
@@ -113,18 +113,18 @@ async function soumettre() {
 
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
-            <div class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-base">📝</div>
+            <span class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-base">📝</span>
             Détails
             <span class="ml-auto text-xs text-gray-400 font-normal">Optionnel</span>
           </h2>
           <div class="space-y-5">
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Pourquoi ce livre ?</label>
-              <textarea v-model="form.description" rows="3" placeholder="En quelques mots, pourquoi recommandez-vous ce livre ?" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
+              <label for="description" class="block text-sm font-semibold text-gray-700 mb-1.5">Pourquoi ce livre ?</label>
+              <textarea id="description" v-model="form.description" rows="3" placeholder="En quelques mots, pourquoi recommandez-vous ce livre ?" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
             </div>
             <div>
-              <label class="block text-sm font-semibold text-gray-700 mb-1.5">Lien (Amazon, éditeur…)</label>
-              <input v-model="form.lien" type="url" placeholder="https://…" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <label for="lien" class="block text-sm font-semibold text-gray-700 mb-1.5">Lien (Amazon, éditeur…)</label>
+              <input id="lien" v-model="form.lien" type="url" placeholder="https://…" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
             </div>
           </div>
         </div>
@@ -136,7 +136,7 @@ async function soumettre() {
             <NuxtLink to="/livres" class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
               Annuler
             </NuxtLink>
-            <button :disabled="loading" class="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 disabled:opacity-50 transition-colors" @click="soumettre">
+            <button type="button" :disabled="loading" class="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 disabled:opacity-50 transition-colors" @click="soumettre">
               {{ loading ? 'Envoi…' : 'Envoyer la suggestion →' }}
             </button>
           </div>

@@ -98,14 +98,14 @@ const loadingNewReleases = computed(() => newReleasesStatus.value === 'pending')
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 mb-6">
           <div class="relative mb-4">
             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-base">🔍</span>
-            <input v-model="search" type="search" placeholder="Titre, auteur ou mot-clé…"
+            <input v-model="search" type="search" aria-label="Rechercher un livre par titre, auteur ou mot-clé" placeholder="Titre, auteur ou mot-clé…"
               class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
           </div>
           <div class="flex flex-wrap gap-2">
-            <button class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
+            <button type="button" class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
               :class="activecat === '' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
               @click="activecat = ''">Tous</button>
-            <button v-for="cat in categories" :key="cat"
+            <button type="button" v-for="cat in categories" :key="cat"
               class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
               :class="[activecat === cat ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400', cat === 'bd' ? 'uppercase' : 'capitalize']"
               @click="activecat = cat">{{ cat }}</button>
