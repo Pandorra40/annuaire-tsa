@@ -112,7 +112,7 @@ api/                             # API PHP (à déployer sur LWS)
 ├── auth.php                     # Authentification admin
 ├── praticiens.php               # CRUD praticiens (public)
 ├── contact.php                  # Formulaire de contact + lien de désactivation
-├── lib/PHPMailer/               # PHPMailer vendorisé (pas de composer sur le mutualisé)
+├── vendor/                      # PHPMailer installé par composer en local, transféré tel quel
 ├── migrations/                  # Scripts SQL, appliqués via phpMyAdmin
 ├── associations.php             # Lecture associations (public)
 ├── admin_praticiens.php         # Gestion admin praticiens
@@ -215,7 +215,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 
 ## Vibe coding
 
-Ce projet a été entièrement vibecoder avec [Claude Code](https://claude.ai/code) (IA d'Anthropic). La vision, les choix fonctionnels et les orientations sont humains — le code a été généré par l'IA.
+Ce projet a été entièrement vibecodé avec [Claude Code](https://claude.ai/code) (IA d'Anthropic). La vision, les choix fonctionnels et les orientations sont humains — le code a été généré par l'IA.
 
 ## Licence
 
