@@ -139,7 +139,7 @@ function scrollToAnnuaire() {
       <div class="max-w-5xl mx-auto px-6">
         <div class="text-center mb-14">
           <span class="text-indigo-600 font-semibold text-sm uppercase tracking-wider">Comment ça marche ?</span>
-          <h2 class="text-4xl font-black text-gray-900 mt-3">Un projet construit par les familles,<br />pour les familles.</h2>
+          <h2 class="text-4xl font-black text-gray-900 mt-3">Un projet fait pour les familles,<br />nourri par les familles.</h2>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
           <div v-for="item in howItWorks" :key="item.titre"

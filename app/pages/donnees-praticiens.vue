@@ -36,6 +36,11 @@ useSeoMeta({
             diffusez déjà pour être joignable. <strong>Vous pouvez à tout moment la faire
             corriger ou supprimer</strong>, sans avoir à vous justifier.
           </p>
+          <p class="text-gray-600 leading-relaxed mt-4">
+            L'Annuaire TSA est un <strong>projet bénévole et libre</strong>, tenu par une
+            seule personne, sans publicité, sans financement et sans association derrière.
+            Les corrections sont faites à la main, dès que possible.
+          </p>
           <p class="mt-5">
             <a href="mailto:annuaire.tsa@gmail.com?subject=Ma%20fiche%20dans%20l%27Annuaire%20TSA" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors">
               Demander une correction ou un retrait →
@@ -171,6 +176,11 @@ useSeoMeta({
             écrire au sujet de votre fiche. <strong>Elle n'est jamais publiée</strong>, ni
             affichée sur le site, ni accessible depuis son interface de programmation
             publique.
+          </p>
+          <p class="text-gray-600 leading-relaxed mt-3">
+            Seule exception : si vous nous demandez vous-même de faire figurer une adresse
+            de contact sur votre fiche, elle y apparaît alors publiquement — c'est votre
+            choix, jamais le nôtre.
           </p>
         </div>
 

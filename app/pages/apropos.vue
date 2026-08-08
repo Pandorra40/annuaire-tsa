@@ -10,10 +10,6 @@ const faq = [
     content: 'L\'Annuaire TSA est une ressource complète et gratuite pour les familles concernées par les troubles du spectre autistique. Il comprend un annuaire de praticiens spécialisés (psychiatres, psychologues, neuropsychologues, orthophonistes, ergothérapeutes, psychomotriciens), un annuaire de 290 associations TSA en France, et une sélection de livres sur le TSA. Chaque fiche praticien est vérifiée manuellement avant publication.'
   },
   {
-    label: 'Qui est derrière ce projet ?',
-    content: 'Ce projet est une initiative bénévole et personnelle, sans association formelle, sans financement commercial et sans publicité. Il est développé et maintenu par Pandorra40, à titre entièrement bénévole. Le code source est publié sous licence libre (AGPL-3.0) et disponible sur GitHub. Pour être transparent, ce projet a été entièrement vibecoder avec Claude Code (IA d\'Anthropic) — la vision, les choix fonctionnels et les orientations sont humains, le code a été généré par l\'IA.'
-  },
-  {
     label: 'Comment les fiches sont-elles vérifiées ?',
     content: 'Toute suggestion soumise par la communauté est examinée manuellement avant publication. L\'administrateur vérifie l\'existence du praticien via le répertoire RPPS officiel. Une fois publiée, la communauté peut confirmer l\'exactitude d\'une fiche ou signaler une erreur.'
   },
@@ -61,10 +57,40 @@ const faq = [
               <p class="text-gray-600 leading-relaxed">
                 Trouver un professionnel de santé spécialisé dans les troubles du spectre autistique (TSA) en France reste un parcours du combattant pour de nombreuses familles.
                 L'Annuaire TSA est né de ce constat : centraliser, vérifier et rendre accessibles les informations sur les praticiens spécialisés TSA, gratuitement, sans publicité, et avec l'aide de la communauté.
-                C'est un projet <strong>construit par les familles, pour les familles</strong>.
+                C'est un projet <strong>fait pour les familles</strong>, nourri par leurs signalements et leurs suggestions.
               </p>
               <p class="text-gray-600 leading-relaxed mt-3">
                 Au-delà de l'annuaire de praticiens, le site propose également un <strong>annuaire de 290 associations TSA</strong> en France — parce qu'une fois le diagnostic posé, les familles ont besoin de soutien, d'entraide et d'accompagnement. Une <strong>sélection de livres</strong> sur le TSA complète ces ressources.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sorti de l'accordéon (8 août 2026) : replié en cinquième position, ce bloc
+             n'était jamais lu. Or c'est lui qui pose le cadre — un bénévole, pas un
+             service — et qui manquait aux praticiens écrivant comme à une équipe. -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
+          <div class="flex items-start gap-4">
+            <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0 text-xl">
+              🧑‍💻
+            </div>
+            <div>
+              <h2 class="font-bold text-xl text-gray-900 mb-3">Qui tient ce projet</h2>
+              <p class="text-gray-600 leading-relaxed">
+                Une seule personne, bénévolement, sur son temps libre. Pas d'association,
+                pas de financement, pas de publicité, rien à vendre. Les fiches sont
+                relues à la main, les corrections faites à la main, les courriels écrits
+                un par un.
+              </p>
+              <p class="text-gray-600 leading-relaxed mt-3">
+                Le code source est publié sous licence libre <strong>AGPL-3.0</strong> et
+                consultable sur GitHub : chacun peut le lire, le vérifier, le réutiliser
+                ou le corriger.
+              </p>
+              <p class="text-gray-600 leading-relaxed mt-3">
+                Pour être transparent : ce projet a été entièrement vibecodé avec Claude
+                Code, l'IA d'Anthropic. La vision, les choix fonctionnels et les
+                orientations sont humains ; le code a été généré par l'IA.
               </p>
             </div>
           </div>
