@@ -1,4 +1,4 @@
-export const TYPES_PRATICIENS = ['Psychiatre', 'Pédopsychiatre', 'Psychologue', 'Neuropsychologue', 'Orthophoniste', 'Ergothérapeute', 'Psychomotricien'] as const
+export const TYPES_PRATICIENS = ['Psychiatre', 'Pédopsychiatre', 'Psychologue', 'Neuropsychologue', 'Orthophoniste', 'Ergothérapeute', 'Psychomotricien', 'Structure'] as const
 export const AGES_OPTIONS = ['Enfant', 'Adolescent', 'Adulte'] as const
 
 // Demande d'effacement émanant du praticien lui-même (art. 17 RGPD) : à traiter en
