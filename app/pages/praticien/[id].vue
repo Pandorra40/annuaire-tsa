@@ -130,6 +130,17 @@ async function confirmer() {
     voteThanks.value = false
   }
 }
+
+// Les professions du répertoire ont basculé d'ADELI vers le RPPS en 2024 — les
+// psychologues le 3 juin. La colonne porte donc les deux formats le temps de la
+// reprise, et l'étiquette suit le numéro : 11 chiffres pour un RPPS, 9 pour un
+// ADELI. Annoncer « N° ADELI » devant un RPPS se voit immédiatement du praticien
+// qui relit sa fiche.
+function libelleIdentifiant(num: string) {
+  if (/^\d{11}$/.test(num)) return 'N° RPPS'
+  if (/^\d{9}$/.test(num)) return 'N° ADELI'
+  return 'Identifiant'
+}
 </script>
 
 <template>
@@ -254,7 +265,7 @@ async function confirmer() {
               </a>
               <div v-if="praticien.adeli" class="flex items-center gap-3 text-gray-500 text-sm mt-3">
                 <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-sm">🪪</div>
-                <span>N° ADELI : {{ praticien.adeli }}</span>
+                <span>{{ libelleIdentifiant(praticien.adeli) }} : {{ praticien.adeli }}</span>
               </div>
 
               <!-- FORMULAIRE DE CONTACT (si le praticien y a consenti) -->
