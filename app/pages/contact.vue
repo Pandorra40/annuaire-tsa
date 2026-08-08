@@ -26,6 +26,7 @@ useSeoMeta({
           <h2 class="text-xl font-bold text-gray-900 mb-3">M'écrire</h2>
           <p class="text-gray-600 text-sm leading-relaxed mb-6 max-w-md mx-auto">
             Pour toute question sur le projet, signalement d'une erreur ou proposition de contribution.
+            <span class="block mt-2">Vous écrivez à une seule personne, bénévole.</span>
           </p>
           <a href="mailto:annuaire.tsa@gmail.com" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-700 transition-colors">
             ✉️ annuaire.tsa@gmail.com

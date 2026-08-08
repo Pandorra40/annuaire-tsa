@@ -36,7 +36,12 @@ useSeoMeta({
             diffusez déjà pour être joignable. <strong>Vous pouvez à tout moment la faire
             corriger ou supprimer</strong>, sans avoir à vous justifier.
           </p>
-          <p class="mt-5">
+          <!-- Au-dessus du bouton, et pas seulement dans le cadre en dessous : un lien
+               mailto fait quitter la page, donc qui a cliqué ne lira jamais la suite. -->
+          <p class="text-gray-600 leading-relaxed mt-4">
+            Vous écrivez à une seule personne, bénévole.
+          </p>
+          <p class="mt-4">
             <a href="mailto:annuaire.tsa@gmail.com?subject=Ma%20fiche%20dans%20l%27Annuaire%20TSA" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors">
               Demander une correction ou un retrait →
             </a>
