@@ -36,17 +36,16 @@ useSeoMeta({
             diffusez déjà pour être joignable. <strong>Vous pouvez à tout moment la faire
             corriger ou supprimer</strong>, sans avoir à vous justifier.
           </p>
-          <p class="text-gray-600 leading-relaxed mt-4">
-            L'Annuaire TSA est un <strong>projet bénévole et libre</strong>, tenu par une
-            seule personne, sans publicité, sans financement et sans association derrière.
-            Les corrections sont faites à la main, dès que possible.
-          </p>
           <p class="mt-5">
             <a href="mailto:annuaire.tsa@gmail.com?subject=Ma%20fiche%20dans%20l%27Annuaire%20TSA" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors">
               Demander une correction ou un retrait →
             </a>
           </p>
         </div>
+
+        <!-- Sous le bouton, jamais au-dessus : il ne s'agit pas de dissuader
+             d'écrire, mais de cadrer la façon d'écrire. -->
+        <CadreBenevole />
 
         <!-- EN PRATIQUE — placé avant le juridique : c'est ce qu'un praticien vient
              chercher, et la plupart n'ont pas besoin de lire la suite. -->
