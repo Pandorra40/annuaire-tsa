@@ -476,7 +476,9 @@ function libelleIdentifiant(num: string) {
   font-weight: 600;
   margin-bottom: 0.15rem;
 }
-.notes-content :deep(a) {
+/* a[href] et non a : un lien privé de son adresse ne doit pas garder l'apparence
+   d'un lien, sinon le visiteur clique dans le vide sans comprendre pourquoi. */
+.notes-content :deep(a[href]) {
   color: #4f46e5;
   text-decoration: underline;
 }
