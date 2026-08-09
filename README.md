@@ -1,11 +1,11 @@
-# Annuaire TSA — V4.4
+# Annuaire TSA — V4.5
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
 ## Ce que contient le projet
 
 ### 1. Annuaire TSA
-Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, pédopsychiatres, psychologues, neuropsychologues, orthophonistes, ergothérapeutes et psychomotriciens.
+Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, pédopsychiatres, psychologues, neuropsychologues, orthophonistes, ergothérapeutes et psychomotriciens, ainsi que les structures (cabinets, instituts, centres) qui ne désignent pas une personne.
 
 - Recherche par ville, département ou spécialité
 - Filtres par type de praticien, tranche d'âge et mode de consultation
@@ -14,7 +14,7 @@ Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, 
 - Suggestion de praticiens par la communauté
 - Pages dédiées par département (`/departement/XX`) pour le SEO
 - Pagination (20 praticiens par page) — page et filtres conservés dans l'URL (recherches partageables, état restauré au retour navigateur)
-- Numéro ADELI affiché sur les fiches
+- Identifiant national affiché sur les fiches, intitulé « N° RPPS » ou « N° ADELI » selon le format du numéro (les psychologues ont basculé vers le RPPS le 3 juin 2024)
 - Partage sur Facebook + copie du lien sur chaque fiche praticien
 - Données issues d'Autisme Info Service et de Tamis-Autisme, enrichies manuellement
 
@@ -77,6 +77,8 @@ annuaire-tsa-nuxt/
 │   ├── layouts/
 │   │   ├── default.vue          # Layout public (navbar + footer)
 │   │   └── admin.vue            # Layout admin isolé
+│   ├── components/
+│   │   └── CadreBenevole.vue    # Cadre de bonne conduite, sous les liens mailto
 │   ├── composables/
 │   │   └── useApi.ts            # Appels API centralisés
 │   ├── data/
@@ -91,6 +93,7 @@ annuaire-tsa-nuxt/
 │       ├── suggerer.vue         # Formulaire suggestion praticien
 │       ├── signaler.vue         # Signaler une erreur
 │       ├── associations.vue     # Annuaire associations TSA
+│       ├── association/[id].vue # Fiche détaillée association
 │       ├── cra.vue              # Centres Ressources Autisme + parcours de diagnostic
 │       ├── livres/
 │       │   ├── index.vue        # Page livres TSA
@@ -212,6 +215,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 | V4.2 | Ajout page Associations TSA (290 associations, source AIS Apache 2.0), schema.org WebSite, corrections SEO |
 | V4.3 | Base praticiens enrichie (ADELI + sources Tamis-Autisme), nouveautés livres via data.bnf.fr, affichage ADELI, refonte fiche praticien (partage Facebook, aération des notes), pagination/filtres dans l'URL, corrections de navigation et de cache PWA |
 | V4.4 | Page Centres Ressources Autisme (47 centres, parcours de diagnostic en trois niveaux), formulaire de contact par praticien (SMTP, consentement explicite, lien de désactivation autonome), page `/donnees-praticiens` d'information RGPD, admin `/admin/contacts`, champ « détails » obligatoire sur les signalements, mentions légales complétées d'un responsable du traitement, page `/couts` de transparence sur les frais |
+| V4.5 | Campagne d'information des praticiens au titre de l'article 14 du RGPD (219 praticiens contactés), cadre de bonne conduite affiché avant les liens de contact, disparition du « nous » éditorial (le projet est tenu par une seule personne), type de praticien « Structure », rapprochement des fiches avec l'annuaire santé et bascule ADELI → RPPS, correctif de `sanitizeHtml` qui privait les liens des notes de leur `href` |
 
 ## Vibe coding
 
