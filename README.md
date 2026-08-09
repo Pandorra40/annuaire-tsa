@@ -250,8 +250,9 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 ## Remerciements
 
 Ce projet avance aussi grâce à ceux qui prennent le temps de tester, de signaler ce qui
-ne fonctionne pas, ou de corriger leur fiche. Signaler un problème demande autant de
-bonne volonté qu'écrire du code.
+ne fonctionne pas, ou de corriger leur fiche. Ici, écrire le code n'est pas le plus
+difficile : c'est de savoir ce qui cloche, et personne ne le voit mieux que ceux qui
+utilisent le site.
 
 - [@1000i100](https://github.com/1000i100) pour avoir signalé que la recherche de
   praticiens ne répondait plus, testée sur deux navigateurs ([#1](https://github.com/Pandorra40/annuaire-tsa/issues/1))
