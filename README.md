@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.5
+# Annuaire TSA — V4.6
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -27,12 +27,30 @@ Annuaire de 290 associations spécialisées dans les troubles du spectre autisti
 - Services proposés, public concerné, description
 - Données issues d'Autisme Info Service (licence Apache 2.0)
 
-### 3. Livres TSA (`/livres/`)
+### 3. Ressources (`/ressources/`)
+Deux rubriques de même niveau, réunies sous une entrée de menu commune : le livre et
+la vidéo se complètent, ils ne se hiérarchisent pas.
+
+#### Livres TSA (`/ressources/livres/`)
 Sélection collaborative de livres sur le TSA.
 
 - **Grands classiques** — sélection éditoriale stockée en base de données
 - **Dernières parutions** — mises à jour automatiquement via data.bnf.fr / BnF (SPARQL, sans clé API)
 - Formulaire de suggestion de livres sans inscription
+
+#### Vidéos TSA (`/ressources/videos/`)
+Chaînes YouTube et vidéos choisies une par une, classées par position d'énonciation —
+professionnels, personnes concernées, familles et proches — et non par thème.
+
+- **Façade au clic** : le lecteur `youtube-nocookie` n'est créé qu'après un clic
+  explicite. Avant, aucune requête ne part vers Google, et les vignettes sont des
+  dégradés dessinés localement — `img-src` de la CSP reste inchangé
+- **Les chaînes ne sont pas intégrées mais liées** : recommander une chaîne n'est pas
+  recommander sa dernière vidéo. Carte sobre et lien sortant, sans lecteur
+- Chaque entrée porte une ligne « Pourquoi ici », obligatoire : c'est elle qui
+  distingue la rubrique d'une liste de liens
+- L'administrateur colle une adresse, le serveur reconnaît une vidéo ou une chaîne et
+  refuse le reste. Le `?si=…` des liens de partage, marqueur de provenance, est retiré
 
 ### 4. Centres Ressources Autisme (`/cra/`)
 Les 47 centres ressources publics de France, avec le parcours de diagnostic expliqué.
@@ -78,7 +96,9 @@ annuaire-tsa-nuxt/
 │   │   ├── default.vue          # Layout public (navbar + footer)
 │   │   └── admin.vue            # Layout admin isolé
 │   ├── components/
-│   │   └── CadreBenevole.vue    # Cadre de bonne conduite, sous les liens mailto
+│   │   ├── CadreBenevole.vue    # Cadre de bonne conduite, sous les liens mailto
+│   │   ├── RessourcesOnglets.vue # Onglets Livres / Vidéos
+│   │   └── VideoFacade.vue      # Lecteur YouTube chargé au clic, jamais avant
 │   ├── composables/
 │   │   └── useApi.ts            # Appels API centralisés
 │   ├── data/
@@ -95,9 +115,13 @@ annuaire-tsa-nuxt/
 │       ├── associations.vue     # Annuaire associations TSA
 │       ├── association/[id].vue # Fiche détaillée association
 │       ├── cra.vue              # Centres Ressources Autisme + parcours de diagnostic
-│       ├── livres/
-│       │   ├── index.vue        # Page livres TSA
-│       │   └── suggerer.vue     # Formulaire suggestion livre
+│       ├── ressources/
+│       │   ├── index.vue        # Redirige vers /ressources/livres
+│       │   ├── livres/
+│       │   │   ├── index.vue    # Page livres TSA
+│       │   │   └── suggerer.vue # Formulaire suggestion livre
+│       │   └── videos/
+│       │       └── index.vue    # Chaînes et vidéos YouTube
 │       ├── apropos.vue
 │       ├── contact.vue
 │       ├── mentions.vue
@@ -108,7 +132,8 @@ annuaire-tsa-nuxt/
 │           ├── index.vue        # Dashboard admin praticiens
 │           ├── modifier.vue     # Modifier une fiche praticien
 │           ├── contacts.vue     # Emails et consentements des formulaires
-│           └── livres.vue       # Admin livres TSA
+│           ├── livres.vue       # Admin livres TSA
+│           └── videos.vue       # Admin vidéos et chaînes
 
 api/                             # API PHP (à déployer sur LWS)
 ├── config.php                   # Connexion BDD + fonctions communes
@@ -122,6 +147,7 @@ api/                             # API PHP (à déployer sur LWS)
 ├── suggestions.php              # Suggestions de praticiens
 ├── signalements.php             # Signalements
 ├── livres.php                   # CRUD livres
+├── videos.php                   # CRUD vidéos et chaînes + validation des adresses
 ├── suggestions_livres.php       # Suggestions de livres
 └── bnf-proxy.php                # Proxy PHP vers data.bnf.fr (SPARQL)
 ```
@@ -139,9 +165,11 @@ api/                             # API PHP (à déployer sur LWS)
 ### Tables associations
 - `associations` — associations TSA publiées (source AIS Apache 2.0)
 
-### Tables livres
+### Tables ressources
 - `livres` — livres publiés (classiques + suggestions validées)
 - `suggestions_livres` — suggestions de livres en attente de validation
+- `videos` — vidéos et chaînes recommandées. `type` distingue les deux : une vidéo
+  porte un `youtube_id` de 11 caractères, une chaîne une `url` normalisée
 
 ## Développement local
 
@@ -190,6 +218,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 
 - **Admin annuaire** : `https://www.annuaire-tsa.fr/admin/login`
 - **Admin livres** : `https://www.annuaire-tsa.fr/admin/livres`
+- **Admin vidéos** : `https://www.annuaire-tsa.fr/admin/videos`
 
 ## Sécurité
 
@@ -216,6 +245,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 | V4.3 | Base praticiens enrichie (ADELI + sources Tamis-Autisme), nouveautés livres via data.bnf.fr, affichage ADELI, refonte fiche praticien (partage Facebook, aération des notes), pagination/filtres dans l'URL, corrections de navigation et de cache PWA |
 | V4.4 | Page Centres Ressources Autisme (47 centres, parcours de diagnostic en trois niveaux), formulaire de contact par praticien (SMTP, consentement explicite, lien de désactivation autonome), page `/donnees-praticiens` d'information RGPD, admin `/admin/contacts`, champ « détails » obligatoire sur les signalements, mentions légales complétées d'un responsable du traitement, page `/couts` de transparence sur les frais |
 | V4.5 | Campagne d'information des praticiens au titre de l'article 14 du RGPD (219 praticiens contactés), cadre de bonne conduite affiché avant les liens de contact, disparition du « nous » éditorial (le projet est tenu par une seule personne), type de praticien « Structure », rapprochement des fiches avec l'annuaire santé et bascule ADELI → RPPS, correctif de `sanitizeHtml` qui privait les liens des notes de leur `href` |
+| V4.6 | Rubrique `/ressources` réunissant les livres et une nouvelle section vidéos (façade au clic, chaînes en liens sortants, catégories par position d'énonciation), `api/videos.php`, admin dédiée, redirections 301 depuis `/livres` |
 
 ## Vibe coding
 

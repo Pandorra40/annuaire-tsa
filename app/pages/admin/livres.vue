@@ -119,7 +119,7 @@ async function deconnexion() {
         </div>
         <div class="flex items-center gap-2">
           <NuxtLink to="/admin" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Admin Annuaire</NuxtLink>
-          <NuxtLink to="/livres" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Voir le site</NuxtLink>
+          <NuxtLink to="/ressources/livres" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Voir le site</NuxtLink>
           <button type="button" class="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors" @click="deconnexion">Déconnexion</button>
         </div>
       </div>

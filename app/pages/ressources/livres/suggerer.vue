@@ -55,7 +55,7 @@ async function soumettre() {
       <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #f87171, #fb923c, #fbbf24, #4ade80, #60a5fa, #a78bfa, #f472b6)" />
       <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at 30% 50%, rgba(99,102,241,0.07) 0%, transparent 50%)" />
       <div class="relative max-w-3xl mx-auto px-6">
-        <NuxtLink to="/livres" class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm mb-6 transition-colors font-medium">
+        <NuxtLink to="/ressources/livres" class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm mb-6 transition-colors font-medium">
           ← Retour aux livres
         </NuxtLink>
         <h1 class="text-4xl sm:text-5xl font-black text-gray-900 mb-3 tracking-tight">Suggérer un livre</h1>
@@ -69,7 +69,7 @@ async function soumettre() {
         <div class="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto mb-5 text-3xl">✅</div>
         <h2 class="text-2xl font-bold mb-3 text-gray-900">Suggestion envoyée !</h2>
         <p class="text-gray-500 mb-8">Merci. Le livre sera examiné avant publication.</p>
-        <NuxtLink to="/livres" class="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors">
+        <NuxtLink to="/ressources/livres" class="inline-flex items-center gap-2 px-6 py-3 border border-gray-300 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-colors">
           ← Retour aux livres
         </NuxtLink>
       </div>
@@ -133,7 +133,7 @@ async function soumettre() {
 
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <div class="flex justify-end gap-3">
-            <NuxtLink to="/livres" class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
+            <NuxtLink to="/ressources/livres" class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
               Annuler
             </NuxtLink>
             <button type="button" :disabled="loading" class="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 disabled:opacity-50 transition-colors" @click="soumettre">

@@ -22,6 +22,10 @@ export function useApi() {
     return await $fetch<Livre[]>(`${base}/livres.php`)
   }
 
+  async function fetchVideos() {
+    return await $fetch<Video[]>(`${base}/videos.php`)
+  }
+
   async function suggererPraticien(payload: SuggestionPraticien) {
     return await $fetch(`${base}/suggestions.php`, {
       method: 'POST',
@@ -57,6 +61,7 @@ export function useApi() {
     fetchPraticiensDepartement,
     confirmerFiche,
     fetchLivres,
+    fetchVideos,
     suggererPraticien,
     envoyerMessage,
     suggererLivre,

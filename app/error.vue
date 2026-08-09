@@ -39,8 +39,8 @@ const handleError = () => clearError({ redirect: '/' })
           <UButton color="neutral" variant="solid" size="lg" @click="handleError">
             ← Retour à l'annuaire
           </UButton>
-          <UButton to="/livres" color="neutral" variant="outline" size="lg">
-            📚 Livres TSA
+          <UButton to="/ressources/livres" color="neutral" variant="outline" size="lg">
+            📚 Ressources
           </UButton>
         </div>
       </UContainer>

@@ -81,18 +81,20 @@ export default defineNuxtConfig({
 
   routeRules: {
     '/': { prerender: true },
-    '/livres': { prerender: true },
+    '/ressources/livres': { prerender: true },
+    '/ressources/videos': { prerender: true },
     '/cra': { prerender: true },
     '/apropos': { prerender: true },
     '/mentions': { prerender: true },
     '/couts': { prerender: true },
     '/contact': { prerender: true },
     '/suggerer': { prerender: true },
-    '/livres/suggerer': { prerender: true },
+    '/ressources/livres/suggerer': { prerender: true },
     '/admin': { prerender: true, colorMode: 'light' },
     '/admin/login': { prerender: true, colorMode: 'light' },
     '/admin/modifier': { prerender: true, colorMode: 'light' },
-    '/admin/livres': { prerender: true, colorMode: 'light' }
+    '/admin/livres': { prerender: true, colorMode: 'light' },
+    '/admin/videos': { prerender: true, colorMode: 'light' }
   },
 
   site: {

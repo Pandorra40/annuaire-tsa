@@ -31,7 +31,10 @@ AddType font/woff2 .woff2
   # Politique de chargement des ressources
   # (api.iconify.design retiré : les icônes sont désormais embarquées dans le build)
   Header always unset Content-Security-Policy
-  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://www.annuaire-tsa.fr https://data.bnf.fr; font-src 'self'; worker-src 'self'; frame-ancestors 'none';"
+  # frame-src : les lecteurs de /ressources/videos, et eux seuls. Ils ne sont créés
+  # qu'après un clic du visiteur — img-src reste inchangé, les vignettes étant
+  # dessinées localement plutôt que tirées de i.ytimg.com.
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://www.annuaire-tsa.fr https://data.bnf.fr; font-src 'self'; worker-src 'self'; frame-src https://www.youtube-nocookie.com; frame-ancestors 'none';"
 
   # Interdit le chargement dans une iframe (anti-clickjacking)
   Header always set X-Frame-Options "DENY"
@@ -108,7 +111,7 @@ Redirect 301 /suggerer.html /suggerer
 Redirect 301 /fiche.html /
 Redirect 301 /signaler.html /signaler
 Redirect 301 /merci.html /
-Redirect 301 /livres/suggerer.html /livres/suggerer
+Redirect 301 /livres/suggerer.html /ressources/livres/suggerer
 Redirect 301 /admin/login.html /admin/login
 # Pas de redirection pour /admin/index.html : c'est le fichier réellement généré par
 # Nuxt, et la règle se déclenchait sur l'index servi pour /admin/ — d'où une boucle
@@ -116,11 +119,19 @@ Redirect 301 /admin/login.html /admin/login
 Redirect 301 /admin/modifier.html /admin/modifier
 Redirect 301 /admin/livres.html /admin/livres
 
+# --- Livres TSA déplacé sous Ressources (9 août 2026) ---
+# /livres est indexée depuis mai et figure au sitemap : la 301 transfère le
+# référencement acquis. L'ordre compte — la règle la plus spécifique d'abord,
+# sans quoi /livres/suggerer serait avalé par la redirection de /livres.
+Redirect 301 /livres/suggerer /ressources/livres/suggerer
+Redirect 301 /livres /ressources/livres
+
 # --- Routing Nuxt (SPA fallback) ---
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  # Normalise /livres sans slash → /livres/
-  RewriteRule ^livres$ /livres/ [R=301,L]
+  # Normalise les rubriques sans slash → avec slash, le prérendu produisant des
+  # dossiers. /livres est traité plus haut par une redirection définitive.
+  RewriteRule ^ressources/(livres|videos)$ /ressources/$1/ [R=301,L]
   # Un dossier réel mais sans index (ex : /praticien/, /departement/) doit répondre 404
   # avec la page d'erreur du site, et non le « Forbidden » d'Apache.
   RewriteCond %{REQUEST_FILENAME} -d

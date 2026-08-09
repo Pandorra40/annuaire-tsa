@@ -86,9 +86,10 @@ const loadingNewReleases = computed(() => newReleasesStatus.value === 'pending')
         <p class="text-gray-500 text-lg max-w-2xl mx-auto mb-8 leading-relaxed">
           Sélection collaborative et gratuite de livres sur le trouble du spectre autistique — grands classiques et dernières parutions.
         </p>
-        <NuxtLink to="/livres/suggerer" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-700 transition-colors">
+        <NuxtLink to="/ressources/livres/suggerer" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-700 transition-colors">
           + Suggérer un livre
         </NuxtLink>
+        <RessourcesOnglets />
       </div>
     </section>
 

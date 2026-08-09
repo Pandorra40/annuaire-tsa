@@ -3,7 +3,7 @@ const navLinks = [
   { label: 'Annuaire', to: '/' },
   { label: 'Associations', to: '/associations' },
   { label: 'CRA', to: '/cra' },
-  { label: 'Livres TSA', to: '/livres' }
+  { label: 'Ressources', to: '/ressources/livres' }
 ]
 
 const mobileMenuOpen = ref(false)
