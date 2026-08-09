@@ -125,7 +125,7 @@ onUnmounted(() => editor.value?.destroy())
           ← Retour à l'annuaire
         </NuxtLink>
         <h1 class="text-4xl sm:text-5xl font-black text-gray-900 mb-3 tracking-tight">Suggérer un praticien</h1>
-        <p class="text-gray-500 text-lg max-w-2xl">Vous connaissez un praticien spécialisé TSA qui n'apparaît pas ? Signalez-le ici — nom, ville et spécialité suffisent.</p>
+        <p class="text-gray-500 text-lg max-w-2xl">Vous connaissez un praticien spécialisé TSA qui n'apparaît pas ? Signalez-le ici : nom, ville et spécialité suffisent.</p>
       </div>
     </section>
 

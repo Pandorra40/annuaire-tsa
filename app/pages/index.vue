@@ -319,7 +319,7 @@ function scrollToAnnuaire() {
             Communauté
           </div>
           <h2 class="text-4xl font-black mb-4 leading-tight">Vous connaissez un praticien qui n'apparaît pas ?</h2>
-          <p class="text-indigo-200 text-lg leading-relaxed mb-8">Aidez la communauté. Nom, ville et spécialité suffisent — c'est rapide et gratuit.</p>
+          <p class="text-indigo-200 text-lg leading-relaxed mb-8">Aidez la communauté. Nom, ville et spécialité suffisent, c'est rapide et gratuit.</p>
           <NuxtLink to="/suggerer" class="inline-flex items-center gap-2 px-6 py-3.5 bg-white text-gray-900 font-bold rounded-xl hover:bg-gray-100 transition-colors">
             Suggérer un praticien →
           </NuxtLink>

@@ -32,7 +32,7 @@ useSeoMeta({
             l'annuaire d'Autisme Info Service et les contributions de familles concernées.
           </p>
           <p class="text-gray-600 leading-relaxed">
-            Votre fiche ne contient que des données professionnelles — celles que vous
+            Votre fiche ne contient que des données professionnelles : celles que vous
             diffusez déjà pour être joignable. <strong>Vous pouvez à tout moment la faire
             corriger ou supprimer</strong>, sans avoir à vous justifier.
           </p>
@@ -65,7 +65,7 @@ useSeoMeta({
                 <h3 class="font-bold text-gray-900 mb-1">Une information est fausse</h3>
                 <p class="text-gray-600 leading-relaxed">
                   Sur votre fiche, cliquez sur <strong>« Corriger mes informations »</strong>.
-                  Dites ce qui doit changer et ce qu'il faut mettre à la place — c'est tout.
+                  Dites ce qui doit changer et ce qu'il faut mettre à la place, c'est tout.
                   Corrigé sous quelques jours.
                 </p>
               </div>
@@ -183,7 +183,7 @@ useSeoMeta({
           </p>
           <p class="text-gray-600 leading-relaxed mt-3">
             Seule exception : si vous nous demandez vous-même de faire figurer une adresse
-            de contact sur votre fiche, elle y apparaît alors publiquement — c'est votre
+            de contact sur votre fiche, elle y apparaît alors publiquement, c'est votre
             choix, jamais le nôtre.
           </p>
         </div>
@@ -269,9 +269,9 @@ useSeoMeta({
           <h2 class="font-black text-gray-900 text-xl mb-3">Combien de temps</h2>
           <p class="text-gray-600 leading-relaxed">
             Votre fiche est conservée tant qu'elle est publiée et que les informations
-            restent exactes. Elle est supprimée sur demande — dans les meilleurs délais,
-            et au plus tard sous un mois — ou lorsqu'il apparaît que vous avez cessé votre
-            activité.
+            restent exactes. Elle est supprimée sur demande, dans les meilleurs délais et
+            au plus tard sous un mois. Elle l'est également lorsqu'il apparaît que vous
+            avez cessé votre activité.
           </p>
           <p class="text-gray-600 leading-relaxed mt-3">
             Une adresse électronique dont il apparaît qu'elle n'est plus valide est

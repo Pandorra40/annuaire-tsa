@@ -71,7 +71,7 @@ useSeoMeta({
             <br><br>
             <strong>Formulaire de contact d'une fiche :</strong> votre message est transmis
             au praticien par courriel, avec votre adresse en « répondre à » pour qu'il vous
-            réponde directement. Son contenu n'est conservé nulle part — ni dans la base du
+            réponde directement. Son contenu n'est conservé nulle part : ni dans la base du
             site, ni par son éditeur, qui n'en reçoit aucune copie. Seules la date, la fiche
             concernée et votre adresse sont journalisées, pour pouvoir limiter les abus.
             <br><br>

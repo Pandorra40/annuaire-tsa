@@ -60,7 +60,7 @@ const faq = [
                 C'est un projet <strong>fait pour les familles</strong>, nourri par leurs signalements et leurs suggestions.
               </p>
               <p class="text-gray-600 leading-relaxed mt-3">
-                Au-delà de l'annuaire de praticiens, le site propose également un <strong>annuaire de 290 associations TSA</strong> en France — parce qu'une fois le diagnostic posé, les familles ont besoin de soutien, d'entraide et d'accompagnement. Une <strong>sélection de livres</strong> sur le TSA complète ces ressources.
+                Au-delà de l'annuaire de praticiens, le site propose également un <strong>annuaire de 290 associations TSA</strong> en France, parce qu'une fois le diagnostic posé, les familles ont besoin de soutien, d'entraide et d'accompagnement. Une <strong>sélection de livres</strong> sur le TSA complète ces ressources.
               </p>
             </div>
           </div>
@@ -115,7 +115,7 @@ const faq = [
                 la fiche d'un praticien. Vous écrivez depuis le site, il reçoit votre message par
                 courriel et vous répond directement. Son adresse n'est jamais affichée, la vôtre
                 ne sert qu'à recevoir sa réponse, et le contenu de l'échange n'est conservé nulle
-                part — ni dans la base du site, ni par son éditeur.
+                part : ni dans la base du site, ni par son éditeur.
               </p>
               <p class="text-gray-600 leading-relaxed mt-3">
                 Chaque praticien a été informé individuellement et a donné son accord par écrit.
