@@ -247,6 +247,15 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 | V4.5 | Campagne d'information des praticiens au titre de l'article 14 du RGPD (219 praticiens contactés), cadre de bonne conduite affiché avant les liens de contact, disparition du « nous » éditorial (le projet est tenu par une seule personne), type de praticien « Structure », rapprochement des fiches avec l'annuaire santé et bascule ADELI → RPPS, correctif de `sanitizeHtml` qui privait les liens des notes de leur `href` |
 | V4.6 | Rubrique `/ressources` réunissant les livres et une nouvelle section vidéos (façade au clic, chaînes en liens sortants, catégories par position d'énonciation), `api/videos.php`, admin dédiée, redirections 301 depuis `/livres` |
 
+## Remerciements
+
+Ce projet avance aussi grâce à ceux qui prennent le temps de tester, de signaler ce qui
+ne fonctionne pas, ou de corriger leur fiche. Signaler un problème demande autant de
+bonne volonté qu'écrire du code.
+
+- [@1000i100](https://github.com/1000i100) pour avoir signalé que la recherche de
+  praticiens ne répondait plus, testée sur deux navigateurs ([#1](https://github.com/Pandorra40/annuaire-tsa/issues/1))
+
 ## Vibe coding
 
 Ce projet a été entièrement vibecodé avec [Claude Code](https://claude.ai/code) (IA d'Anthropic). La vision, les choix fonctionnels et les orientations sont humains — le code a été généré par l'IA.
