@@ -112,6 +112,12 @@ export default defineNuxtConfig({
     clientBundle: {
       icons: [
         'lucide:check',
+        // Chevron de l'accordéon (Questions fréquentes) et menu de 200.html :
+        // le scan ne les voit pas, ils sont posés par Nuxt UI et par la page
+        // d'erreur. Sans eux, le navigateur les demande à api.iconify.design,
+        // que la CSP bloque — icônes absentes et erreurs en console.
+        'lucide:chevron-down',
+        'lucide:menu',
         'lucide:flag',
         'lucide:link',
         'lucide:search',

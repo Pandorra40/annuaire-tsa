@@ -130,65 +130,68 @@ function initiales(nom: string) {
 
           <!-- LISTE -->
           <div v-else class="space-y-4">
-            <NuxtLink
+            <article
               v-for="a in associationsPaginees"
               :key="a.id"
-              :to="`/association/${a.id}`"
-              class="block bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-200 hover:-translate-y-0.5 transition-all duration-200 p-6"
+              class="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-md hover:border-emerald-200 hover:-translate-y-0.5 transition-all duration-200 p-6"
             >
-              <div class="flex items-start gap-4">
+              <NuxtLink :to="`/association/${a.id}`" class="block">
+                <div class="flex items-start gap-4">
 
-                <!-- Avatar -->
-                <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-white text-sm shrink-0" style="background: linear-gradient(135deg, #10b981, #059669)">
-                  {{ initiales(a.nom) }}
-                </div>
-
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-start justify-between gap-3 flex-wrap mb-1">
-                    <h2 class="font-black text-gray-900 text-lg leading-tight">{{ a.nom }}</h2>
-                    <span class="text-xs font-bold bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg shrink-0">{{ a.departement }}</span>
+                  <!-- Avatar -->
+                  <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-white text-sm shrink-0" style="background: linear-gradient(135deg, #10b981, #059669)">
+                    {{ initiales(a.nom) }}
                   </div>
 
-                  <!-- Ville + type -->
-                  <p class="text-gray-600 text-sm mb-3">
-                    <span v-if="a.ville">{{ a.ville }} · </span>
-                    <span v-if="a.type_association" class="text-gray-500">{{ a.type_association }}</span>
-                  </p>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between gap-3 flex-wrap mb-1">
+                      <h2 class="font-black text-gray-900 text-lg leading-tight">{{ a.nom }}</h2>
+                      <span class="text-xs font-bold bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg shrink-0">{{ a.departement }}</span>
+                    </div>
 
-                  <!-- Services -->
-                  <div v-if="a.services" class="flex flex-wrap gap-1.5 mb-3">
-                    <span
-                      v-for="service in a.services.split(',').slice(0, 4)"
-                      :key="service"
-                      class="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full"
-                    >{{ service.trim() }}</span>
-                  </div>
+                    <!-- Ville + type -->
+                    <p class="text-gray-600 text-sm mb-3">
+                      <span v-if="a.ville">{{ a.ville }} · </span>
+                      <span v-if="a.type_association" class="text-gray-500">{{ a.type_association }}</span>
+                    </p>
 
-                  <!-- Age public -->
-                  <p v-if="a.age_public" class="text-xs text-gray-500 mb-3">
-                    <span class="font-semibold">Public :</span> {{ a.age_public }}
-                  </p>
+                    <!-- Services -->
+                    <div v-if="a.services" class="flex flex-wrap gap-1.5 mb-3">
+                      <span
+                        v-for="service in a.services.split(',').slice(0, 4)"
+                        :key="service"
+                        class="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full"
+                      >{{ service.trim() }}</span>
+                    </div>
 
-                  <!-- Description -->
-                  <p v-if="a.description" class="text-sm text-gray-600 leading-relaxed line-clamp-3 mb-4">
-                    {{ a.description }}
-                  </p>
+                    <!-- Age public -->
+                    <p v-if="a.age_public" class="text-xs text-gray-500 mb-3">
+                      <span class="font-semibold">Public :</span> {{ a.age_public }}
+                    </p>
 
-                  <!-- Contacts -->
-                  <div class="flex flex-wrap gap-3 pt-4 border-t border-gray-100">
-                    <a v-if="a.telephone" :href="`tel:${a.telephone}`" class="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
-                      📞 {{ a.telephone }}
-                    </a>
-                    <a v-if="a.email" :href="`mailto:${a.email}`" class="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors min-w-0">
-                      ✉️ <span class="truncate max-w-[200px]">{{ a.email }}</span>
-                    </a>
-                    <a v-if="a.site_web" :href="a.site_web" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-700 transition-colors">
-                      🔗 Site web
-                    </a>
+                    <!-- Description -->
+                    <p v-if="a.description" class="text-sm text-gray-600 leading-relaxed line-clamp-3">
+                      {{ a.description }}
+                    </p>
                   </div>
                 </div>
+              </NuxtLink>
+
+              <!-- Contacts hors du lien : un lien dans un lien est du HTML
+                   invalide, et privait la carte de son intitulé pour un lecteur
+                   d'écran. -->
+              <div v-if="a.telephone || a.email || a.site_web" class="flex flex-wrap gap-3 pt-4 mt-4 border-t border-gray-100">
+                <a v-if="a.telephone" :href="`tel:${a.telephone}`" class="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 transition-colors">
+                  📞 {{ a.telephone }}
+                </a>
+                <a v-if="a.email" :href="`mailto:${a.email}`" class="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-gray-900 transition-colors min-w-0">
+                  ✉️ <span class="truncate max-w-[200px]">{{ a.email }}</span>
+                </a>
+                <a v-if="a.site_web" :href="a.site_web" target="_blank" rel="noopener" class="inline-flex items-center gap-1.5 text-sm text-indigo-600 hover:text-indigo-700 transition-colors">
+                  🔗 Site web
+                </a>
               </div>
-            </NuxtLink>
+            </article>
           </div>
 
           <!-- PAGINATION -->

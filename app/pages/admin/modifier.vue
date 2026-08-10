@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
-import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
-import Link from '@tiptap/extension-link'
 import { TYPES_PRATICIENS, AGES_OPTIONS } from '~/types/index'
 
 definePageMeta({ layout: 'admin' })
@@ -73,10 +71,10 @@ function toggleAge(age: string) {
 
 const editor = useEditor({
   extensions: [
-    StarterKit,
-    Underline,
-    TextAlign.configure({ types: ['heading', 'paragraph'] }),
-    Link.configure({ openOnClick: false }),
+    // Depuis Tiptap 3, StarterKit embarque Link et Underline : les déclarer en
+    // plus les enregistrait deux fois.
+    StarterKit.configure({ link: { openOnClick: false } }),
+    TextAlign.configure({ types: ['heading', 'paragraph'] })
   ],
   content: '',
   editorProps: {

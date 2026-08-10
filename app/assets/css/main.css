@@ -84,6 +84,29 @@ html.contraste .text-gray-400,
 html.contraste .text-gray-600 { color: #000000 !important; }
 html.contraste .border-gray-200,
 html.contraste .border-gray-100 { border-color: #000000 !important; }
+/* Les bandeaux et le titre coloré portent leur dégradé en style inline : sans
+   ces règles, le mode contraste laissait intactes les zones les moins lisibles
+   de la page. Le texte blanc des bandeaux sombres repasse au noir, sinon il
+   disparaîtrait sur le fond éclairci. Les pastilles d'initiales, elles, sont
+   des <div> : elles gardent leur fond coloré et restent lisibles. */
+html.contraste section[style*="linear-gradient"] {
+  background: #ffffff !important;
+  background-image: none !important;
+  color: #000000 !important;
+}
+/* Le titre coloré est un dégradé découpé par le texte : fond transparent, et
+   non blanc, sinon le mot se détache en bloc sur la section. */
+html.contraste h1 span[style*="linear-gradient"] {
+  background: none !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+html.contraste [style*="radial-gradient"] { background-image: none !important; }
+html.contraste section[style*="linear-gradient"] .text-white { color: #000000 !important; }
+/* Ces bandeaux portaient des boutons blancs sur fond sombre : une fois le fond
+   éclairci, ils ne se distinguaient plus du texte. Le soulignement les rend
+   repérables sans dépendre de la couleur. */
+html.contraste section[style*="linear-gradient"] a { text-decoration: underline; }
 
 /* ── CONTENU TIPTAP (v-html) ── */
 .prose [style*="text-align: center"] { text-align: center; }

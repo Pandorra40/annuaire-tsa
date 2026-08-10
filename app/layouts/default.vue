@@ -66,7 +66,10 @@ function toggleContraste() {
 
     <!-- NAVBAR -->
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm">
-      <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
+      <!-- flex-wrap et min-h plutôt qu'une hauteur fixe : en mode lecture, ou
+           avec le texte agrandi, la barre déborde et le bouton recouvrait la
+           navigation. Elle passe désormais sur deux lignes. -->
+      <div class="max-w-6xl mx-auto px-6 min-h-16 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
 
         <div class="flex items-center gap-6">
           <NuxtLink to="/" class="flex items-center gap-2.5 font-black text-gray-900 text-lg tracking-tight shrink-0">

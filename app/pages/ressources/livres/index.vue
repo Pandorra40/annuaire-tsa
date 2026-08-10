@@ -63,8 +63,13 @@ const { data: newReleases, status: newReleasesStatus } = await useAsyncData('new
   }
 }, { lazy: true, server: false })
 
-// Spinner affiché uniquement pendant le chargement réel (pas figé au build)
-const loadingNewReleases = computed(() => newReleasesStatus.value === 'pending')
+// 'idle' est l'état au pré-rendu, 'pending' le premier état côté client. Sans
+// 'idle', la page statique affirmait « Aucune nouveauté trouvée » — faux, et
+// c'est ce que voyaient les moteurs et les visiteurs sans JavaScript — puis
+// divergeait du rendu client à l'hydratation.
+const loadingNewReleases = computed(() =>
+  newReleasesStatus.value === 'pending' || newReleasesStatus.value === 'idle'
+)
 </script>
 
 <template>
