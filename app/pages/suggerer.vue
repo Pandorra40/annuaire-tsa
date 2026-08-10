@@ -29,6 +29,11 @@ const form = reactive({
 const types = TYPES_PRATICIENS
 const agesOptions = AGES_OPTIONS
 
+// Une structure n'est pas une personne physique : elle ne peut pas avoir de RPPS,
+// qui identifie un professionnel. On lui demande son SIRET ou son FINESS, tout
+// aussi vérifiables et publics.
+const estStructure = computed(() => form.type === 'Structure')
+
 function toggleAge(age: string) {
   const idx = form.ages.indexOf(age)
   if (idx === -1) form.ages.push(age)
@@ -185,10 +190,29 @@ onUnmounted(() => editor.value?.destroy())
           </div>
           <div class="mt-5">
             <label for="adeli" class="block text-sm font-semibold text-gray-700 mb-1.5">
-              Numéro ADELI ou RPPS
+              {{ estStructure ? 'Numéro SIRET ou FINESS' : 'Numéro RPPS ou ADELI' }}
               <span class="text-gray-500 font-normal ml-1">(optionnel)</span>
             </label>
-            <input id="adeli" v-model="form.adeli" type="text" placeholder="Ex. 123456789" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+            <input id="adeli" v-model="form.adeli" type="text" aria-describedby="adeli-aide"
+              :placeholder="estStructure ? 'Ex. 12345678901234' : 'Ex. 10001234567'"
+              class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+            <!-- Le critère s'appliquait sans être annoncé : des praticiens exerçant une
+                 activité non réglementée envoyaient une suggestion de bonne foi, refusée
+                 ensuite sans qu'ils puissent le savoir — le formulaire ne collecte aucune
+                 adresse, on ne peut donc pas les prévenir. Le champ reste facultatif : la
+                 page d'accueil promet « Nom, ville et spécialité suffisent », et une
+                 famille qui signale un praticien ne connaît pas son numéro. -->
+            <p id="adeli-aide" class="text-xs text-gray-500 mt-2 leading-relaxed">
+              <template v-if="estStructure">
+                Facultatif pour une structure. Un SIRET ou un FINESS permet de la vérifier
+                plus vite, mais son absence n'empêche pas la publication.
+              </template>
+              <template v-else>
+                Vous n'êtes pas obligé de le connaître. Mais l'annuaire ne référence que des
+                praticiens inscrits au répertoire national des professionnels de santé : une
+                fiche dont l'identifiant ne peut pas être vérifié n'est pas publiée.
+              </template>
+            </p>
           </div>
         </div>
 

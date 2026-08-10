@@ -87,6 +87,30 @@ export interface SuggestionPraticien {
   source: string
 }
 
+// Reprend les valeurs déjà présentes dans la table `associations`, et reprises
+// telles quelles par api/suggestions_associations.php — toute modification doit
+// l'être des deux côtés.
+export const TYPES_ASSOCIATION = [
+  'Association de familles',
+  'Association de personnes concernées',
+  'Association de professionnels'
+] as const
+
+export interface SuggestionAssociation {
+  nom: string
+  type_association?: string | null
+  ville: string
+  departement: string
+  adresse?: string | null
+  telephone?: string | null
+  email?: string | null
+  site_web?: string | null
+  services?: string | null
+  age_public?: string | null
+  description?: string | null
+  hp: string
+}
+
 export interface Association {
   id: number
   nom: string

@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.6
+# Annuaire TSA — V4.7
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -14,8 +14,9 @@ Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, 
 - Suggestion de praticiens par la communauté
 - Pages dédiées par département (`/departement/XX`) pour le SEO
 - Pagination (20 praticiens par page) — page et filtres conservés dans l'URL (recherches partageables, état restauré au retour navigateur)
-- Identifiant national affiché sur les fiches, intitulé « N° RPPS » ou « N° ADELI » selon le format du numéro (les psychologues ont basculé vers le RPPS le 3 juin 2024)
+- Identifiant national affiché sur les fiches, intitulé d'après le type de fiche et le format du numéro : « N° RPPS » à 11 chiffres, « N° ADELI » à 9 (les psychologues ont basculé vers le RPPS le 3 juin 2024), et pour une structure « N° SIRET » à 14 ou « N° FINESS » à 9 — un FINESS ayant la même longueur qu'un ADELI, la longueur seule ne suffit pas à trancher
 - Partage sur Facebook + copie du lien sur chaque fiche praticien
+- **Critère d'admission** : un praticien ne figure dans l'annuaire que si son identifiant est vérifié au répertoire national des professionnels de santé (RPPS, ou ADELI le temps de la bascule). Une structure — cabinet, centre, institut — n'est pas une personne physique et n'a pas de RPPS : SIRET ou FINESS y sont acceptés sans être exigés. Le critère est écrit sur `/suggerer` et sur `/donnees-praticiens`
 - Données issues d'Autisme Info Service et de Tamis-Autisme, enrichies manuellement
 
 ### 2. Associations TSA (`/associations/`)
@@ -25,6 +26,7 @@ Annuaire de 290 associations spécialisées dans les troubles du spectre autisti
 - Recherche par nom, ville, département ou service
 - Informations de contact : téléphone, email, site web
 - Services proposés, public concerné, description
+- Formulaire de suggestion public (`/associations/suggerer`) et modération dans `/admin/associations`
 - Données issues d'Autisme Info Service (licence Apache 2.0)
 
 ### 3. Ressources (`/ressources/`)
@@ -115,7 +117,9 @@ annuaire-tsa-nuxt/
 │       ├── departement/[num].vue # Praticiens par département
 │       ├── suggerer.vue         # Formulaire suggestion praticien
 │       ├── signaler.vue         # Signaler une erreur
-│       ├── associations.vue     # Annuaire associations TSA
+│       ├── associations/
+│       │   ├── index.vue        # Annuaire associations TSA
+│       │   └── suggerer.vue     # Formulaire suggestion association
 │       ├── association/[id].vue # Fiche détaillée association
 │       ├── cra.vue              # Centres Ressources Autisme + parcours de diagnostic
 │       ├── ressources/
@@ -136,7 +140,8 @@ annuaire-tsa-nuxt/
 │           ├── modifier.vue     # Modifier une fiche praticien
 │           ├── contacts.vue     # Emails et consentements des formulaires
 │           ├── livres.vue       # Admin livres TSA
-│           └── videos.vue       # Admin vidéos et chaînes
+│           ├── videos.vue       # Admin vidéos et chaînes
+│           └── associations.vue # Modération des suggestions d'associations
 
 api/                             # API PHP (à déployer sur LWS)
 ├── config.php                   # Connexion BDD + fonctions communes
@@ -152,6 +157,7 @@ api/                             # API PHP (à déployer sur LWS)
 ├── livres.php                   # CRUD livres
 ├── videos.php                   # CRUD vidéos et chaînes + validation des adresses
 ├── suggestions_livres.php       # Suggestions de livres
+├── suggestions_associations.php # Suggestions d'associations + modération
 └── bnf-proxy.php                # Proxy PHP vers data.bnf.fr (SPARQL)
 ```
 
@@ -167,6 +173,7 @@ api/                             # API PHP (à déployer sur LWS)
 
 ### Tables associations
 - `associations` — associations TSA publiées (source AIS Apache 2.0)
+- `suggestions_associations` — suggestions envoyées depuis le site, en attente de modération
 
 ### Tables ressources
 - `livres` — livres publiés (classiques + suggestions validées)
@@ -231,6 +238,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 - **Admin annuaire** : `https://www.annuaire-tsa.fr/admin/login`
 - **Admin livres** : `https://www.annuaire-tsa.fr/admin/livres`
 - **Admin vidéos** : `https://www.annuaire-tsa.fr/admin/videos`
+- **Admin associations** : `https://www.annuaire-tsa.fr/admin/associations`
 
 ## Sécurité
 
@@ -264,6 +272,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 | V4.3 | Base praticiens enrichie (ADELI + sources Tamis-Autisme), nouveautés livres via data.bnf.fr, affichage ADELI, refonte fiche praticien (partage Facebook, aération des notes), pagination/filtres dans l'URL, corrections de navigation et de cache PWA |
 | V4.4 | Page Centres Ressources Autisme (47 centres, parcours de diagnostic en trois niveaux), formulaire de contact par praticien (SMTP, consentement explicite, lien de désactivation autonome), page `/donnees-praticiens` d'information RGPD, admin `/admin/contacts`, champ « détails » obligatoire sur les signalements, mentions légales complétées d'un responsable du traitement, page `/couts` de transparence sur les frais |
 | V4.5 | Campagne d'information des praticiens au titre de l'article 14 du RGPD (219 praticiens contactés), cadre de bonne conduite affiché avant les liens de contact, disparition du « nous » éditorial (le projet est tenu par une seule personne), type de praticien « Structure », rapprochement des fiches avec l'annuaire santé et bascule ADELI → RPPS, correctif de `sanitizeHtml` qui privait les liens des notes de leur `href` |
+| V4.7 | Critère d'admission écrit et appliqué : identifiant vérifié obligatoire pour les praticiens, SIRET ou FINESS facultatif pour les structures, énoncé sur `/suggerer` et `/donnees-praticiens`. Formulaire public de suggestion d'associations et écran de modération. Purge du journal de contact à douze mois |
 | V4.6 | Rubrique `/ressources` réunissant les livres et une nouvelle section vidéos (façade au clic, chaînes en liens sortants, catégories par position d'énonciation), `api/videos.php`, admin dédiée, redirections 301 depuis `/livres` |
 
 ## Remerciements

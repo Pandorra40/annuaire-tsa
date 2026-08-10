@@ -79,6 +79,9 @@ function initiales(nom: string) {
         <p class="text-gray-700 text-lg max-w-2xl mx-auto leading-relaxed">
           Associations de familles, de personnes concernées et de professionnels spécialisés dans les troubles du spectre autistique.
         </p>
+        <NuxtLink to="/associations/suggerer" class="inline-flex items-center gap-2 px-6 py-3 mt-8 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-700 transition-colors">
+          + Suggérer une association
+        </NuxtLink>
       </div>
     </section>
 

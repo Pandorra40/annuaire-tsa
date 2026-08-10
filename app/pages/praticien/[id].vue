@@ -136,7 +136,15 @@ async function confirmer() {
 // reprise, et l'étiquette suit le numéro : 11 chiffres pour un RPPS, 9 pour un
 // ADELI. Annoncer « N° ADELI » devant un RPPS se voit immédiatement du praticien
 // qui relit sa fiche.
-function libelleIdentifiant(num: string) {
+// Le type de la fiche est nécessaire, pas seulement la longueur : un FINESS de
+// structure fait neuf chiffres, exactement comme un ADELI de praticien. Sans lui,
+// un centre verrait s'afficher « N° ADELI », qui désigne une personne physique.
+function libelleIdentifiant(num: string, type?: string) {
+  if (type === 'Structure') {
+    if (/^\d{14}$/.test(num)) return 'N° SIRET'
+    if (/^\d{9}$/.test(num)) return 'N° FINESS'
+    return 'Identifiant'
+  }
   if (/^\d{11}$/.test(num)) return 'N° RPPS'
   if (/^\d{9}$/.test(num)) return 'N° ADELI'
   return 'Identifiant'
@@ -265,7 +273,7 @@ function libelleIdentifiant(num: string) {
               </a>
               <div v-if="praticien.adeli" class="flex items-center gap-3 text-gray-500 text-sm mt-3">
                 <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-sm">🪪</div>
-                <span>{{ libelleIdentifiant(praticien.adeli) }} : {{ praticien.adeli }}</span>
+                <span>{{ libelleIdentifiant(praticien.adeli, praticien.type) }} : {{ praticien.adeli }}</span>
               </div>
 
               <!-- FORMULAIRE DE CONTACT (si le praticien y a consenti) -->

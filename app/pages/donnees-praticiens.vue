@@ -162,6 +162,41 @@ useSeoMeta({
           </ul>
         </div>
 
+        <!-- CRITÈRE D'ADMISSION — placé après l'origine des données : on vient
+             d'expliquer d'où viennent les fiches, on dit maintenant lesquelles sont
+             retenues. La règle était appliquée sans être écrite nulle part. -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-7">
+          <h2 class="font-black text-gray-900 text-xl mb-3">Qui figure dans l'annuaire</h2>
+          <p class="text-gray-600 leading-relaxed">
+            L'annuaire oriente des familles vers des soins. La condition pour y figurer est
+            donc la vérifiabilité, et elle dépend de la nature de la fiche.
+          </p>
+          <ul class="text-gray-600 leading-relaxed space-y-2 list-disc pl-5 mt-3">
+            <li>
+              <strong class="text-gray-900">Un praticien</strong> exerce une profession
+              réglementée et se trouve au répertoire national des professionnels de santé.
+              Son numéro <strong>RPPS</strong>, ou son ADELI le temps que la bascule
+              s'achève, est vérifié avant publication. Une fiche dont l'identifiant reste
+              introuvable n'est pas mise en ligne, et une fiche déjà publiée dans ce cas
+              est retirée.
+            </li>
+            <li>
+              <strong class="text-gray-900">Une structure</strong> — cabinet, centre,
+              institut — n'est pas une personne physique et n'a donc pas de RPPS. Son
+              SIRET ou son FINESS est le bienvenu, sans être exigé.
+            </li>
+            <li>
+              <strong class="text-gray-900">Les associations</strong> ont leur propre
+              rubrique, avec ses critères, distincte de l'annuaire des praticiens.
+            </li>
+          </ul>
+          <p class="text-gray-600 leading-relaxed mt-3">
+            Cette exigence ne juge pas la qualité d'un accompagnement : elle constate
+            seulement ce qu'un tiers peut vérifier. Une activité non réglementée peut être
+            sérieuse et utile sans entrer dans ce cadre.
+          </p>
+        </div>
+
         <!-- DONNÉES -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-7">
           <h2 class="font-black text-gray-900 text-xl mb-3">Ce qui figure sur votre fiche</h2>

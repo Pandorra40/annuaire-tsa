@@ -89,12 +89,14 @@ export default defineNuxtConfig({
     '/couts': { prerender: true },
     '/contact': { prerender: true },
     '/suggerer': { prerender: true },
+    '/associations/suggerer': { prerender: true },
     '/ressources/livres/suggerer': { prerender: true },
     '/admin': { prerender: true, colorMode: 'light' },
     '/admin/login': { prerender: true, colorMode: 'light' },
     '/admin/modifier': { prerender: true, colorMode: 'light' },
     '/admin/livres': { prerender: true, colorMode: 'light' },
-    '/admin/videos': { prerender: true, colorMode: 'light' }
+    '/admin/videos': { prerender: true, colorMode: 'light' },
+    '/admin/associations': { prerender: true, colorMode: 'light' }
   },
 
   site: {

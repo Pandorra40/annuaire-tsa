@@ -47,6 +47,13 @@ export function useApi() {
     })
   }
 
+  async function suggererAssociation(payload: SuggestionAssociation) {
+    return await $fetch(`${base}/suggestions_associations.php`, {
+      method: 'POST',
+      body: payload
+    })
+  }
+
   async function fetchAssociations() {
     return await $fetch<Association[]>(`${base}/associations.php`)
   }
@@ -65,6 +72,7 @@ export function useApi() {
     suggererPraticien,
     envoyerMessage,
     suggererLivre,
+    suggererAssociation,
     fetchAssociations,
     fetchAssociation
   }
