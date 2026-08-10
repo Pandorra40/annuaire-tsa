@@ -91,6 +91,7 @@ annuaire-tsa-nuxt/
 ├── app/
 │   ├── app.vue                  # Point d'entrée avec NuxtLayout
 │   ├── app.config.ts            # Configuration Nuxt UI
+│   ├── error.vue                # Page d'erreur (404 et erreurs inattendues)
 │   ├── assets/css/main.css      # Styles globaux + accessibilité
 │   ├── layouts/
 │   │   ├── default.vue          # Layout public (navbar + footer)
@@ -106,6 +107,8 @@ annuaire-tsa-nuxt/
 │   │   └── finances.ts          # Coûts du site (données statiques, hors BDD)
 │   ├── types/
 │   │   └── index.ts             # Types TypeScript
+│   ├── utils/
+│   │   └── meta.ts              # Échappe les esperluettes des balises meta (unhead ne le fait pas)
 │   └── pages/
 │       ├── index.vue            # Page d'accueil annuaire
 │       ├── praticien/[id].vue   # Fiche détaillée praticien
@@ -160,7 +163,7 @@ api/                             # API PHP (à déployer sur LWS)
 - `signalements` — signalements d'erreurs sur les fiches
 - `admin_sessions` — sessions administrateur
 - `praticiens_contact` — email, consentement et jeton de désactivation du formulaire de contact. Table **séparée** de `praticiens` : `praticiens.php` fait `SELECT *` et publierait l'adresse
-- `contact_journal` — métadonnées des messages envoyés (date, fiche, IP, adresse de l'expéditeur). **Jamais le contenu des messages**
+- `contact_journal` — métadonnées des messages envoyés (date, fiche, IP, adresse de l'expéditeur). **Jamais le contenu des messages**, et purgé au-delà de douze mois, au fil des envois
 
 ### Tables associations
 - `associations` — associations TSA publiées (source AIS Apache 2.0)
@@ -180,7 +183,7 @@ pnpm dev
 
 Le site sera accessible sur `http://localhost:3000`.
 
-> **Note** : Les données sont chargées côté client (`server: false`). En local, les appels vers `annuaire-tsa.fr` peuvent être bloqués par CORS — les données seront visibles une fois déployé sur LWS.
+> **Note** : Les données sont chargées côté client (`server: false`) et viennent de l'API de production. `allowedOrigins()` dans `api/config.php` autorise `localhost:3000`, le développement local fonctionne donc avec les vraies données.
 
 ## Déploiement sur LWS
 
@@ -189,10 +192,19 @@ Le site sera accessible sur `http://localhost:3000`.
 pnpm generate
 ```
 
-2. Uploader via FTP à la racine `htdocs/` :
-   - Le contenu du dossier `.output/public/`
-   - Le dossier `api/`
-   - Le fichier `.htaccess`
+2. Transférer par FTP à la racine `htdocs/`, **dans cet ordre** :
+   - `annuaire-tsa-upload/2-site/` — le contenu de `.output/public/` sans le `.htaccess`
+   - `annuaire-tsa-upload/3-service-worker/` — `sw.js` et `workbox-*.js` en dernier,
+     pour qu'aucun visiteur ne reçoive un service worker plus récent que le site
+   - le `.htaccess`, à part, **uniquement s'il a changé**
+   - les fichiers de `api/` qui ont changé
+
+   Puis recharger la page deux fois : le premier rechargement installe le nouveau
+   service worker, le second sert la nouvelle version.
+
+   `api/config.php` ne part **jamais** dans un dossier de déploiement : il contient le
+   mot de passe de la base, le hash administrateur et les identifiants SMTP. Quand il
+   doit changer, il est préparé à part et transféré seul.
 
 3. Renseigner les identifiants BDD dans `api/config.php`
 
@@ -222,15 +234,22 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 
 ## Sécurité
 
-- Injection SQL impossible (PDO + prepared statements)
-- XSS impossible côté client (Vue.js échappe par défaut)
-- Rate limiting sur tous les formulaires publics (5 req/heure/IP ; formulaire de contact : 10/heure et 40/jour)
-- Validation stricte des entrées (longueur, type, URLs)
-- HTTPS forcé + headers de sécurité (HSTS, X-Frame-Options, CSP…)
-- Authentification bcrypt + tokens de session 256 bits
-- Timeout de session automatique (2h d'inactivité)
-- Sanitisation HTML des notes (protection XSS sur le contenu Tiptap)
-- Anti-spam honeypot sur les formulaires
+- Injection SQL impossible (PDO + requêtes préparées, `EMULATE_PREPARES` désactivé)
+- Vue échappe par défaut, **sauf les notes des fiches**, rendues en `v-html` : c'est
+  `sanitizeHtml()` côté serveur qui protège là, en ne laissant passer qu'une liste
+  de balises et le seul attribut `href` en `http(s)`
+- Limitation de débit par IP : signalements et suggestions 5/heure, formulaire de
+  contact 10/heure et 40/jour, connexion admin 10 par quart d'heure, proxy BnF 12/heure
+  sur les seules requêtes qui sortent réellement vers data.bnf.fr
+- Validation stricte des entrées (longueur, type de praticien, URLs) — les mêmes
+  contrôles côté public et côté administration
+- HTTPS forcé + en-têtes de sécurité (HSTS, X-Frame-Options, CSP…)
+- Authentification bcrypt + jetons de session de 256 bits
+- Session valable 2 heures à compter de la connexion (durée absolue, pas une inactivité)
+- Lien de désactivation du formulaire de contact confirmé par POST : les messageries
+  préchargent les liens des courriels, un GET aurait coupé le formulaire sans clic
+- Piège à robots et délai minimum de saisie sur le formulaire de contact
+- Politique de signalement des failles : voir `SECURITY.md`
 
 ## Historique des versions
 
