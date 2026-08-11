@@ -154,6 +154,52 @@ onUnmounted(() => editor.value?.destroy())
           ⚠️ {{ error }}
         </div>
 
+        <!-- Les règles avant le formulaire, et non après : quelqu'un qui remplit dix
+             champs pour rien s'en souvient. Rédigées du point de vue de l'annuaire —
+             « nous vérifions » et non « vous devez » — parce que le lecteur est ici le
+             plus souvent un parent, et que le champ de l'identifiant lui reste
+             facultatif : la page d'accueil promet que le nom, la ville et la spécialité
+             suffisent. -->
+        <section class="bg-white rounded-2xl border-2 border-gray-900 shadow-sm p-6" aria-labelledby="regles-admission">
+          <h2 id="regles-admission" class="font-black text-gray-900 text-lg mb-1 flex items-center gap-2">
+            <span aria-hidden="true">🛡️</span> Ce que nous vérifions avant de publier une fiche
+          </h2>
+          <p class="text-sm text-gray-500">Trois règles, appliquées à chaque fiche.</p>
+
+          <p class="bg-gray-50 rounded-xl px-4 py-3.5 mt-5 text-sm text-gray-700">
+            Vous n'avez rien à vérifier vous-même : indiquez ce que vous savez, nous faisons le reste.
+          </p>
+
+          <ol class="mt-5 space-y-5 text-sm text-gray-700">
+            <li>
+              <strong class="block text-gray-900 mb-1">1. L'identifiant professionnel — sans exception</strong>
+              Nous vérifions que le praticien possède un numéro RPPS ou ADELI, délivré par l'Agence
+              régionale de santé après contrôle du diplôme. C'est la seule barrière simple contre les
+              charlatans, nombreux autour de l'autisme. Une fiche dont le numéro reste introuvable n'est
+              pas publiée ; une fiche déjà en ligne dans ce cas est retirée.
+            </li>
+            <li>
+              <strong class="block text-gray-900 mb-1">2. Une activité de consultation en cours — la preuve par le terrain</strong>
+              Nous cherchons au moins l'un de ces éléments : une inscription à l'annuaire national des
+              professionnels de santé, une page de prise de rendez-vous, un site professionnel à jour, ou
+              un référencement institutionnel — dispositif Mon soutien psy, réseau régional, structure de
+              soin. Un identifiant valide ne suffit pas : un annuaire qui oriente des familles ne peut pas
+              renvoyer vers un cabinet fermé.
+            </li>
+            <li>
+              <strong class="block text-gray-900 mb-1">3. ADELI ou RPPS, les deux comptent</strong>
+              Les psychologues basculent progressivement de l'ADELI vers le RPPS depuis juin 2024.
+              Les deux numéros sont acceptés le temps de cette bascule.
+            </li>
+          </ol>
+
+          <p class="text-sm text-gray-500 mt-5 pt-4 border-t border-gray-100">
+            Une structure — cabinet, centre, institut — n'est pas une personne physique et n'a pas de
+            RPPS : son SIRET ou son FINESS peut être indiqué, sans être exigé. Ces vérifications sont
+            faites à la publication et à chaque signalement.
+          </p>
+        </section>
+
         <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-sm text-indigo-700">
           ℹ️ Les informations soumises sont utilisées uniquement pour alimenter l'annuaire. Les champs marqués * sont obligatoires.
         </div>
@@ -206,9 +252,9 @@ onUnmounted(() => editor.value?.destroy())
                 plus vite, mais son absence n'empêche pas la publication.
               </template>
               <template v-else>
-                Vous n'êtes pas obligé de le connaître. Mais l'annuaire ne référence que des
-                praticiens inscrits au répertoire national des professionnels de santé : une
-                fiche dont l'identifiant ne peut pas être vérifié n'est pas publiée.
+                Vous n'êtes pas obligé de le connaître. L'annuaire ne référence que des praticiens
+                inscrits au répertoire national et dont l'activité est vérifiable : une fiche qui ne
+                remplit pas ces deux conditions n'est pas publiée.
               </template>
             </p>
           </div>

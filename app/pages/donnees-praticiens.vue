@@ -164,32 +164,42 @@ useSeoMeta({
 
         <!-- CRITÈRE D'ADMISSION — placé après l'origine des données : on vient
              d'expliquer d'où viennent les fiches, on dit maintenant lesquelles sont
-             retenues. La règle était appliquée sans être écrite nulle part. -->
+             retenues. Même texte que sur /suggerer, à la phrase d'accueil près :
+             une seule rédaction, sinon les deux finissent par diverger. -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-7">
-          <h2 class="font-black text-gray-900 text-xl mb-3">Qui figure dans l'annuaire</h2>
-          <p class="text-gray-600 leading-relaxed">
-            L'annuaire oriente des familles vers des soins. La condition pour y figurer est
-            donc la vérifiabilité, et elle dépend de la nature de la fiche.
-          </p>
-          <ul class="text-gray-600 leading-relaxed space-y-2 list-disc pl-5 mt-3">
+          <h2 class="font-black text-gray-900 text-xl mb-1">Ce que nous vérifions avant de publier une fiche</h2>
+          <p class="text-gray-500">Trois règles, appliquées à chaque fiche.</p>
+
+          <ol class="text-gray-600 leading-relaxed space-y-5 mt-5">
             <li>
-              <strong class="text-gray-900">Un praticien</strong> exerce une profession
-              réglementée et se trouve au répertoire national des professionnels de santé.
-              Son numéro <strong>RPPS</strong>, ou son ADELI le temps que la bascule
-              s'achève, est vérifié avant publication. Une fiche dont l'identifiant reste
-              introuvable n'est pas mise en ligne, et une fiche déjà publiée dans ce cas
+              <strong class="block text-gray-900">1. L'identifiant professionnel — sans exception</strong>
+              Nous vérifions que le praticien possède un numéro RPPS ou ADELI, délivré par
+              l'Agence régionale de santé après contrôle du diplôme. C'est la seule barrière
+              simple contre les charlatans, nombreux autour de l'autisme. Une fiche dont le
+              numéro reste introuvable n'est pas publiée ; une fiche déjà en ligne dans ce cas
               est retirée.
             </li>
             <li>
-              <strong class="text-gray-900">Une structure</strong> — cabinet, centre,
-              institut — n'est pas une personne physique et n'a donc pas de RPPS. Son
-              SIRET ou son FINESS est le bienvenu, sans être exigé.
+              <strong class="block text-gray-900">2. Une activité de consultation en cours — la preuve par le terrain</strong>
+              Nous cherchons au moins l'un de ces éléments : une inscription à l'annuaire
+              national des professionnels de santé, une page de prise de rendez-vous, un site
+              professionnel à jour, ou un référencement institutionnel — dispositif Mon soutien
+              psy, réseau régional, structure de soin. Un identifiant valide ne suffit pas : un
+              annuaire qui oriente des familles ne peut pas renvoyer vers un cabinet fermé.
             </li>
             <li>
-              <strong class="text-gray-900">Les associations</strong> ont leur propre
-              rubrique, avec ses critères, distincte de l'annuaire des praticiens.
+              <strong class="block text-gray-900">3. ADELI ou RPPS, les deux comptent</strong>
+              Les psychologues basculent progressivement de l'ADELI vers le RPPS depuis
+              juin 2024. Les deux numéros sont acceptés le temps de cette bascule.
             </li>
-          </ul>
+          </ol>
+
+          <p class="text-gray-500 leading-relaxed mt-5 pt-4 border-t border-gray-100">
+            Une structure — cabinet, centre, institut — n'est pas une personne physique et n'a
+            pas de RPPS : son SIRET ou son FINESS peut être indiqué, sans être exigé. Les
+            associations ont leur propre rubrique, avec ses critères. Ces vérifications sont
+            faites à la publication et à chaque signalement.
+          </p>
           <p class="text-gray-600 leading-relaxed mt-3">
             Cette exigence ne juge pas la qualité d'un accompagnement : elle constate
             seulement ce qu'un tiers peut vérifier. Une activité non réglementée peut être

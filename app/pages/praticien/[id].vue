@@ -276,6 +276,17 @@ function libelleIdentifiant(num: string, type?: string) {
                 <span>{{ libelleIdentifiant(praticien.adeli, praticien.type) }} : {{ praticien.adeli }}</span>
               </div>
 
+              <!-- Mention générale, sur toutes les fiches, plutôt qu'un avertissement
+                   nominatif sur celles dont l'activité n'est pas déclarée au répertoire :
+                   une fiche peut vieillir sans que son praticien y soit pour quelque
+                   chose, et désigner quelques-uns ferait porter un soupçon là où la
+                   vérification a conclu l'inverse. -->
+              <p class="text-xs text-gray-500 leading-relaxed mt-4 pt-4 border-t border-gray-100">
+                Les informations sont vérifiées au moment de la publication. Les disponibilités et
+                les tarifs peuvent avoir changé depuis : confirmez-les auprès du praticien avant de
+                vous déplacer.
+              </p>
+
               <!-- FORMULAIRE DE CONTACT (si le praticien y a consenti) -->
               <template v-if="contactActif">
                 <div class="border-t border-gray-100 mt-4 pt-4">
