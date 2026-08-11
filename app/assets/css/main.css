@@ -73,6 +73,15 @@ html.lecture * {
 }
 html.lecture .hover\:-translate-y-1:hover,
 html.lecture .hover\:-translate-y-0\.5:hover { transform: none !important; }
+/* L'espacement des lettres élargissait la barre du haut au point que le bouton
+   « Suggérer un praticien » recouvrait la navigation. Il aide à lire un texte
+   suivi, pas quatre libellés d'un menu : la police adaptée reste, l'espacement
+   supplémentaire est rendu à la barre seule. */
+html.lecture header { letter-spacing: normal; word-spacing: normal; }
+/* Au texte le plus grand, l'espacement rendu ne suffisait pas : les écarts entre
+   les entrées du menu se resserrent, ce qui laisse la barre sur une seule ligne
+   sans rien masquer. */
+html.lecture header nav { gap: 0.75rem; }
 
 /* ── MODE CONTRASTE ÉLEVÉ ── */
 html.contraste body { background: #ffffff !important; color: #000000 !important; }
@@ -102,11 +111,23 @@ html.contraste h1 span[style*="linear-gradient"] {
   -webkit-text-fill-color: #000000 !important;
 }
 html.contraste [style*="radial-gradient"] { background-image: none !important; }
-html.contraste section[style*="linear-gradient"] .text-white { color: #000000 !important; }
-/* Ces bandeaux portaient des boutons blancs sur fond sombre : une fois le fond
-   éclairci, ils ne se distinguaient plus du texte. Le soulignement les rend
-   repérables sans dépendre de la couleur. */
-html.contraste section[style*="linear-gradient"] a { text-decoration: underline; }
+/* Ces bandeaux étaient écrits en clair pour un fond sombre — text-white, mais
+   aussi text-indigo-200 et text-purple-300. Une fois le fond éclairci, tout ce
+   qui n'est pas noirci devient illisible : on noircit donc l'ensemble, plutôt
+   que d'énumérer des couleurs qu'un ajout futur rendrait incomplète. */
+html.contraste section[style*="linear-gradient"] * { color: #000000 !important; }
+/* Seule exception : les boutons gardent leur pavé sombre, donc leur texte
+   blanc. C'est le seul fond foncé de ces sections. */
+html.contraste section[style*="linear-gradient"] .bg-gray-900,
+html.contraste section[style*="linear-gradient"] .bg-gray-900 * {
+  color: #ffffff !important;
+}
+/* Un lien sans fond propre n'est plus repérable une fois la section éclaircie :
+   le soulignement le signale sans dépendre de la couleur. Les boutons, eux,
+   gardent leur pavé sombre et n'en ont pas besoin. */
+html.contraste section[style*="linear-gradient"] a:not([class*="bg-"]) {
+  text-decoration: underline;
+}
 
 /* ── CONTENU TIPTAP (v-html) ── */
 .prose [style*="text-align: center"] { text-align: center; }

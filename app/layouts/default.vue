@@ -66,17 +66,21 @@ function toggleContraste() {
 
     <!-- NAVBAR -->
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm">
-      <!-- flex-wrap et min-h plutôt qu'une hauteur fixe : en mode lecture, ou
-           avec le texte agrandi, la barre déborde et le bouton recouvrait la
-           navigation. Elle passe désormais sur deux lignes. -->
-      <div class="max-w-6xl mx-auto px-6 min-h-16 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+      <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
 
         <div class="flex items-center gap-6">
           <NuxtLink to="/" class="flex items-center gap-2.5 font-black text-gray-900 text-lg tracking-tight shrink-0">
             <img src="/logo-tsa.svg" alt="" class="h-7 w-auto" />
             Annuaire TSA
           </NuxtLink>
-          <nav class="hidden md:flex items-center gap-5">
+          <!-- Seuil à xl (1280 px) et non md (768 px) : en dessous, la barre ne
+               tient pas — le bouton « Suggérer » recouvrait la navigation dès
+               1024 px avec le texte agrandi, et dès 820 px en taille normale.
+               Au-delà, le conteneur est plafonné à 1152 px et toutes les
+               combinaisons de taille et de mode lecture tiennent, mesuré. En
+               dessous, le menu compact prend le relais : il contient les mêmes
+               liens, plus les réglages d'accessibilité. -->
+          <nav class="hidden xl:flex items-center gap-5">
             <NuxtLink
               v-for="link in navLinks"
               :key="link.to"
@@ -115,7 +119,7 @@ function toggleContraste() {
           </button>
 
           <button type="button"
-            class="md:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
+            class="xl:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
             :aria-label="mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'"
             :aria-expanded="mobileMenuOpen"
             aria-controls="mobile-menu"
@@ -133,7 +137,7 @@ function toggleContraste() {
 
       <!-- v-show et non v-if : le bouton ci-dessus pointe vers cet identifiant par
            aria-controls, qui doit exister dans la page même menu fermé. -->
-      <div v-show="mobileMenuOpen" id="mobile-menu" class="md:hidden border-t border-gray-200 bg-white px-4 py-3 space-y-1">
+      <div v-show="mobileMenuOpen" id="mobile-menu" class="xl:hidden border-t border-gray-200 bg-white px-4 py-3 space-y-1">
         <NuxtLink
           v-for="link in navLinks"
           :key="link.to"
