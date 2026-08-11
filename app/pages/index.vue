@@ -44,9 +44,9 @@ const page = ref(Number(route.query.page) || 1)
 
 const praticiensFiltres = computed(() => {
   if (!praticiens.value) return []
-  const q = search.value.toLowerCase().trim()
+  const q = normaliserRecherche(search.value).trim()
   return praticiens.value.filter((p: Praticien) => {
-    const matchQ = !q || p.ville.toLowerCase().includes(q) || p.departement.includes(q) || p.nom.toLowerCase().includes(q)
+    const matchQ = !q || normaliserRecherche(p.ville).includes(q) || p.departement.includes(q) || normaliserRecherche(p.nom).includes(q)
     const matchT = filtreType.value === 'tous' || p.type === filtreType.value
     const matchA = filtreAge.value === 'tous' || p.ages.includes(filtreAge.value)
     const matchL = filtreTele.value === 'tous' || (filtreTele.value === 'oui' && p.teleconsultation)

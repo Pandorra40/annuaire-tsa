@@ -20,14 +20,14 @@ const CATEGORIES = [
 ] as const
 
 const centresFiltres = computed(() => {
-  const q = search.value.toLowerCase().trim()
+  const q = normaliserRecherche(search.value).trim()
   const cat = filtreCategorie.value
   return CENTRES_RESSOURCES.filter((c) => {
     const matchCat = !cat || c.categorie === cat
     if (!q) return matchCat
-    const matchQ = c.nom.toLowerCase().includes(q)
-      || c.region.toLowerCase().includes(q)
-      || (c.ville ?? '').toLowerCase().includes(q)
+    const matchQ = normaliserRecherche(c.nom).includes(q)
+      || normaliserRecherche(c.region).includes(q)
+      || normaliserRecherche(c.ville ?? '').includes(q)
       || c.departements.some(d => d.toLowerCase() === q || d.toLowerCase().startsWith(q))
     return matchCat && matchQ
   })

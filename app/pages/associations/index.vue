@@ -20,10 +20,10 @@ const search = ref((route.query.q as string) || '')
 const filtreDept = ref((route.query.dept as string) || '')
 
 const associationsFiltrees = computed(() => {
-  const q = search.value.toLowerCase().trim()
+  const q = normaliserRecherche(search.value).trim()
   const d = filtreDept.value.trim()
   return associations.value.filter(a => {
-    const matchQ = !q || a.nom.toLowerCase().includes(q) || a.ville.toLowerCase().includes(q) || a.departement.includes(q) || (a.services ?? '').toLowerCase().includes(q)
+    const matchQ = !q || normaliserRecherche(a.nom).includes(q) || normaliserRecherche(a.ville).includes(q) || a.departement.includes(q) || normaliserRecherche(a.services ?? '').includes(q)
     const matchD = !d || a.departement === d
     return matchQ && matchD
   })

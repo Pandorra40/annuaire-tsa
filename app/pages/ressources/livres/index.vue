@@ -18,8 +18,8 @@ const categories = ['témoignage', 'guide pratique', 'scientifique', 'bd', 'jeun
 
 const classiques = computed(() =>
   (livres.value ?? []).filter((l: Livre) => {
-    const q = search.value.toLowerCase()
-    const match = !q || `${l.titre} ${l.auteur} ${l.description ?? ''} ${l.categorie ?? ''}`.toLowerCase().includes(q)
+    const q = normaliserRecherche(search.value)
+    const match = !q || normaliserRecherche(`${l.titre} ${l.auteur} ${l.description ?? ''} ${l.categorie ?? ''}`).includes(q)
     const cat = !activecat.value || l.categorie === activecat.value
     return l.type === 'classique' && match && cat
   })

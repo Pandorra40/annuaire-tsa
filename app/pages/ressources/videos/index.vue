@@ -14,9 +14,9 @@ const search = ref('')
 const activeCat = ref('')
 
 const filtrees = computed(() => {
-  const q = search.value.toLowerCase().trim()
+  const q = normaliserRecherche(search.value).trim()
   return (videos.value ?? []).filter((v: Video) => {
-    const match = !q || `${v.titre} ${v.chaine} ${v.pourquoi}`.toLowerCase().includes(q)
+    const match = !q || normaliserRecherche(`${v.titre} ${v.chaine} ${v.pourquoi}`).includes(q)
     return match && (!activeCat.value || v.categorie === activeCat.value)
   })
 })
