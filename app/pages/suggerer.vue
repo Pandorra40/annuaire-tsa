@@ -179,12 +179,16 @@ onUnmounted(() => editor.value?.destroy())
               pas publiée ; une fiche déjà en ligne dans ce cas est retirée.
             </li>
             <li>
-              <strong class="block text-gray-900 mb-1">2. Une activité de consultation en cours — la preuve par le terrain</strong>
+              <strong class="block text-gray-900 mb-1">2. Une activité de consultation en cours, et un moyen de contact</strong>
               Nous cherchons au moins l'un de ces éléments : une inscription à l'annuaire national des
               professionnels de santé, une page de prise de rendez-vous, un site professionnel à jour, ou
               un référencement institutionnel — dispositif Mon soutien psy, réseau régional, structure de
               soin. Un identifiant valide ne suffit pas : un annuaire qui oriente des familles ne peut pas
               renvoyer vers un cabinet fermé.
+              Nous vérifions aussi qu'une famille peut joindre le praticien : un téléphone, un site, une
+              page de rendez-vous, ou le formulaire de contact de sa fiche. Une fiche qui n'offre aucun de
+              ces moyens ne mène nulle part ; elle est retirée, et republiée dès qu'un moyen de contact
+              existe.
             </li>
             <li>
               <strong class="block text-gray-900 mb-1">3. ADELI ou RPPS, les deux comptent</strong>
