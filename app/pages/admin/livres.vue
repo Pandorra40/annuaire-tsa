@@ -133,8 +133,8 @@ async function deconnexion() {
       <div class="flex gap-1 border-b border-gray-200 mb-6">
         <button type="button"
           v-for="tab in [
-            { id: 'ajouter', label: 'Ajouter un livre' },
-            { id: 'publies', label: 'Publiés' },
+            { id: 'ajouter', label: 'Ajouter un livre', count: undefined },
+            { id: 'publies', label: 'Publiés', count: undefined },
             { id: 'suggestions', label: 'Suggestions', count: suggestions.length }
           ]"
           :key="tab.id"

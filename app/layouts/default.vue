@@ -27,7 +27,10 @@ onMounted(() => {
 function applyAccess() {
   const html = document.documentElement
   tailles.forEach(t => html.classList.remove(t))
-  html.classList.add(tailles[tailleIdx.value])
+  // tailleIdx est borné par agrandir() et reduire(), mais TypeScript ne peut
+  // pas le déduire : sans ce test, tailles[…] vaut string | undefined.
+  const taille = tailles[tailleIdx.value]
+  if (taille) html.classList.add(taille)
   html.classList.toggle('lecture', lectureMode.value)
   html.classList.toggle('contraste', contrasteMode.value)
 }
