@@ -22,7 +22,9 @@ export default defineNuxtConfig({
   },
 
   devtools: {
-    enabled: process.env.NODE_ENV === 'development'
+    // import.meta.dev plutôt que process.env : Nuxt le fournit, et `process`
+    // exigerait @types/node pour un seul usage.
+    enabled: import.meta.dev
   },
 
   css: ['~/assets/css/main.css'],
@@ -91,12 +93,12 @@ export default defineNuxtConfig({
     '/suggerer': { prerender: true },
     '/associations/suggerer': { prerender: true },
     '/ressources/livres/suggerer': { prerender: true },
-    '/admin': { prerender: true, colorMode: 'light' },
-    '/admin/login': { prerender: true, colorMode: 'light' },
-    '/admin/modifier': { prerender: true, colorMode: 'light' },
-    '/admin/livres': { prerender: true, colorMode: 'light' },
-    '/admin/videos': { prerender: true, colorMode: 'light' },
-    '/admin/associations': { prerender: true, colorMode: 'light' }
+    '/admin': { prerender: true },
+    '/admin/login': { prerender: true },
+    '/admin/modifier': { prerender: true },
+    '/admin/livres': { prerender: true },
+    '/admin/videos': { prerender: true },
+    '/admin/associations': { prerender: true }
   },
 
   site: {
@@ -161,11 +163,11 @@ export default defineNuxtConfig({
     }
   },
 
+  // indexNow retiré le 12 août 2026 : l'option n'existe pas dans @nuxtjs/sitemap
+  // — vérifié, le mot n'apparaît nulle part dans le module — donc ce bloc ne
+  // faisait rien. Le signalement à IndexNow se fait par indexnow.mjs, à la
+  // racine du projet, lancé à la main.
   sitemap: {
-    indexNow: {
-      enabled: true,
-      key: '6e19d24389e443a6af65195ef043b2f6'
-    },
     sources: ['/api/__sitemap__/fiches'],
     exclude: [
       '/admin',
