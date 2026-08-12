@@ -1,3 +1,19 @@
+// Nuxt auto-importe les composables et les utilitaires, jamais les types :
+// sans cette ligne, les huit types ci-dessous n'existent pas pour TypeScript.
+// Les génériques $fetch<Praticien[]> désignaient donc du vide, et toute la
+// couche d'accès aux données avait l'air typée sans l'être — une propriété mal
+// orthographiée passait sans un mot, ni à l'écriture ni au build.
+import type {
+  Association,
+  Livre,
+  MessageContact,
+  Praticien,
+  SuggestionAssociation,
+  SuggestionLivre,
+  SuggestionPraticien,
+  Video
+} from '~/types'
+
 export function useApi() {
   const config = useRuntimeConfig()
   const base = config.public.apiBase
