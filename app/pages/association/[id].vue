@@ -48,11 +48,6 @@ useSeoMeta({
   description: computed(() => association.value ? echapperMeta(`${association.value.nom} — Association TSA à ${association.value.ville} (${association.value.departement})`) : '')
 })
 
-function initiales(nom: string) {
-  const words = nom.trim().split(' ').filter(w => w.length > 2)
-  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase()
-  return nom.substring(0, 2).toUpperCase()
-}
 </script>
 
 <template>
@@ -90,7 +85,7 @@ function initiales(nom: string) {
 
           <div class="flex items-start gap-6">
             <div class="w-20 h-20 rounded-2xl flex items-center justify-center font-black text-white text-2xl shrink-0 shadow-lg" style="background: linear-gradient(135deg, #10b981, #059669)">
-              {{ initiales(association.nom) }}
+              {{ initialesStructure(association.nom) }}
             </div>
             <div class="flex-1">
               <h1 class="text-3xl font-black text-gray-900 mb-2">{{ association.nom }}</h1>

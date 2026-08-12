@@ -53,11 +53,6 @@ function scrollTop() {
   if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
 }
 
-function initiales(nom: string) {
-  const words = nom.trim().split(' ').filter(w => w.length > 2)
-  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase()
-  return nom.substring(0, 2).toUpperCase()
-}
 </script>
 
 <template>
@@ -140,7 +135,7 @@ function initiales(nom: string) {
 
                   <!-- Avatar -->
                   <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-white text-sm shrink-0" style="background: linear-gradient(135deg, #10b981, #059669)">
-                    {{ initiales(a.nom) }}
+                    {{ initialesStructure(a.nom) }}
                   </div>
 
                   <div class="flex-1 min-w-0">
