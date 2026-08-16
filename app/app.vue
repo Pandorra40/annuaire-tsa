@@ -8,18 +8,18 @@ useHead({
     innerHTML: JSON.stringify({
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      name: 'Annuaire TSA',
-      url: 'https://www.annuaire-tsa.fr',
-      description: 'Annuaire collaboratif et gratuit de praticiens spécialisés dans les troubles du spectre autistique (TSA) en France.',
-      inLanguage: 'fr',
-      publisher: {
+      'name': 'Annuaire TSA',
+      'url': 'https://www.annuaire-tsa.fr',
+      'description': 'Annuaire collaboratif et gratuit de praticiens spécialisés dans les troubles du spectre autistique (TSA) en France.',
+      'inLanguage': 'fr',
+      'publisher': {
         '@type': 'Organization',
-        name: 'Annuaire TSA',
-        url: 'https://www.annuaire-tsa.fr'
+        'name': 'Annuaire TSA',
+        'url': 'https://www.annuaire-tsa.fr'
       },
-      potentialAction: {
+      'potentialAction': {
         '@type': 'SearchAction',
-        target: 'https://www.annuaire-tsa.fr/?q={search_term_string}',
+        'target': 'https://www.annuaire-tsa.fr/?q={search_term_string}',
         'query-input': 'required name=search_term_string'
       }
     })

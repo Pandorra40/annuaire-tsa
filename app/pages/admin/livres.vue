@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import type { Livre, SuggestionLivre } from '~/types'
+
 definePageMeta({ layout: 'admin' })
 useSeoMeta({ title: 'Livres — Administration TSA' })
 
 const token = ref('')
-const publies = ref<any[]>([])
-const suggestions = ref<any[]>([])
+const publies = ref<Livre[]>([])
+const suggestions = ref<SuggestionLivre[]>([])
 const activeTab = ref('ajouter')
 const searchPublies = ref('')
 const loading = ref(true)
@@ -19,16 +21,22 @@ const categories = ['témoignage', 'guide pratique', 'scientifique', 'jeunesse',
 
 onMounted(async () => {
   token.value = sessionStorage.getItem('admin_token') || ''
-  if (!token.value) { navigateTo('/admin/login'); return }
+  if (!token.value) {
+    navigateTo('/admin/login')
+    return
+  }
   await charger()
 })
 
-async function adminFetch(url: string, options: any = {}) {
+async function adminFetch(url: string, options: RequestInit = {}) {
   const res = await fetch('/api/' + url, {
     ...options,
     headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token.value, ...options.headers }
   })
-  if (res.status === 401) { navigateTo('/admin/login'); throw new Error('Non authentifié') }
+  if (res.status === 401) {
+    navigateTo('/admin/login')
+    throw new Error('Non authentifié')
+  }
   if (!res.ok) throw new Error('Erreur ' + res.status)
   if (res.status === 204) return {}
   return res.json()
@@ -43,9 +51,11 @@ async function charger() {
     ])
     publies.value = p
     suggestions.value = s
-  } catch (e: any) {
-    loadError.value = 'Erreur de chargement : ' + (e.message ?? 'inconnue')
-  } finally { loading.value = false }
+  } catch (e) {
+    loadError.value = 'Erreur de chargement : ' + ((e as Error).message ?? 'inconnue')
+  } finally {
+    loading.value = false
+  }
 }
 
 const publiesFiltres = computed(() => {
@@ -74,34 +84,57 @@ async function ajouterLivre() {
     addNotice.value = { msg: '✓ Livre publié avec succès.', type: 'success' }
     Object.assign(form, { titre: '', auteur: '', annee: '', categorie: '', type: 'classique', description: '', lien: '' })
     await charger()
-  } catch (e: any) { addNotice.value = { msg: 'Erreur : ' + e.message, type: 'error' } }
+  } catch (e) {
+    addNotice.value = { msg: 'Erreur : ' + (e as Error).message, type: 'error' }
+  }
 }
 
 async function supprimer(id: number) {
   if (enCours) return
   if (!confirm('Supprimer ce livre ? Cette action est irréversible.')) return
   enCours = true
-  try { await adminFetch('livres.php?id=' + id, { method: 'DELETE' }); await charger() }
-  catch (e: any) { alert('Erreur : ' + e.message) }
-  finally { enCours = false }
+  try {
+    await adminFetch('livres.php?id=' + id, { method: 'DELETE' })
+    await charger()
+  } catch (e) {
+    alert('Erreur : ' + (e as Error).message)
+  } finally {
+    enCours = false
+  }
 }
 
 async function validerSuggestion(id: number) {
-  if (enCours) return; enCours = true
-  try { await adminFetch('suggestions_livres.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'valide' }) }); await charger() }
-  catch (e: any) { alert('Erreur : ' + e.message) }
-  finally { enCours = false }
+  if (enCours) return
+  enCours = true
+  try {
+    await adminFetch('suggestions_livres.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'valide' }) })
+    await charger()
+  } catch (e) {
+    alert('Erreur : ' + (e as Error).message)
+  } finally {
+    enCours = false
+  }
 }
 
 async function refuserSuggestion(id: number) {
-  if (enCours) return; enCours = true
-  try { await adminFetch('suggestions_livres.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'refuse' }) }); await charger() }
-  catch (e: any) { alert('Erreur : ' + e.message) }
-  finally { enCours = false }
+  if (enCours) return
+  enCours = true
+  try {
+    await adminFetch('suggestions_livres.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'refuse' }) })
+    await charger()
+  } catch (e) {
+    alert('Erreur : ' + (e as Error).message)
+  } finally {
+    enCours = false
+  }
 }
 
 async function deconnexion() {
-  try { await adminFetch('auth.php', { method: 'DELETE' }) } catch {}
+  try {
+    await adminFetch('auth.php', { method: 'DELETE' })
+  } catch {
+    // déconnexion locale malgré tout : le jeton côté serveur expirera de lui-même
+  }
   sessionStorage.removeItem('admin_token')
   navigateTo('/admin/login')
 }

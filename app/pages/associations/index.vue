@@ -22,7 +22,7 @@ const filtreDept = ref((route.query.dept as string) || '')
 const associationsFiltrees = computed(() => {
   const q = normaliserRecherche(search.value).trim()
   const d = filtreDept.value.trim()
-  return associations.value.filter(a => {
+  return associations.value.filter((a) => {
     const matchQ = !q || normaliserRecherche(a.nom).includes(q) || normaliserRecherche(a.ville).includes(q) || a.departement.includes(q) || normaliserRecherche(a.services ?? '').includes(q)
     const matchD = !d || a.departement === d
     return matchQ && matchD
@@ -33,7 +33,9 @@ const PAGE_SIZE = 20
 const page = ref(Number(route.query.page) || 1)
 
 // Un changement de filtre revient à la page 1
-watch([search, filtreDept], () => { page.value = 1 })
+watch([search, filtreDept], () => {
+  page.value = 1
+})
 
 // Reflète l'état (page + filtres) dans l'URL pour le restaurer au retour navigateur
 watch([search, filtreDept, page], () => {
@@ -52,7 +54,6 @@ const associationsPaginees = computed(() => associationsFiltrees.value.slice((pa
 function scrollTop() {
   if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
 }
-
 </script>
 
 <template>

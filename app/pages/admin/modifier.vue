@@ -27,25 +27,39 @@ const delais = ['', 'Disponible', 'Quelques semaines', '1 à 3 mois', '3 à 6 mo
 
 onMounted(async () => {
   token.value = sessionStorage.getItem('admin_token') || ''
-  if (!token.value) { navigateTo('/admin/login'); return }
+  if (!token.value) {
+    navigateTo('/admin/login')
+    return
+  }
   await chargerFiche()
 })
 
-async function adminFetch(url: string, options: any = {}) {
+async function adminFetch(url: string, options: RequestInit = {}) {
   const res = await fetch('/api/' + url, {
     ...options,
     headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token.value, ...options.headers }
   })
-  if (res.status === 401) { navigateTo('/admin/login'); throw new Error('Non authentifié') }
+  if (res.status === 401) {
+    navigateTo('/admin/login')
+    throw new Error('Non authentifié')
+  }
   if (!res.ok) throw new Error('Erreur ' + res.status)
   return res.json()
 }
 
 async function chargerFiche() {
-  if (!praticienId) { erreur.value = 'Aucun praticien spécifié.'; loading.value = false; return }
+  if (!praticienId) {
+    erreur.value = 'Aucun praticien spécifié.'
+    loading.value = false
+    return
+  }
   try {
     const data = await adminFetch('admin_praticiens.php?id=' + praticienId)
-    if (!data?.id) { erreur.value = 'Fiche introuvable.'; loading.value = false; return }
+    if (!data?.id) {
+      erreur.value = 'Fiche introuvable.'
+      loading.value = false
+      return
+    }
     form.nom = data.nom || ''
     form.type = data.type || ''
     form.adresse = data.adresse || ''
@@ -58,9 +72,14 @@ async function chargerFiche() {
     form.notes = data.notes || ''
     form.ages = data.ages || []
     form.adeli = data.adeli || ''
-    nextTick(() => { editor.value?.commands.setContent(form.notes) })
-  } catch (e: any) { erreur.value = 'Erreur : ' + e.message }
-  finally { loading.value = false }
+    nextTick(() => {
+      editor.value?.commands.setContent(form.notes)
+    })
+  } catch (e) {
+    erreur.value = 'Erreur : ' + (e as Error).message
+  } finally {
+    loading.value = false
+  }
 }
 
 function toggleAge(age: string) {
@@ -116,7 +135,9 @@ async function sauvegarder() {
     })
     success.value = true
     window.scrollTo(0, 0)
-  } catch (e: any) { notice.value = 'Une erreur est survenue : ' + e.message }
+  } catch (e) {
+    notice.value = 'Une erreur est survenue : ' + (e as Error).message
+  }
 }
 </script>
 
@@ -242,7 +263,7 @@ async function sauvegarder() {
               <template v-for="action in [
                 { cmd: () => editor!.chain().focus().toggleBold().run(), active: editor.isActive('bold'), icon: 'i-lucide-bold', title: 'Gras' },
                 { cmd: () => editor!.chain().focus().toggleItalic().run(), active: editor.isActive('italic'), icon: 'i-lucide-italic', title: 'Italique' },
-                { cmd: () => editor!.chain().focus().toggleUnderline().run(), active: editor.isActive('underline'), icon: 'i-lucide-underline', title: 'Souligné' },
+                { cmd: () => editor!.chain().focus().toggleUnderline().run(), active: editor.isActive('underline'), icon: 'i-lucide-underline', title: 'Souligné' }
               ]" :key="action.title">
                 <button type="button" :title="action.title" :class="['p-1.5 rounded transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
                   <UIcon :name="action.icon" class="w-4 h-4" />
@@ -251,7 +272,7 @@ async function sauvegarder() {
               <span class="w-px bg-gray-200 mx-1" />
               <template v-for="action in [
                 { cmd: () => editor!.chain().focus().toggleHeading({ level: 2 }).run(), active: editor.isActive('heading', { level: 2 }), label: 'H2', title: 'Titre' },
-                { cmd: () => editor!.chain().focus().toggleHeading({ level: 3 }).run(), active: editor.isActive('heading', { level: 3 }), label: 'H3', title: 'Sous-titre' },
+                { cmd: () => editor!.chain().focus().toggleHeading({ level: 3 }).run(), active: editor.isActive('heading', { level: 3 }), label: 'H3', title: 'Sous-titre' }
               ]" :key="action.title">
                 <button type="button" :title="action.title" :class="['px-2 py-1 rounded text-xs font-bold transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
                   {{ action.label }}
@@ -262,7 +283,7 @@ async function sauvegarder() {
                 { cmd: () => editor!.chain().focus().setTextAlign('left').run(), active: editor.isActive({ textAlign: 'left' }), icon: 'i-lucide-align-left', title: 'Gauche' },
                 { cmd: () => editor!.chain().focus().setTextAlign('center').run(), active: editor.isActive({ textAlign: 'center' }), icon: 'i-lucide-align-center', title: 'Centrer' },
                 { cmd: () => editor!.chain().focus().setTextAlign('right').run(), active: editor.isActive({ textAlign: 'right' }), icon: 'i-lucide-align-right', title: 'Droite' },
-                { cmd: () => editor!.chain().focus().setTextAlign('justify').run(), active: editor.isActive({ textAlign: 'justify' }), icon: 'i-lucide-align-justify', title: 'Justifier' },
+                { cmd: () => editor!.chain().focus().setTextAlign('justify').run(), active: editor.isActive({ textAlign: 'justify' }), icon: 'i-lucide-align-justify', title: 'Justifier' }
               ]" :key="action.title">
                 <button type="button" :title="action.title" :class="['p-1.5 rounded transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
                   <UIcon :name="action.icon" class="w-4 h-4" />
@@ -272,7 +293,7 @@ async function sauvegarder() {
               <template v-for="action in [
                 { cmd: () => editor!.chain().focus().toggleBulletList().run(), active: editor.isActive('bulletList'), icon: 'i-lucide-list', title: 'Liste' },
                 { cmd: () => editor!.chain().focus().toggleBlockquote().run(), active: editor.isActive('blockquote'), icon: 'i-lucide-quote', title: 'Citation' },
-                { cmd: setLink, active: editor.isActive('link'), icon: 'i-lucide-link', title: 'Lien' },
+                { cmd: setLink, active: editor.isActive('link'), icon: 'i-lucide-link', title: 'Lien' }
               ]" :key="action.title">
                 <button type="button" :title="action.title" :class="['p-1.5 rounded transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
                   <UIcon :name="action.icon" class="w-4 h-4" />

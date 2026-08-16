@@ -6,7 +6,6 @@ import {
   GRATUIT,
   TOTAL_PAYE,
   TOTAL_RENOUVELLEMENT,
-  TOTAL_FABRICATION,
   TOTAL_ENGAGE
 } from '~/data/finances'
 

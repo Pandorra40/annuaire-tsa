@@ -74,17 +74,32 @@ export interface Video {
 }
 
 export interface SuggestionPraticien {
+  id: number
   nom: string
   type: string
   ville: string
   departement: string
+  adresse?: string | null
   telephone?: string | null
   site_web?: string | null
+  teleconsultation?: boolean
+  delai?: string | null
   notes?: string | null
   adeli?: string | null
   ages: string[]
   statut: string
   source: string
+  created_at?: string
+}
+
+export interface Signalement {
+  id: number
+  praticien_id: number
+  praticien_nom: string
+  motif: string
+  detail?: string | null
+  statut: string
+  created_at?: string
 }
 
 // Reprend les valeurs déjà présentes dans la table `associations`, et reprises
@@ -97,6 +112,7 @@ export const TYPES_ASSOCIATION = [
 ] as const
 
 export interface SuggestionAssociation {
+  id: number
   nom: string
   type_association?: string | null
   ville: string
@@ -128,6 +144,7 @@ export interface Association {
 }
 
 export interface SuggestionLivre {
+  id: number
   titre: string
   auteur: string
   annee?: number | null

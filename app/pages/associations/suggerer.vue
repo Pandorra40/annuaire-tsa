@@ -53,8 +53,9 @@ async function soumettre() {
       hp: form.hp
     })
     success.value = true
-  } catch (e: any) {
-    error.value = e?.data?.error ?? 'Une erreur est survenue : ' + e.message
+  } catch (e) {
+    const err = e as { data?: { error?: string }, message?: string }
+    error.value = err?.data?.error ?? 'Une erreur est survenue : ' + err.message
   } finally {
     loading.value = false
   }

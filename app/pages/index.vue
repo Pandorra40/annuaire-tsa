@@ -28,15 +28,15 @@ const ages = AGES_OPTIONS
 
 const howItWorks = [
   { titre: 'Trouver un spécialiste', desc: 'Recherchez par ville, département ou spécialité. Filtrez selon vos besoins.', emoji: '🔍', bg: 'bg-indigo-50 border-indigo-100', iconBg: 'bg-indigo-100' },
-  { titre: 'Suggérer un praticien', desc: "Vous connaissez un spécialiste qui n'apparaît pas ? Ajoutez-le en quelques clics.", emoji: '➕', bg: 'bg-emerald-50 border-emerald-100', iconBg: 'bg-emerald-100' },
-  { titre: 'Veiller à la qualité', desc: 'Confirmez ou signalez les fiches pour aider la communauté.', emoji: '🛡️', bg: 'bg-amber-50 border-amber-100', iconBg: 'bg-amber-100' },
+  { titre: 'Suggérer un praticien', desc: 'Vous connaissez un spécialiste qui n\'apparaît pas ? Ajoutez-le en quelques clics.', emoji: '➕', bg: 'bg-emerald-50 border-emerald-100', iconBg: 'bg-emerald-100' },
+  { titre: 'Veiller à la qualité', desc: 'Confirmez ou signalez les fiches pour aider la communauté.', emoji: '🛡️', bg: 'bg-amber-50 border-amber-100', iconBg: 'bg-amber-100' }
 ]
 
 const specialites = [
   { nom: 'Psychiatre', emoji: '🧠' },
   { nom: 'Psychologue', emoji: '💬' },
   { nom: 'Orthophoniste', emoji: '🗣️' },
-  { nom: 'Ergothérapeute', emoji: '🤲' },
+  { nom: 'Ergothérapeute', emoji: '🤲' }
 ]
 
 const PAGE_SIZE = 20
@@ -60,7 +60,9 @@ const pageActuelle = computed(() => Math.min(Math.max(page.value, 1), Math.max(t
 const praticiensPagines = computed(() => praticiensFiltres.value.slice((pageActuelle.value - 1) * PAGE_SIZE, pageActuelle.value * PAGE_SIZE))
 
 // Un changement de filtre revient à la page 1
-watch([search, filtreType, filtreAge, filtreTele], () => { page.value = 1 })
+watch([search, filtreType, filtreAge, filtreTele], () => {
+  page.value = 1
+})
 
 // Reflète l'état (page + filtres) dans l'URL pour le restaurer au retour navigateur
 watch([search, filtreType, filtreAge, filtreTele, page], () => {

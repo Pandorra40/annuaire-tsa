@@ -10,6 +10,12 @@ export default defineNuxtConfig({
     '@vite-pwa/nuxt'
   ],
 
+  devtools: {
+    // import.meta.dev plutôt que process.env : Nuxt le fournit, et `process`
+    // exigerait @types/node pour un seul usage.
+    enabled: import.meta.dev
+  },
+
   // Déclaré ici et pas seulement dans app.vue : 200.html et 404.html sont
   // produits sans passer par le composant racine. Or 200.html est servi pour
   // toute adresse inconnue — sans `lang`, un lecteur d'écran ne sait pas dans
@@ -21,19 +27,39 @@ export default defineNuxtConfig({
     }
   },
 
-  devtools: {
-    // import.meta.dev plutôt que process.env : Nuxt le fournit, et `process`
-    // exigerait @types/node pour un seul usage.
-    enabled: import.meta.dev
-  },
-
   css: ['~/assets/css/main.css'],
+
+  site: {
+    url: 'https://www.annuaire-tsa.fr'
+  },
 
   runtimeConfig: {
     public: {
       apiBase: 'https://www.annuaire-tsa.fr/api'
     }
   },
+
+  routeRules: {
+    '/': { prerender: true },
+    '/ressources/livres': { prerender: true },
+    '/ressources/videos': { prerender: true },
+    '/cra': { prerender: true },
+    '/apropos': { prerender: true },
+    '/mentions': { prerender: true },
+    '/couts': { prerender: true },
+    '/contact': { prerender: true },
+    '/suggerer': { prerender: true },
+    '/associations/suggerer': { prerender: true },
+    '/ressources/livres/suggerer': { prerender: true },
+    '/admin': { prerender: true },
+    '/admin/login': { prerender: true },
+    '/admin/modifier': { prerender: true },
+    '/admin/livres': { prerender: true },
+    '/admin/videos': { prerender: true },
+    '/admin/associations': { prerender: true }
+  },
+
+  compatibilityDate: '2025-01-15',
 
   nitro: {
     prerender: {
@@ -81,28 +107,29 @@ export default defineNuxtConfig({
     }
   },
 
-  routeRules: {
-    '/': { prerender: true },
-    '/ressources/livres': { prerender: true },
-    '/ressources/videos': { prerender: true },
-    '/cra': { prerender: true },
-    '/apropos': { prerender: true },
-    '/mentions': { prerender: true },
-    '/couts': { prerender: true },
-    '/contact': { prerender: true },
-    '/suggerer': { prerender: true },
-    '/associations/suggerer': { prerender: true },
-    '/ressources/livres/suggerer': { prerender: true },
-    '/admin': { prerender: true },
-    '/admin/login': { prerender: true },
-    '/admin/modifier': { prerender: true },
-    '/admin/livres': { prerender: true },
-    '/admin/videos': { prerender: true },
-    '/admin/associations': { prerender: true }
+  eslint: {
+    config: {
+      stylistic: {
+        commaDangle: 'never',
+        braceStyle: '1tbs'
+      }
+    }
   },
 
-  site: {
-    url: 'https://www.annuaire-tsa.fr'
+  // Vérifie le HTML produit au build. Les fiches affichent des notes saisies
+  // dans Tiptap : une balise mal fermée y passerait sinon inaperçue.
+  // Signale sans interrompre la génération — à nous de trier les alertes.
+  htmlValidator: {
+    failOnError: false,
+    options: {
+      rules: {
+        // Les numéros viennent de la base : y insérer des espaces insécables
+        // reviendrait à retoucher la donnée pour un gain purement typographique.
+        'tel-non-breaking': 'off',
+        // Balisage produit par l'accordéon de Nuxt UI, pas par nos gabarits.
+        'prefer-native-element': 'off'
+      }
+    }
   },
 
   // Embarque les SVG dans le build : sans cette liste, chaque visite déclenche
@@ -139,43 +166,6 @@ export default defineNuxtConfig({
     }
   },
 
-  // Sans ce module, le serveur sert le robots.txt par défaut de LWS : un
-  // Crawl-delay de 60 s (soit plus de cinq heures pour explorer les 335 fiches),
-  // des règles pour un livre d'or inexistant, et aucune mention du sitemap.
-  // Les mêmes exclusions que celles du sitemap ci-dessous.
-  robots: {
-    disallow: ['/admin', '/signaler']
-  },
-
-  // Vérifie le HTML produit au build. Les fiches affichent des notes saisies
-  // dans Tiptap : une balise mal fermée y passerait sinon inaperçue.
-  // Signale sans interrompre la génération — à nous de trier les alertes.
-  htmlValidator: {
-    failOnError: false,
-    options: {
-      rules: {
-        // Les numéros viennent de la base : y insérer des espaces insécables
-        // reviendrait à retoucher la donnée pour un gain purement typographique.
-        'tel-non-breaking': 'off',
-        // Balisage produit par l'accordéon de Nuxt UI, pas par nos gabarits.
-        'prefer-native-element': 'off'
-      }
-    }
-  },
-
-  // indexNow retiré le 12 août 2026 : l'option n'existe pas dans @nuxtjs/sitemap
-  // — vérifié, le mot n'apparaît nulle part dans le module — donc ce bloc ne
-  // faisait rien. Le signalement à IndexNow se fait par indexnow.mjs, à la
-  // racine du projet, lancé à la main.
-  sitemap: {
-    sources: ['/api/__sitemap__/fiches'],
-    exclude: [
-      '/admin',
-      '/admin/**',
-      '/signaler'
-    ]
-  },
-
   pwa: {
     registerType: 'autoUpdate',
     manifest: {
@@ -209,14 +199,24 @@ export default defineNuxtConfig({
     }
   },
 
-  compatibilityDate: '2025-01-15',
+  // Sans ce module, le serveur sert le robots.txt par défaut de LWS : un
+  // Crawl-delay de 60 s (soit plus de cinq heures pour explorer les 335 fiches),
+  // des règles pour un livre d'or inexistant, et aucune mention du sitemap.
+  // Les mêmes exclusions que celles du sitemap ci-dessous.
+  robots: {
+    disallow: ['/admin', '/signaler']
+  },
 
-  eslint: {
-    config: {
-      stylistic: {
-        commaDangle: 'never',
-        braceStyle: '1tbs'
-      }
-    }
+  // indexNow retiré le 12 août 2026 : l'option n'existe pas dans @nuxtjs/sitemap
+  // — vérifié, le mot n'apparaît nulle part dans le module — donc ce bloc ne
+  // faisait rien. Le signalement à IndexNow se fait par indexnow.mjs, à la
+  // racine du projet, lancé à la main.
+  sitemap: {
+    sources: ['/api/__sitemap__/fiches'],
+    exclude: [
+      '/admin',
+      '/admin/**',
+      '/signaler'
+    ]
   }
 })

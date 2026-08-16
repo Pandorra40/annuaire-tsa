@@ -9,7 +9,7 @@ const urls = [
   `https://${HOST}/apropos`,
   `https://${HOST}/contact`,
   `https://${HOST}/mentions`,
-  `https://${HOST}/departement/93`,
+  `https://${HOST}/departement/93`
 ]
 
 const res = await fetch('https://api.indexnow.org/indexnow', {

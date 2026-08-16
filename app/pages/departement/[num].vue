@@ -61,7 +61,6 @@ onMounted(async () => {
 const praticiens = computed<Praticien[]>(() =>
   (fraiche.value ?? tous.value ?? []).filter((p: Praticien) => p.departement === num.toUpperCase() || p.departement === num)
 )
-
 </script>
 
 <template>

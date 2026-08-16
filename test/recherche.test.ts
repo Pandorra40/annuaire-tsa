@@ -16,7 +16,7 @@ describe('normaliserRecherche', () => {
   })
 
   it('conserve espaces, traits d\'union et apostrophes des noms composés', () => {
-    expect(normaliserRecherche("L'ISLE-D'ABEAU")).toBe("l'isle-d'abeau")
+    expect(normaliserRecherche('L\'ISLE-D\'ABEAU')).toBe('l\'isle-d\'abeau')
   })
 
   it('permet à une saisie sans accent de trouver une donnée accentuée', () => {

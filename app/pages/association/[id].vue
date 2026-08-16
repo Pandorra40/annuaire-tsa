@@ -47,7 +47,6 @@ useSeoMeta({
   title: titre,
   description: computed(() => association.value ? echapperMeta(`${association.value.nom} — Association TSA à ${association.value.ville} (${association.value.departement})`) : '')
 })
-
 </script>
 
 <template>

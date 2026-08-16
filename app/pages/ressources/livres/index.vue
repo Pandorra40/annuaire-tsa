@@ -30,22 +30,33 @@ function cleanTags(subjects?: string[]) {
   return subjects.filter(s => !/[=:]/.test(s) && s.length < 40).slice(0, 2)
 }
 
+// Forme du proxy data.bnf.fr — seuls les champs effectivement lus sont typés,
+// le reste de la réponse Open Library n'est pas utilisé.
+interface DocBnf {
+  title?: string
+  language?: string[]
+  first_publish_year?: number
+  author_name?: string[]
+  subject?: string[]
+  key?: string
+}
+
 // Nouveautés data.bnf.fr via proxy — chargé côté client uniquement
 // (le proxy PHP n'est pas joignable au prerender du build statique).
 const config = useRuntimeConfig()
 const { data: newReleases, status: newReleasesStatus } = await useAsyncData('newreleases', async () => {
   try {
-    const res = await $fetch<any>(`${config.public.apiBase}/bnf-proxy.php`)
+    const res = await $fetch<{ docs?: DocBnf[] }>(`${config.public.apiBase}/bnf-proxy.php`)
     const docs = res.docs ?? []
     return docs
-      .filter((d: any) => {
+      .filter((d) => {
         if (!d.title) return false
         const langs = d.language ?? []
         if (langs.length > 0 && !langs.includes('fre') && !langs.includes('eng')) return false
         return (d.first_publish_year ?? 0) >= 2020
       })
       .slice(0, 9)
-      .map((d: any) => {
+      .map((d) => {
         const langs = d.language ?? []
         return {
           titre: d.title,

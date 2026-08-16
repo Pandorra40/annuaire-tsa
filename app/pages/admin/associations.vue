@@ -1,10 +1,12 @@
 <script setup lang="ts">
+import type { Association, SuggestionAssociation } from '~/types'
+
 definePageMeta({ layout: 'admin' })
 useSeoMeta({ title: 'Associations — Administration TSA' })
 
 const token = ref('')
-const suggestions = ref<any[]>([])
-const publiees = ref<any[]>([])
+const suggestions = ref<SuggestionAssociation[]>([])
+const publiees = ref<Association[]>([])
 const activeTab = ref('suggestions')
 const search = ref('')
 const loading = ref(true)
@@ -12,16 +14,22 @@ const loadError = ref('')
 
 onMounted(async () => {
   token.value = sessionStorage.getItem('admin_token') || ''
-  if (!token.value) { navigateTo('/admin/login'); return }
+  if (!token.value) {
+    navigateTo('/admin/login')
+    return
+  }
   await charger()
 })
 
-async function adminFetch(url: string, options: any = {}) {
+async function adminFetch(url: string, options: RequestInit = {}) {
   const res = await fetch('/api/' + url, {
     ...options,
     headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token.value, ...options.headers }
   })
-  if (res.status === 401) { navigateTo('/admin/login'); throw new Error('Non authentifié') }
+  if (res.status === 401) {
+    navigateTo('/admin/login')
+    throw new Error('Non authentifié')
+  }
   if (!res.ok) {
     const corps = await res.json().catch(() => ({}))
     throw new Error(corps.error ?? 'Erreur ' + res.status)
@@ -39,9 +47,11 @@ async function charger() {
     ])
     suggestions.value = s
     publiees.value = p
-  } catch (e: any) {
-    loadError.value = 'Erreur de chargement : ' + (e.message ?? 'inconnue')
-  } finally { loading.value = false }
+  } catch (e) {
+    loadError.value = 'Erreur de chargement : ' + ((e as Error).message ?? 'inconnue')
+  } finally {
+    loading.value = false
+  }
 }
 
 const publieesFiltrees = computed(() => {
@@ -61,12 +71,19 @@ async function statuer(id: number, statut: 'valide' | 'refuse') {
       body: JSON.stringify({ statut })
     })
     await charger()
-  } catch (e: any) { alert('Erreur : ' + e.message) }
-  finally { enCours = false }
+  } catch (e) {
+    alert('Erreur : ' + (e as Error).message)
+  } finally {
+    enCours = false
+  }
 }
 
 async function deconnexion() {
-  try { await adminFetch('auth.php', { method: 'DELETE' }) } catch {}
+  try {
+    await adminFetch('auth.php', { method: 'DELETE' })
+  } catch {
+    // déconnexion locale malgré tout : le jeton côté serveur expirera de lui-même
+  }
   sessionStorage.removeItem('admin_token')
   navigateTo('/admin/login')
 }

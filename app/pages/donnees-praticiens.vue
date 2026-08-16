@@ -1,7 +1,7 @@
 <script setup lang="ts">
 useSeoMeta({
   title: 'Praticiens : vos données — Annuaire TSA',
-  description: "Information des praticiens référencés dans l'Annuaire TSA au titre de l'article 14 du RGPD : origine des données, finalité, base légale, durée de conservation et exercice de vos droits."
+  description: 'Information des praticiens référencés dans l\'Annuaire TSA au titre de l\'article 14 du RGPD : origine des données, finalité, base légale, durée de conservation et exercice de vos droits.'
 })
 </script>
 

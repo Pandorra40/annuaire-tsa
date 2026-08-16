@@ -40,8 +40,8 @@ async function soumettre() {
       lien: form.lien || null
     })
     success.value = true
-  } catch (e: any) {
-    error.value = 'Une erreur est survenue : ' + e.message
+  } catch (e) {
+    error.value = 'Une erreur est survenue : ' + (e as Error).message
   } finally {
     loading.value = false
   }

@@ -8,7 +8,9 @@ const navLinks = [
 
 const mobileMenuOpen = ref(false)
 const route = useRoute()
-watch(() => route.path, () => { mobileMenuOpen.value = false })
+watch(() => route.path, () => {
+  mobileMenuOpen.value = false
+})
 
 const tailles = ['text-sm', 'text-md', 'text-lg', 'text-xl']
 const tailleIdx = ref(1)
@@ -20,7 +22,9 @@ onMounted(() => {
     tailleIdx.value = Number(localStorage.getItem('tailleIdx') ?? 1)
     lectureMode.value = localStorage.getItem('lecture') === '1'
     contrasteMode.value = localStorage.getItem('contraste') === '1'
-  } catch {}
+  } catch {
+    // stockage indisponible (navigation privée) : les préférences retombent aux valeurs par défaut
+  }
   applyAccess()
 })
 
@@ -38,7 +42,11 @@ function applyAccess() {
 function agrandir() {
   if (tailleIdx.value < tailles.length - 1) {
     tailleIdx.value++
-    try { localStorage.setItem('tailleIdx', String(tailleIdx.value)) } catch {}
+    try {
+      localStorage.setItem('tailleIdx', String(tailleIdx.value))
+    } catch {
+      // stockage indisponible : la taille reste appliquée pour cette session seulement
+    }
     applyAccess()
   }
 }
@@ -46,20 +54,32 @@ function agrandir() {
 function reduire() {
   if (tailleIdx.value > 0) {
     tailleIdx.value--
-    try { localStorage.setItem('tailleIdx', String(tailleIdx.value)) } catch {}
+    try {
+      localStorage.setItem('tailleIdx', String(tailleIdx.value))
+    } catch {
+      // stockage indisponible : la taille reste appliquée pour cette session seulement
+    }
     applyAccess()
   }
 }
 
 function toggleLecture() {
   lectureMode.value = !lectureMode.value
-  try { localStorage.setItem('lecture', lectureMode.value ? '1' : '0') } catch {}
+  try {
+    localStorage.setItem('lecture', lectureMode.value ? '1' : '0')
+  } catch {
+    // stockage indisponible : le mode reste appliqué pour cette session seulement
+  }
   applyAccess()
 }
 
 function toggleContraste() {
   contrasteMode.value = !contrasteMode.value
-  try { localStorage.setItem('contraste', contrasteMode.value ? '1' : '0') } catch {}
+  try {
+    localStorage.setItem('contraste', contrasteMode.value ? '1' : '0')
+  } catch {
+    // stockage indisponible : le mode reste appliqué pour cette session seulement
+  }
   applyAccess()
 }
 </script>

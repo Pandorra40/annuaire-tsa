@@ -69,12 +69,6 @@ watch(editor, (e) => {
   e.on('update', maj)
 }, { immediate: true })
 
-function setLink() {
-  const url = prompt('URL du lien :')
-  if (!url) return
-  editor.value?.chain().focus().setLink({ href: url }).run()
-}
-
 const loading = ref(false)
 const success = ref(false)
 const error = ref('')
@@ -106,8 +100,9 @@ async function soumettre() {
       source: 'communaute'
     })
     success.value = true
-  } catch (e: any) {
-    error.value = e?.data?.error ?? 'Une erreur est survenue. Réessayez dans un instant.'
+  } catch (e) {
+    const err = e as { data?: { error?: string } }
+    error.value = err?.data?.error ?? 'Une erreur est survenue. Réessayez dans un instant.'
   } finally {
     loading.value = false
   }

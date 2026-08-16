@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { MOTIF_RETRAIT } from '~/types/index'
+import type { Praticien, Signalement, SuggestionPraticien } from '~/types'
 
 definePageMeta({ layout: 'admin' })
 useSeoMeta({ title: 'Administration — Annuaire TSA' })
 
 const token = ref('')
-const fiches = ref<any[]>([])
-const attente = ref<any[]>([])
-const signalements = ref<any[]>([])
+const fiches = ref<Praticien[]>([])
+const attente = ref<SuggestionPraticien[]>([])
+const signalements = ref<Signalement[]>([])
 const activeTab = ref('attente')
 const searchPublies = ref('')
 const loading = ref(true)
@@ -16,17 +17,23 @@ const SEUIL = 3
 
 onMounted(async () => {
   token.value = sessionStorage.getItem('admin_token') || ''
-  if (!token.value) { navigateTo('/admin/login'); return }
+  if (!token.value) {
+    navigateTo('/admin/login')
+    return
+  }
   activeTab.value = sessionStorage.getItem('admin_tab') || 'attente'
   await charger()
 })
 
-async function adminFetch(url: string, options: any = {}) {
+async function adminFetch(url: string, options: RequestInit = {}) {
   const res = await fetch('/api/' + url, {
     ...options,
     headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token.value, ...options.headers }
   })
-  if (res.status === 401) { navigateTo('/admin/login'); throw new Error('Non authentifié') }
+  if (res.status === 401) {
+    navigateTo('/admin/login')
+    throw new Error('Non authentifié')
+  }
   if (!res.ok) throw new Error('Erreur ' + res.status)
   return res.json()
 }
@@ -42,9 +49,11 @@ async function charger() {
     fiches.value = p
     attente.value = a
     signalements.value = s
-  } catch (e: any) {
-    loadError.value = 'Erreur de chargement : ' + (e.message ?? 'inconnue')
-  } finally { loading.value = false }
+  } catch (e) {
+    loadError.value = 'Erreur de chargement : ' + ((e as Error).message ?? 'inconnue')
+  } finally {
+    loading.value = false
+  }
 }
 
 const publies = computed(() => fiches.value.filter(p => p.statut === 'publie'))
@@ -71,44 +80,77 @@ function setTab(tab: string) {
 let enCours = false
 
 async function valider(id: number) {
-  if (enCours) return; enCours = true
-  try { await adminFetch('suggestions.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'valide' }) }); await charger() }
-  catch (e: any) { alert('Erreur : ' + (e as Error).message) }
-  finally { enCours = false }
+  if (enCours) return
+  enCours = true
+  try {
+    await adminFetch('suggestions.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'valide' }) })
+    await charger()
+  } catch (e) {
+    alert('Erreur : ' + (e as Error).message)
+  } finally {
+    enCours = false
+  }
 }
 
 async function refuser(id: number) {
-  if (enCours) return; enCours = true
-  try { await adminFetch('suggestions.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'refuse' }) }); await charger() }
-  catch (e: any) { alert('Erreur : ' + (e as Error).message) }
-  finally { enCours = false }
+  if (enCours) return
+  enCours = true
+  try {
+    await adminFetch('suggestions.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'refuse' }) })
+    await charger()
+  } catch (e) {
+    alert('Erreur : ' + (e as Error).message)
+  } finally {
+    enCours = false
+  }
 }
 
 async function supprimer(id: number) {
   if (enCours) return
   if (!confirm('Supprimer définitivement ce praticien ? Cette action est irréversible.')) return
   enCours = true
-  try { await adminFetch('admin_praticiens.php?id=' + id, { method: 'DELETE' }); await charger() }
-  catch (e: any) { alert('Erreur : ' + (e as Error).message) }
-  finally { enCours = false }
+  try {
+    await adminFetch('admin_praticiens.php?id=' + id, { method: 'DELETE' })
+    await charger()
+  } catch (e) {
+    alert('Erreur : ' + (e as Error).message)
+  } finally {
+    enCours = false
+  }
 }
 
 async function basculerVisibilite(id: number, statut: string) {
-  if (enCours) return; enCours = true
-  try { await adminFetch('admin_praticiens.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut }) }); await charger() }
-  catch (e: any) { alert('Erreur : ' + (e as Error).message) }
-  finally { enCours = false }
+  if (enCours) return
+  enCours = true
+  try {
+    await adminFetch('admin_praticiens.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut }) })
+    await charger()
+  } catch (e) {
+    alert('Erreur : ' + (e as Error).message)
+  } finally {
+    enCours = false
+  }
 }
 
 async function ignorerSignalement(id: number) {
-  if (enCours) return; enCours = true
-  try { await adminFetch('signalements.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'ignore' }) }); await charger() }
-  catch (e: any) { alert('Erreur : ' + (e as Error).message) }
-  finally { enCours = false }
+  if (enCours) return
+  enCours = true
+  try {
+    await adminFetch('signalements.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'ignore' }) })
+    await charger()
+  } catch (e) {
+    alert('Erreur : ' + (e as Error).message)
+  } finally {
+    enCours = false
+  }
 }
 
 async function deconnexion() {
-  try { await adminFetch('auth.php', { method: 'DELETE' }) } catch {}
+  try {
+    await adminFetch('auth.php', { method: 'DELETE' })
+  } catch {
+    // déconnexion locale malgré tout : le jeton côté serveur expirera de lui-même
+  }
   sessionStorage.removeItem('admin_token')
   navigateTo('/admin/login')
 }

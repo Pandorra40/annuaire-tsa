@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { CATEGORIES_VIDEOS } from '~/types/index'
+import type { Video } from '~/types'
 
 definePageMeta({ layout: 'admin' })
 useSeoMeta({ title: 'Vidéos — Administration TSA' })
 
 const token = ref('')
-const entrees = ref<any[]>([])
+const entrees = ref<Video[]>([])
 const activeTab = ref('ajouter')
 const search = ref('')
 const loading = ref(true)
@@ -28,16 +29,22 @@ const natureSaisie = computed(() => {
 
 onMounted(async () => {
   token.value = sessionStorage.getItem('admin_token') || ''
-  if (!token.value) { navigateTo('/admin/login'); return }
+  if (!token.value) {
+    navigateTo('/admin/login')
+    return
+  }
   await charger()
 })
 
-async function adminFetch(url: string, options: any = {}) {
+async function adminFetch(url: string, options: RequestInit = {}) {
   const res = await fetch('/api/' + url, {
     ...options,
     headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token.value, ...options.headers }
   })
-  if (res.status === 401) { navigateTo('/admin/login'); throw new Error('Non authentifié') }
+  if (res.status === 401) {
+    navigateTo('/admin/login')
+    throw new Error('Non authentifié')
+  }
   if (!res.ok) {
     const corps = await res.json().catch(() => ({}))
     throw new Error(corps.error ?? 'Erreur ' + res.status)
@@ -50,9 +57,11 @@ async function charger() {
   loading.value = true
   try {
     entrees.value = await adminFetch('videos.php')
-  } catch (e: any) {
-    loadError.value = 'Erreur de chargement : ' + (e.message ?? 'inconnue')
-  } finally { loading.value = false }
+  } catch (e) {
+    loadError.value = 'Erreur de chargement : ' + ((e as Error).message ?? 'inconnue')
+  } finally {
+    loading.value = false
+  }
 }
 
 const entreesFiltrees = computed(() => {
@@ -75,8 +84,8 @@ async function ajouter() {
     notice.value = { msg: '✓ Entrée publiée.', type: 'success' }
     reinitialiser()
     await charger()
-  } catch (e: any) {
-    notice.value = { msg: e.message, type: 'error' }
+  } catch (e) {
+    notice.value = { msg: (e as Error).message, type: 'error' }
   }
 }
 
@@ -85,13 +94,22 @@ async function supprimer(id: number) {
   if (enCours) return
   if (!confirm('Supprimer cette entrée ? Cette action est irréversible.')) return
   enCours = true
-  try { await adminFetch('videos.php?id=' + id, { method: 'DELETE' }); await charger() }
-  catch (e: any) { alert('Erreur : ' + e.message) }
-  finally { enCours = false }
+  try {
+    await adminFetch('videos.php?id=' + id, { method: 'DELETE' })
+    await charger()
+  } catch (e) {
+    alert('Erreur : ' + (e as Error).message)
+  } finally {
+    enCours = false
+  }
 }
 
 async function deconnexion() {
-  try { await adminFetch('auth.php', { method: 'DELETE' }) } catch {}
+  try {
+    await adminFetch('auth.php', { method: 'DELETE' })
+  } catch {
+    // déconnexion locale malgré tout : le jeton côté serveur expirera de lui-même
+  }
   sessionStorage.removeItem('admin_token')
   navigateTo('/admin/login')
 }

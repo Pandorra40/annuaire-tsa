@@ -19,7 +19,10 @@ onMounted(() => {
 
 async function connexion() {
   if (tentatives.value >= MAX || bloque.value) return
-  if (!mdp.value) { erreur.value = 'Merci de renseigner votre mot de passe.'; return }
+  if (!mdp.value) {
+    erreur.value = 'Merci de renseigner votre mot de passe.'
+    return
+  }
   loading.value = true
   erreur.value = ''
   try {
@@ -37,8 +40,8 @@ async function connexion() {
     const data = await res.json()
     sessionStorage.setItem('admin_token', data.token)
     navigateTo('/admin')
-  } catch (e: any) {
-    erreur.value = 'Erreur de connexion : ' + e.message
+  } catch (e) {
+    erreur.value = 'Erreur de connexion : ' + (e as Error).message
   } finally {
     loading.value = false
   }
@@ -49,7 +52,11 @@ function bloquer() {
   compte.value = 30
   const t = setInterval(() => {
     compte.value--
-    if (compte.value <= 0) { clearInterval(t); bloque.value = false; tentatives.value = 0 }
+    if (compte.value <= 0) {
+      clearInterval(t)
+      bloque.value = false
+      tentatives.value = 0
+    }
   }, 1000)
 }
 

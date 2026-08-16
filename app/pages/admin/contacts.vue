@@ -29,18 +29,26 @@ let enregistreTimer: ReturnType<typeof setTimeout> | null = null
 
 onMounted(async () => {
   token.value = sessionStorage.getItem('admin_token') || ''
-  if (!token.value) { navigateTo('/admin/login'); return }
+  if (!token.value) {
+    navigateTo('/admin/login')
+    return
+  }
   await charger()
 })
 
-onUnmounted(() => { if (enregistreTimer) clearTimeout(enregistreTimer) })
+onUnmounted(() => {
+  if (enregistreTimer) clearTimeout(enregistreTimer)
+})
 
-async function adminFetch(url: string, options: any = {}) {
+async function adminFetch(url: string, options: RequestInit = {}) {
   const res = await fetch('/api/' + url, {
     ...options,
     headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token.value, ...options.headers }
   })
-  if (res.status === 401) { navigateTo('/admin/login'); throw new Error('Non authentifié') }
+  if (res.status === 401) {
+    navigateTo('/admin/login')
+    throw new Error('Non authentifié')
+  }
   if (!res.ok) {
     const detail = await res.json().catch(() => null)
     throw new Error(detail?.error ?? 'Erreur ' + res.status)
@@ -53,16 +61,18 @@ async function charger() {
   try {
     fiches.value = await adminFetch('admin_praticiens.php')
     for (const f of fiches.value) brouillons[f.id] = f.contact_email ?? ''
-  } catch (e: any) {
-    loadError.value = 'Erreur de chargement : ' + (e.message ?? 'inconnue')
-  } finally { loading.value = false }
+  } catch (e) {
+    loadError.value = 'Erreur de chargement : ' + ((e as Error).message ?? 'inconnue')
+  } finally {
+    loading.value = false
+  }
 }
 
 const actifs = computed(() => fiches.value.filter(f => f.contact_actif).length)
 
 const filtrees = computed(() => {
   const q = search.value.trim().toLowerCase()
-  return fiches.value.filter(f => {
+  return fiches.value.filter((f) => {
     if (seulementActifs.value && !f.contact_actif) return false
     if (!q) return true
     return f.nom.toLowerCase().includes(q)
@@ -105,9 +115,11 @@ async function enregistrer(f: FicheContact, actif: boolean) {
     enregistre.value = f.id
     if (enregistreTimer) clearTimeout(enregistreTimer)
     enregistreTimer = setTimeout(() => enregistre.value = null, 2500)
-  } catch (e: any) {
+  } catch (e) {
     alert('Erreur : ' + (e as Error).message)
-  } finally { enregistrement.value = null }
+  } finally {
+    enregistrement.value = null
+  }
 }
 
 function dateCourte(iso: string | null) {

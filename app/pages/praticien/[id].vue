@@ -56,7 +56,9 @@ function partager() {
   copiedTimer = setTimeout(() => copied.value = false, 2000)
 }
 
-onUnmounted(() => { if (copiedTimer) clearTimeout(copiedTimer) })
+onUnmounted(() => {
+  if (copiedTimer) clearTimeout(copiedTimer)
+})
 
 onMounted(() => {
   alreadyVoted.value = localStorage.getItem(`verified_${id}`) === '1'
@@ -107,8 +109,9 @@ async function envoyer() {
       elapsed: Date.now() - ouvertureTs.value
     })
     envoye.value = true
-  } catch (e: any) {
-    erreurEnvoi.value = e?.data?.error ?? 'L’envoi a échoué. Réessayez dans un instant.'
+  } catch (e) {
+    const err = e as { data?: { error?: string } }
+    erreurEnvoi.value = err?.data?.error ?? 'L’envoi a échoué. Réessayez dans un instant.'
   } finally {
     envoi.value = false
   }
