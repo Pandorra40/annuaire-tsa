@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.7
+# Annuaire TSA — V4.8
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -17,6 +17,8 @@ Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, 
 - Identifiant national affiché sur les fiches, intitulé d'après le type de fiche et le format du numéro : « N° RPPS » à 11 chiffres, « N° ADELI » à 9 (les psychologues ont basculé vers le RPPS le 3 juin 2024), et pour une structure « N° SIRET » à 14 ou « N° FINESS » à 9 — un FINESS ayant la même longueur qu'un ADELI, la longueur seule ne suffit pas à trancher
 - Partage sur Facebook + copie du lien sur chaque fiche praticien
 - **Critère d'admission** : un praticien ne figure dans l'annuaire que si son identifiant est vérifié au répertoire national des professionnels de santé (RPPS, ou ADELI le temps de la bascule). Une structure — cabinet, centre, institut — n'est pas une personne physique et n'a pas de RPPS : SIRET ou FINESS y sont acceptés sans être exigés. Le critère est écrit sur `/suggerer` et sur `/donnees-praticiens`
+- **Note en sept rubriques nommées** — Types d'intervention, Bilans, Formations complémentaires, Expérience, Modalités, Tarifs, Autres informations — plutôt qu'un seul champ de texte libre : ça guide la saisie côté praticien et évite qu'une information atterrisse sous le mauvais libellé, ou sous aucun
+- **Second lieu optionnel** — un praticien qui reçoit à deux adresses (deux cabinets, parfois deux départements différents) peut le déclarer, sur `/suggerer` comme en admin ; les pages `/departement/XX` des deux lieux le retrouvent
 - Données issues d'Autisme Info Service et de Tamis-Autisme, enrichies manuellement
 
 ### 2. Associations TSA (`/associations/`)
@@ -72,7 +74,6 @@ Les 47 centres ressources publics de France, avec le parcours de diagnostic expl
 | Base de données | MySQL |
 | Hébergement | LWS (serveur mutualisé) |
 | API externe | data.bnf.fr / BnF — SPARQL (nouveautés livres) |
-| Éditeur rich text | Tiptap |
 | Typage | TypeScript |
 | SEO | Bing Webmaster Tools + IndexNow + @nuxtjs/sitemap |
 | PWA | @vite-pwa/nuxt — installable sur mobile |
@@ -164,8 +165,14 @@ api/                             # API PHP (à déployer sur LWS)
 ## Base de données
 
 ### Tables annuaire
-- `praticiens` — fiches praticiens publiées
-- `suggestions` — suggestions de praticiens en attente de validation
+- `praticiens` — fiches praticiens publiées. Le contenu descriptif tient en sept
+  colonnes texte simple (`types_intervention`, `bilans`, `formations`, `experience`,
+  `modalites`, `tarifs`, `autres_infos`) plutôt qu'un champ HTML unique ; un second
+  lieu optionnel (`ville2`, `adresse2`, `departement2`) permet à un praticien avec
+  deux cabinets d'apparaître sur les deux pages département. L'ancienne colonne
+  `notes` (HTML libre, Tiptap) reste en base sans être lue par le code, en filet de
+  sécurité — voir `api/migrations/2026-08-21_notes_structurees_backfill.php`
+- `suggestions` — suggestions de praticiens en attente de validation, même structure
 - `signalements` — signalements d'erreurs sur les fiches
 - `admin_sessions` — sessions administrateur
 - `praticiens_contact` — email, consentement et jeton de désactivation du formulaire de contact. Table **séparée** de `praticiens` : `praticiens.php` fait `SELECT *` et publierait l'adresse
@@ -274,6 +281,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 | V4.5 | Campagne d'information des praticiens au titre de l'article 14 du RGPD (219 praticiens contactés), cadre de bonne conduite affiché avant les liens de contact, disparition du « nous » éditorial (le projet est tenu par une seule personne), type de praticien « Structure », rapprochement des fiches avec l'annuaire santé et bascule ADELI → RPPS, correctif de `sanitizeHtml` qui privait les liens des notes de leur `href` |
 | V4.7 | Critère d'admission écrit et appliqué : identifiant vérifié obligatoire pour les praticiens, SIRET ou FINESS facultatif pour les structures, énoncé sur `/suggerer` et `/donnees-praticiens`. Formulaire public de suggestion d'associations et écran de modération. Purge du journal de contact à douze mois |
 | V4.6 | Rubrique `/ressources` réunissant les livres et une nouvelle section vidéos (façade au clic, chaînes en liens sortants, catégories par position d'énonciation), `api/videos.php`, admin dédiée, redirections 301 depuis `/livres` |
+| V4.8 | Note en sept rubriques nommées remplaçant le champ HTML unique (retrait de Tiptap, formulaire public et admin identiques), second lieu optionnel pour les praticiens à deux cabinets (`/departement/XX` retrouve la fiche depuis les deux départements) |
 
 ## Remerciements
 

@@ -11,14 +11,32 @@ export interface Praticien {
   nom: string
   type: string
   ville: string
+  // Second lieu, optionnel : un praticien avec deux cabinets (ex. Institut
+  // Mentis Portae, Paris et Étampes) porte deux jeux ville/adresse/département
+  // plutôt qu'un seul champ concaténé — sinon la page département du second
+  // lieu ne retrouve jamais la fiche.
+  ville2?: string | null
   departement: string
+  departement2?: string | null
   adresse?: string
+  adresse2?: string | null
   telephone?: string
   site_web?: string
   teleconsultation: boolean
   delai?: string
   ages: string[]
-  notes?: string
+  // Sept rubriques texte simple, remplaçant l'ancienne note HTML unique
+  // éditée en Tiptap. autres_infos absorbe tout ce qui ne rentre pas dans
+  // les six autres (Modalités, Bilans, etc. ont leur propre champ ; le reste
+  // — Supervision de structures, Parcours… — y atterrit avec son libellé
+  // d'origine conservé).
+  types_intervention?: string | null
+  bilans?: string | null
+  formations?: string | null
+  experience?: string | null
+  modalites?: string | null
+  tarifs?: string | null
+  autres_infos?: string | null
   adeli?: string
   confirmations: number
   created_at?: string
@@ -78,13 +96,21 @@ export interface SuggestionPraticien {
   nom: string
   type: string
   ville: string
+  ville2?: string | null
   departement: string
+  departement2?: string | null
   adresse?: string | null
   telephone?: string | null
   site_web?: string | null
   teleconsultation?: boolean
   delai?: string | null
-  notes?: string | null
+  types_intervention?: string | null
+  bilans?: string | null
+  formations?: string | null
+  experience?: string | null
+  modalites?: string | null
+  tarifs?: string | null
+  autres_infos?: string | null
   adeli?: string | null
   ages: string[]
   statut: string

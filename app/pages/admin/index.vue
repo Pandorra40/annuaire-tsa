@@ -68,6 +68,24 @@ const publiesFiltres = computed(() => {
   return q ? publies.value.filter(p => p.nom.toLowerCase().includes(q) || p.ville.toLowerCase().includes(q)) : publies.value
 })
 
+// Aperçu compact des sept rubriques d'une suggestion en attente, sans balise
+// HTML injectée (les champs sont du texte simple depuis l'abandon de Tiptap).
+const LABELS_APERCU: Array<[keyof SuggestionPraticien, string]> = [
+  ['types_intervention', 'Types d\'intervention'],
+  ['bilans', 'Bilans'],
+  ['formations', 'Formations complémentaires'],
+  ['experience', 'Expérience'],
+  ['modalites', 'Modalités'],
+  ['tarifs', 'Tarifs'],
+  ['autres_infos', 'Autres informations']
+]
+
+function notesApercu(d: SuggestionPraticien) {
+  return LABELS_APERCU
+    .filter(([champ]) => d[champ])
+    .map(([champ, label]) => ({ label, valeur: d[champ] as string }))
+}
+
 function nbSignalements(id: number) {
   return signalements.value.filter(s => s.praticien_id === id).length
 }
@@ -250,14 +268,18 @@ async function deconnexion() {
               <div class="flex items-start justify-between gap-4">
                 <div>
                   <div class="font-bold text-gray-900">{{ d.nom }}</div>
-                  <div class="text-sm text-gray-500">{{ d.type }} · {{ d.ville }} ({{ d.departement }})</div>
+                  <div class="text-sm text-gray-500">
+                    {{ d.type }} · {{ d.ville }}{{ d.ville2 ? ' + ' + d.ville2 : '' }} ({{ d.departement }}{{ d.departement2 ? ', ' + d.departement2 : '' }})
+                  </div>
                   <div v-if="d.adeli" class="text-xs text-gray-500 mt-1">ADELI/RPPS : {{ d.adeli }}</div>
                   <div class="flex flex-wrap gap-1.5 mt-2">
                     <UBadge v-for="age in d.ages" :key="age" color="primary" variant="soft" size="xs">{{ age }}</UBadge>
                     <UBadge v-if="d.teleconsultation" color="success" variant="soft" size="xs">Téléconsultation</UBadge>
                   </div>
                   <div v-if="d.telephone" class="text-sm text-blue-600 mt-2">☎ {{ d.telephone }}</div>
-                  <div v-if="d.notes" class="prose prose-sm text-xs text-gray-500 mt-2 p-2 bg-gray-50 rounded" v-html="d.notes" />
+                  <div v-if="notesApercu(d).length" class="text-xs text-gray-500 mt-2 p-2 bg-gray-50 rounded space-y-1">
+                    <div v-for="champ in notesApercu(d)" :key="champ.label"><strong>{{ champ.label }} :</strong> {{ champ.valeur }}</div>
+                  </div>
                 </div>
                 <UBadge color="neutral" variant="soft" size="xs">{{ d.source === 'praticien' ? 'Auto-déclaré' : 'Communauté' }}</UBadge>
               </div>

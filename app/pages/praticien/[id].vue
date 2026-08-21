@@ -28,6 +28,17 @@ const fraiche = ref<Praticien | null>(null)
 
 const praticien = computed<Praticien | null>(() => fraiche.value ?? data.value?.[0] ?? null)
 
+const hasNotes = computed(() => !!(praticien.value && (
+  praticien.value.types_intervention || praticien.value.bilans || praticien.value.formations
+  || praticien.value.experience || praticien.value.modalites || praticien.value.tarifs || praticien.value.autres_infos
+)))
+
+const aSecondLieu = computed(() => !!(praticien.value?.ville2 || praticien.value?.departement2))
+
+function adresseComplete(adresse?: string | null, ville?: string | null, departement?: string | null) {
+  return [adresse, ville, departement ? `(${departement})` : ''].filter(Boolean).join(', ') || 'Adresse non renseignée'
+}
+
 onMounted(async () => {
   try {
     const reponse = await fetchPraticien(id)
@@ -199,7 +210,7 @@ function libelleIdentifiant(num: string, type?: string) {
                 <span v-if="isNew(praticien.created_at)" class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-full border border-emerald-200">● Nouveau</span>
               </div>
               <p class="text-gray-500 text-lg mb-4">
-                {{ praticien.type }} · {{ praticien.ville }}
+                {{ praticien.type }} · {{ praticien.ville }}{{ aSecondLieu ? ' + ' + praticien.ville2 : '' }}
                 <NuxtLink v-if="praticien.departement" :to="`/departement/${praticien.departement}`" class="hover:text-indigo-600 transition-colors">({{ praticien.departement }})</NuxtLink>
               </p>
               <div class="flex flex-wrap gap-2">
@@ -221,13 +232,24 @@ function libelleIdentifiant(num: string, type?: string) {
           <!-- COLONNE PRINCIPALE -->
           <div class="sm:col-span-2 space-y-5">
 
-            <!-- Notes -->
-            <div v-if="praticien.notes" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <!-- Notes : sept rubriques reconstruites depuis les champs texte
+                 simple, plutôt qu'un seul bloc HTML injecté via v-html — plus
+                 besoin d'assainir ce contenu côté rendu, il n'y a plus de
+                 balises à y trouver. -->
+            <div v-if="hasNotes" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 text-lg mb-4 flex items-center gap-3">
                 <span class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-base">📝</span>
                 Informations complémentaires
               </h2>
-              <div class="notes-content text-gray-600 text-sm leading-relaxed" v-html="praticien.notes" />
+              <div class="notes-content text-gray-600 text-sm leading-relaxed">
+                <p v-if="praticien.types_intervention"><strong>Types d'intervention :</strong> {{ praticien.types_intervention }}</p>
+                <p v-if="praticien.bilans"><strong>Bilans :</strong> {{ praticien.bilans }}</p>
+                <p v-if="praticien.formations"><strong>Formations complémentaires :</strong> {{ praticien.formations }}</p>
+                <p v-if="praticien.experience"><strong>Expérience :</strong> {{ praticien.experience }}</p>
+                <p v-if="praticien.modalites"><strong>Modalités :</strong> {{ praticien.modalites }}</p>
+                <p v-if="praticien.tarifs"><strong>Tarifs :</strong> {{ praticien.tarifs }}</p>
+                <p v-if="praticien.autres_infos" style="white-space:pre-line">{{ praticien.autres_infos }}</p>
+              </div>
             </div>
 
             <!-- Confirmations -->
@@ -380,18 +402,34 @@ function libelleIdentifiant(num: string, type?: string) {
               </template>
             </div>
 
-            <!-- Localisation -->
+            <!-- Localisation : deux blocs côte à côte si un second lieu existe
+                 (ex. Institut Mentis Portae, Paris et Étampes), plutôt que la
+                 précédente concaténation "VILLE1 ET VILLE2" dans un seul champ. -->
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
                 <span class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">📍</span>
                 Localisation
               </h2>
-              <p class="text-gray-600 text-sm mb-3">
-                {{ [praticien.adresse, praticien.ville, praticien.departement ? `(${praticien.departement})` : ''].filter(Boolean).join(', ') || 'Adresse non renseignée' }}
-              </p>
-              <NuxtLink v-if="praticien.departement" :to="`/departement/${praticien.departement}`" class="inline-flex items-center gap-1.5 text-indigo-600 text-sm hover:text-indigo-700 transition-colors font-medium">
-                Voir tous les praticiens du {{ praticien.departement }} →
-              </NuxtLink>
+              <div :class="aSecondLieu ? 'grid grid-cols-1 sm:grid-cols-2 gap-4' : ''">
+                <div>
+                  <p v-if="aSecondLieu" class="text-xs font-semibold text-gray-500 mb-1">Lieu 1</p>
+                  <p class="text-gray-600 text-sm mb-2">
+                    {{ adresseComplete(praticien.adresse, praticien.ville, praticien.departement) }}
+                  </p>
+                  <NuxtLink v-if="praticien.departement" :to="`/departement/${praticien.departement}`" class="inline-flex items-center gap-1.5 text-indigo-600 text-sm hover:text-indigo-700 transition-colors font-medium">
+                    Voir tous les praticiens du {{ praticien.departement }} →
+                  </NuxtLink>
+                </div>
+                <div v-if="aSecondLieu">
+                  <p class="text-xs font-semibold text-gray-500 mb-1">Lieu 2</p>
+                  <p class="text-gray-600 text-sm mb-2">
+                    {{ adresseComplete(praticien.adresse2, praticien.ville2, praticien.departement2) }}
+                  </p>
+                  <NuxtLink v-if="praticien.departement2" :to="`/departement/${praticien.departement2}`" class="inline-flex items-center gap-1.5 text-indigo-600 text-sm hover:text-indigo-700 transition-colors font-medium">
+                    Voir tous les praticiens du {{ praticien.departement2 }} →
+                  </NuxtLink>
+                </div>
+              </div>
             </div>
 
             <!-- Exactitude de la fiche : un seul encadré pour les deux publics, placé
@@ -485,23 +523,19 @@ function libelleIdentifiant(num: string, type?: string) {
 </template>
 
 <style scoped>
-/* Aère les blocs des « Informations complémentaires » (notes en v-html) */
-.notes-content :deep(p) {
+/* Aère les blocs des « Informations complémentaires », reconstruits depuis
+   les sept champs texte simple — plus de v-html sur ce bloc, donc plus besoin
+   de :deep() : ce sont des éléments du template de ce composant. */
+.notes-content p {
   margin-bottom: 0.9rem;
 }
-.notes-content :deep(p:last-child) {
+.notes-content p:last-child {
   margin-bottom: 0;
 }
-.notes-content :deep(strong) {
+.notes-content strong {
   display: block;
   color: #4f46e5;
   font-weight: 600;
   margin-bottom: 0.15rem;
-}
-/* a[href] et non a : un lien privé de son adresse ne doit pas garder l'apparence
-   d'un lien, sinon le visiteur clique dans le vide sans comprendre pourquoi. */
-.notes-content :deep(a[href]) {
-  color: #4f46e5;
-  text-decoration: underline;
 }
 </style>

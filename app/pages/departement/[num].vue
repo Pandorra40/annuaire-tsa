@@ -57,9 +57,14 @@ onMounted(async () => {
 
 // Le filtre reste appliqué côté client : si l'API ne gère pas encore le
 // paramètre departement, elle renvoie tout et la page affiche quand même
-// les bons praticiens.
+// les bons praticiens. Matche aussi departement2 : un praticien à deux lieux
+// (ex. Institut Mentis Portae, Paris et Étampes) doit apparaître dans les
+// deux départements, pas seulement le premier.
 const praticiens = computed<Praticien[]>(() =>
-  (fraiche.value ?? tous.value ?? []).filter((p: Praticien) => p.departement === num.toUpperCase() || p.departement === num)
+  (fraiche.value ?? tous.value ?? []).filter((p: Praticien) =>
+    p.departement === num.toUpperCase() || p.departement === num
+    || p.departement2 === num.toUpperCase() || p.departement2 === num
+  )
 )
 </script>
 

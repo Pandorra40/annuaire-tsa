@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { useEditor, EditorContent } from '@tiptap/vue-3'
-import StarterKit from '@tiptap/starter-kit'
-import TextAlign from '@tiptap/extension-text-align'
 import { TYPES_PRATICIENS, AGES_OPTIONS } from '~/types/index'
 
 useSeoMeta({
@@ -16,10 +13,19 @@ const form = reactive({
   type: '',
   ville: '',
   codepostal: '',
+  ville2: '',
+  codepostal2: '',
   telephone: '',
   site_web: '',
   adeli: '',
   ages: [] as string[],
+  typesIntervention: '',
+  bilans: '',
+  formations: '',
+  experience: '',
+  modalites: '',
+  tarifs: '',
+  autresInfos: '',
   consentement: false,
   hp: ''
 })
@@ -38,36 +44,21 @@ function toggleAge(age: string) {
   else form.ages.splice(idx, 1)
 }
 
-const editor = useEditor({
-  extensions: [
-    // Depuis Tiptap 3, StarterKit embarque Link et Underline : les déclarer en
-    // plus les enregistrait deux fois.
-    StarterKit.configure({ link: { openOnClick: false } }),
-    TextAlign.configure({ types: ['heading', 'paragraph'] })
-  ],
-  content: '',
-  editorProps: {
-    attributes: {
-      class: 'prose prose-sm max-w-none min-h-[160px] px-4 py-3 outline-none'
-    }
-  }
-})
+const secondLieuOuvert = ref(false)
 
-// L'API mesure le HTML produit par l'éditeur, pas le texte saisi : les balises
-// comptent. On mesure donc la même chose qu'elle, sinon le compteur mentirait.
-const MAX_NOTES = 4000
-const longueurNotes = ref(0)
-const notesTropLongues = computed(() => longueurNotes.value > MAX_NOTES)
-
-watch(editor, (e) => {
-  if (!e) return
-  const maj = () => {
-    const html = e.getHTML()
-    longueurNotes.value = html === '<p></p>' ? 0 : html.length
-  }
-  maj()
-  e.on('update', maj)
-}, { immediate: true })
+// Sept rubriques texte simple, remplaçant l'ancienne note unique en HTML
+// libre (Tiptap) : chaque section a désormais son propre champ, plutôt que
+// de dépendre d'un libellé tapé à la main. Le plafond de chacune correspond
+// à celui vérifié côté API.
+const RUBRIQUES = [
+  { cle: 'typesIntervention', label: 'Types d\'intervention', aide: 'Communication, ABA, TEACCH, guidance parentale…', max: 1500 },
+  { cle: 'bilans', label: 'Bilans', aide: 'ADI-R, ADOS, WISC, bilan de compétences…', max: 1000 },
+  { cle: 'formations', label: 'Formations complémentaires', aide: '', max: 1000 },
+  { cle: 'experience', label: 'Expérience', aide: '', max: 1500 },
+  { cle: 'modalites', label: 'Modalités', aide: 'Cabinet, domicile, téléconsultation, horaires…', max: 800 },
+  { cle: 'tarifs', label: 'Tarifs', aide: '', max: 500 },
+  { cle: 'autresInfos', label: 'Autres informations', aide: 'Tout ce qui ne rentre pas ci-dessus — supervision de structures, parcours, partenariats…', max: 2000 }
+] as const
 
 const loading = ref(false)
 const success = ref(false)
@@ -80,10 +71,6 @@ async function soumettre() {
     error.value = 'Merci de remplir tous les champs obligatoires et cocher le consentement RGPD.'
     return
   }
-  if (notesTropLongues.value) {
-    error.value = `Les informations complémentaires font ${longueurNotes.value} caractères, pour ${MAX_NOTES} au maximum. Merci de raccourcir le texte.`
-    return
-  }
   loading.value = true
   try {
     await suggererPraticien({
@@ -91,9 +78,17 @@ async function soumettre() {
       type: form.type,
       ville: form.ville,
       departement: form.codepostal.substring(0, 2),
+      ville2: secondLieuOuvert.value && form.ville2 ? form.ville2 : null,
+      departement2: secondLieuOuvert.value && form.codepostal2 ? form.codepostal2.substring(0, 2) : null,
       telephone: form.telephone || null,
       site_web: form.site_web || null,
-      notes: editor.value?.getHTML() || null,
+      types_intervention: form.typesIntervention || null,
+      bilans: form.bilans || null,
+      formations: form.formations || null,
+      experience: form.experience || null,
+      modalites: form.modalites || null,
+      tarifs: form.tarifs || null,
+      autres_infos: form.autresInfos || null,
       adeli: form.adeli || null,
       ages: form.ages,
       statut: 'en_attente',
@@ -107,8 +102,6 @@ async function soumettre() {
     loading.value = false
   }
 }
-
-onUnmounted(() => editor.value?.destroy())
 </script>
 
 <template>
@@ -275,6 +268,28 @@ onUnmounted(() => editor.value?.destroy())
               <input id="codepostal" v-model="form.codepostal" type="text" placeholder="33000" maxlength="5" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
             </div>
           </div>
+
+          <button v-if="!secondLieuOuvert" type="button" class="mt-4 text-sm font-semibold text-indigo-600 hover:text-indigo-700 transition-colors" @click="secondLieuOuvert = true">
+            + Ajouter un second lieu
+          </button>
+          <div v-else class="mt-5 pt-5 border-t border-gray-100">
+            <div class="flex items-center justify-between mb-3">
+              <p class="text-sm font-semibold text-gray-700">Second lieu</p>
+              <button type="button" class="text-xs text-gray-500 hover:text-gray-700 transition-colors" @click="secondLieuOuvert = false; form.ville2 = ''; form.codepostal2 = ''">
+                Retirer
+              </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <div>
+                <label for="ville2" class="block text-sm font-semibold text-gray-700 mb-1.5">Ville</label>
+                <input id="ville2" v-model="form.ville2" type="text" placeholder="Étampes" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              </div>
+              <div>
+                <label for="codepostal2" class="block text-sm font-semibold text-gray-700 mb-1.5">Code postal</label>
+                <input id="codepostal2" v-model="form.codepostal2" type="text" placeholder="91150" maxlength="5" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Contact -->
@@ -296,48 +311,28 @@ onUnmounted(() => editor.value?.destroy())
           </div>
         </div>
 
-        <!-- Notes avec Tiptap -->
+        <!-- Notes, en sept rubriques nommées plutôt qu'un seul bloc de texte
+             libre : ça guide la saisie autant que ça la simplifie, et ça évite
+             qu'une information atterrisse sous le mauvais libellé, ou sous
+             aucun. -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
             <span class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-base">📝</span>
-            Notes
+            Informations complémentaires
             <span class="ml-auto text-xs text-gray-500 font-normal">Optionnel</span>
           </h2>
 
-          <div v-if="editor" class="flex flex-wrap gap-1 mb-3 pb-3 border-b border-gray-100">
-            <button type="button" title="Gras" :class="['toolbar-btn', editor.isActive('bold') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleBold().run()">
-              <strong>G</strong>
-            </button>
-            <button type="button" title="Italique" :class="['toolbar-btn', editor.isActive('italic') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleItalic().run()">
-              <em>I</em>
-            </button>
-            <button type="button" title="Souligné" :class="['toolbar-btn', editor.isActive('underline') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleUnderline().run()">
-              <span style="text-decoration:underline">S</span>
-            </button>
-            <span class="w-px bg-gray-200 mx-1" />
-            <button type="button" title="Titre H2" :class="['toolbar-btn font-bold', editor.isActive('heading', { level: 2 }) ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleHeading({ level: 2 }).run()">
-              H2
-            </button>
-            <button type="button" title="Sous-titre H3" :class="['toolbar-btn font-bold', editor.isActive('heading', { level: 3 }) ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleHeading({ level: 3 }).run()">
-              H3
-            </button>
-            <span class="w-px bg-gray-200 mx-1" />
-            <button type="button" title="Liste à puces" :class="['toolbar-btn', editor.isActive('bulletList') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleBulletList().run()">
-              — liste
-            </button>
-            <button type="button" title="Citation" :class="['toolbar-btn', editor.isActive('blockquote') ? 'toolbar-btn-active' : '']" @click="editor!.chain().focus().toggleBlockquote().run()">
-              « »
-            </button>
-          </div>
-
-          <div class="border border-gray-200 rounded-xl overflow-hidden focus-within:border-indigo-400 transition-colors min-h-[180px]">
-            <EditorContent :editor="editor" />
-          </div>
-          <div class="flex items-baseline justify-between gap-3 mt-2">
-            <p class="text-xs text-gray-500">Approche thérapeutique, accessibilité, langues parlées, délai d'attente estimé…</p>
-            <p class="text-xs shrink-0 tabular-nums" :class="notesTropLongues ? 'text-red-600 font-semibold' : 'text-gray-500'">
-              {{ longueurNotes }} / {{ MAX_NOTES }}
-            </p>
+          <div class="space-y-5">
+            <div v-for="r in RUBRIQUES" :key="r.cle">
+              <label :for="r.cle" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ r.label }}</label>
+              <textarea :id="r.cle" v-model="form[r.cle]" rows="3" :maxlength="r.max"
+                class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all resize-y" />
+              <div class="flex items-baseline justify-between gap-3 mt-1.5">
+                <p v-if="r.aide" class="text-xs text-gray-500">{{ r.aide }}</p>
+                <span v-else />
+                <p class="text-xs shrink-0 tabular-nums text-gray-400">{{ form[r.cle].length }} / {{ r.max }}</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -397,30 +392,4 @@ onUnmounted(() => editor.value?.destroy())
   border-left: none;
   transform: translateY(-1px) rotate(45deg);
 }
-
-/* Boutons toolbar TipTap */
-.toolbar-btn {
-  padding: 0.25rem 0.6rem;
-  border-radius: 6px;
-  font-size: 0.85rem;
-  color: #6b7280;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.toolbar-btn:hover { background: #f3f4f6; }
-.toolbar-btn-active { background: #1f2937; color: #ffffff; }
-.toolbar-btn-active:hover { background: #111827; }
-
-/* Contenu éditeur TipTap */
-.prose :deep(p) { margin: 0 0 0.5rem; }
-.prose :deep(ul) { padding-left: 1.25rem; list-style: disc; }
-.prose :deep(strong) { font-weight: 700; }
-.prose :deep(em) { font-style: italic; }
-.prose :deep(u) { text-decoration: underline; }
-.prose :deep(h2) { font-size: 1.1rem; font-weight: 700; margin: 0.75rem 0 0.25rem; }
-.prose :deep(h3) { font-size: 1rem; font-weight: 600; margin: 0.5rem 0 0.25rem; }
-.prose :deep(blockquote) { border-left: 3px solid #d1d5db; padding-left: 0.75rem; color: #6b7280; font-style: italic; margin: 0.5rem 0; }
-.prose :deep(a) { color: #6366f1; text-decoration: underline; }
 </style>

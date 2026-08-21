@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { useEditor, EditorContent } from '@tiptap/vue-3'
-import StarterKit from '@tiptap/starter-kit'
-import TextAlign from '@tiptap/extension-text-align'
 import { TYPES_PRATICIENS, AGES_OPTIONS } from '~/types/index'
 
 definePageMeta({ layout: 'admin' })
@@ -17,13 +14,31 @@ const notice = ref('')
 
 const form = reactive({
   nom: '', type: '', adresse: '', ville: '', departement: '',
+  adresse2: '', ville2: '', departement2: '',
   telephone: '', site_web: '', teleconsultation: false,
-  delai: '', notes: '', ages: [] as string[], adeli: ''
+  delai: '', ages: [] as string[], adeli: '',
+  typesIntervention: '', bilans: '', formations: '', experience: '', modalites: '', tarifs: '', autresInfos: ''
 })
 
 const types = TYPES_PRATICIENS
 const agesOptions = AGES_OPTIONS
 const delais = ['', 'Disponible', 'Quelques semaines', '1 à 3 mois', '3 à 6 mois', 'Plus de 6 mois']
+
+const secondLieuOuvert = ref(false)
+
+// Mêmes sept rubriques et mêmes plafonds que le formulaire public — un seul
+// endroit où ce gabarit est défini serait plus propre, mais suggerer.vue et
+// modifier.vue ne partagent aucun composable aujourd'hui (déjà vrai avant
+// cette bascule, pour l'éditeur Tiptap qu'elle remplace).
+const RUBRIQUES = [
+  { cle: 'typesIntervention', label: 'Types d\'intervention', max: 1500 },
+  { cle: 'bilans', label: 'Bilans', max: 1000 },
+  { cle: 'formations', label: 'Formations complémentaires', max: 1000 },
+  { cle: 'experience', label: 'Expérience', max: 1500 },
+  { cle: 'modalites', label: 'Modalités', max: 800 },
+  { cle: 'tarifs', label: 'Tarifs', max: 500 },
+  { cle: 'autresInfos', label: 'Autres informations', max: 2000 }
+] as const
 
 onMounted(async () => {
   token.value = sessionStorage.getItem('admin_token') || ''
@@ -65,16 +80,25 @@ async function chargerFiche() {
     form.adresse = data.adresse || ''
     form.ville = data.ville || ''
     form.departement = data.departement || ''
+    form.adresse2 = data.adresse2 || ''
+    form.ville2 = data.ville2 || ''
+    form.departement2 = data.departement2 || ''
     form.telephone = data.telephone || ''
     form.site_web = data.site_web || ''
     form.teleconsultation = !!data.teleconsultation
     form.delai = data.delai || ''
-    form.notes = data.notes || ''
     form.ages = data.ages || []
     form.adeli = data.adeli || ''
-    nextTick(() => {
-      editor.value?.commands.setContent(form.notes)
-    })
+    form.typesIntervention = data.types_intervention || ''
+    form.bilans = data.bilans || ''
+    form.formations = data.formations || ''
+    form.experience = data.experience || ''
+    form.modalites = data.modalites || ''
+    form.tarifs = data.tarifs || ''
+    form.autresInfos = data.autres_infos || ''
+    // Pré-ouvert si la fiche a déjà un second lieu, pour que l'admin le voie
+    // tout de suite plutôt que de devoir cliquer pour découvrir qu'il existe.
+    secondLieuOuvert.value = !!(data.ville2 || data.departement2)
   } catch (e) {
     erreur.value = 'Erreur : ' + (e as Error).message
   } finally {
@@ -87,29 +111,6 @@ function toggleAge(age: string) {
   if (idx === -1) form.ages.push(age)
   else form.ages.splice(idx, 1)
 }
-
-const editor = useEditor({
-  extensions: [
-    // Depuis Tiptap 3, StarterKit embarque Link et Underline : les déclarer en
-    // plus les enregistrait deux fois.
-    StarterKit.configure({ link: { openOnClick: false } }),
-    TextAlign.configure({ types: ['heading', 'paragraph'] })
-  ],
-  content: '',
-  editorProps: {
-    attributes: {
-      class: 'prose prose-sm max-w-none min-h-[160px] px-4 py-3 outline-none'
-    }
-  }
-})
-
-function setLink() {
-  const url = prompt('URL du lien :')
-  if (!url) return
-  editor.value?.chain().focus().setLink({ href: url }).run()
-}
-
-onUnmounted(() => editor.value?.destroy())
 
 async function sauvegarder() {
   notice.value = ''
@@ -124,11 +125,20 @@ async function sauvegarder() {
         nom: form.nom, type: form.type, ville: form.ville,
         departement: form.departement.substring(0, 2),
         adresse: form.adresse || null,
+        ville2: secondLieuOuvert.value && form.ville2 ? form.ville2 : null,
+        adresse2: secondLieuOuvert.value && form.adresse2 ? form.adresse2 : null,
+        departement2: secondLieuOuvert.value && form.departement2 ? form.departement2.substring(0, 2) : null,
         telephone: form.telephone || null,
         site_web: form.site_web || null,
         teleconsultation: form.teleconsultation,
         delai: form.delai || null,
-        notes: editor.value?.getHTML() || null,
+        types_intervention: form.typesIntervention || null,
+        bilans: form.bilans || null,
+        formations: form.formations || null,
+        experience: form.experience || null,
+        modalites: form.modalites || null,
+        tarifs: form.tarifs || null,
+        autres_infos: form.autresInfos || null,
         ages: form.ages,
         adeli: form.adeli || null
       })
@@ -227,6 +237,29 @@ async function sauvegarder() {
               <UInput v-model="form.departement" maxlength="5" />
             </UFormField>
           </div>
+
+          <button v-if="!secondLieuOuvert" type="button" class="mt-4 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors" @click="secondLieuOuvert = true">
+            + Ajouter un second lieu
+          </button>
+          <div v-else class="mt-5 pt-4 border-t border-gray-100">
+            <div class="flex items-center justify-between mb-3">
+              <p class="text-sm font-semibold text-gray-700">Second lieu</p>
+              <button type="button" class="text-xs text-gray-500 hover:text-gray-700 transition-colors" @click="secondLieuOuvert = false; form.ville2 = ''; form.adresse2 = ''; form.departement2 = ''">
+                Retirer
+              </button>
+            </div>
+            <UFormField label="Adresse" class="mb-4">
+              <UInput v-model="form.adresse2" />
+            </UFormField>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <UFormField label="Ville">
+                <UInput v-model="form.ville2" />
+              </UFormField>
+              <UFormField label="Département">
+                <UInput v-model="form.departement2" maxlength="5" />
+              </UFormField>
+            </div>
+          </div>
         </UCard>
 
         <!-- Contact & pratique -->
@@ -252,59 +285,17 @@ async function sauvegarder() {
           </label>
         </UCard>
 
-        <!-- Notes -->
+        <!-- Notes : sept champs texte simple plutôt qu'un éditeur riche —
+             chaque rubrique guide sa propre saisie, le libellé du champ
+             devient le libellé affiché sur la fiche publique. -->
         <UCard>
           <h2 class="font-semibold text-gray-900 mb-4 pb-3 border-b border-gray-100">Informations complémentaires</h2>
-          <UFormField label="Notes">
-            <template #description>Approche thérapeutique, langues, accessibilité…</template>
-
-            <!-- Barre d'outils Tiptap -->
-            <div v-if="editor" class="flex flex-wrap gap-1 mb-3 pb-3 border-b border-gray-100">
-              <template v-for="action in [
-                { cmd: () => editor!.chain().focus().toggleBold().run(), active: editor.isActive('bold'), icon: 'i-lucide-bold', title: 'Gras' },
-                { cmd: () => editor!.chain().focus().toggleItalic().run(), active: editor.isActive('italic'), icon: 'i-lucide-italic', title: 'Italique' },
-                { cmd: () => editor!.chain().focus().toggleUnderline().run(), active: editor.isActive('underline'), icon: 'i-lucide-underline', title: 'Souligné' }
-              ]" :key="action.title">
-                <button type="button" :title="action.title" :class="['p-1.5 rounded transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
-                  <UIcon :name="action.icon" class="w-4 h-4" />
-                </button>
-              </template>
-              <span class="w-px bg-gray-200 mx-1" />
-              <template v-for="action in [
-                { cmd: () => editor!.chain().focus().toggleHeading({ level: 2 }).run(), active: editor.isActive('heading', { level: 2 }), label: 'H2', title: 'Titre' },
-                { cmd: () => editor!.chain().focus().toggleHeading({ level: 3 }).run(), active: editor.isActive('heading', { level: 3 }), label: 'H3', title: 'Sous-titre' }
-              ]" :key="action.title">
-                <button type="button" :title="action.title" :class="['px-2 py-1 rounded text-xs font-bold transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
-                  {{ action.label }}
-                </button>
-              </template>
-              <span class="w-px bg-gray-200 mx-1" />
-              <template v-for="action in [
-                { cmd: () => editor!.chain().focus().setTextAlign('left').run(), active: editor.isActive({ textAlign: 'left' }), icon: 'i-lucide-align-left', title: 'Gauche' },
-                { cmd: () => editor!.chain().focus().setTextAlign('center').run(), active: editor.isActive({ textAlign: 'center' }), icon: 'i-lucide-align-center', title: 'Centrer' },
-                { cmd: () => editor!.chain().focus().setTextAlign('right').run(), active: editor.isActive({ textAlign: 'right' }), icon: 'i-lucide-align-right', title: 'Droite' },
-                { cmd: () => editor!.chain().focus().setTextAlign('justify').run(), active: editor.isActive({ textAlign: 'justify' }), icon: 'i-lucide-align-justify', title: 'Justifier' }
-              ]" :key="action.title">
-                <button type="button" :title="action.title" :class="['p-1.5 rounded transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
-                  <UIcon :name="action.icon" class="w-4 h-4" />
-                </button>
-              </template>
-              <span class="w-px bg-gray-200 mx-1" />
-              <template v-for="action in [
-                { cmd: () => editor!.chain().focus().toggleBulletList().run(), active: editor.isActive('bulletList'), icon: 'i-lucide-list', title: 'Liste' },
-                { cmd: () => editor!.chain().focus().toggleBlockquote().run(), active: editor.isActive('blockquote'), icon: 'i-lucide-quote', title: 'Citation' },
-                { cmd: setLink, active: editor.isActive('link'), icon: 'i-lucide-link', title: 'Lien' }
-              ]" :key="action.title">
-                <button type="button" :title="action.title" :class="['p-1.5 rounded transition-colors', action.active ? 'bg-gray-900 text-white' : 'text-gray-500 hover:bg-gray-100']" @click="action.cmd">
-                  <UIcon :name="action.icon" class="w-4 h-4" />
-                </button>
-              </template>
-            </div>
-
-            <div class="border border-gray-200 rounded-lg overflow-hidden focus-within:border-blue-500 transition-colors min-h-[180px]">
-              <EditorContent :editor="editor" />
-            </div>
-          </UFormField>
+          <div class="space-y-4">
+            <UFormField v-for="r in RUBRIQUES" :key="r.cle" :label="r.label">
+              <template #description>{{ form[r.cle].length }} / {{ r.max }}</template>
+              <UTextarea v-model="form[r.cle]" :rows="3" :maxlength="r.max" class="w-full" />
+            </UFormField>
+          </div>
         </UCard>
 
         <!-- Actions -->
