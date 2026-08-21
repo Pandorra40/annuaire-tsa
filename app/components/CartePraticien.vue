@@ -8,10 +8,19 @@
   et une famille qui ne voyait pas la même chose selon son chemin d'arrivée.
 
   Ce qui figure sur la carte répond aux questions qu'on se pose avant de
-  cliquer : est-ce le bon métier, le bon public, le bon endroit, à quel prix,
-  sous quel délai, et surtout — fait-il des bilans, ou seulement du suivi.
-  Cette dernière est la bifurcation la plus décisive du parcours d'une
-  famille, elle mérite sa place ici plutôt qu'au fond d'une fiche.
+  cliquer : est-ce le bon métier, le bon public, le bon endroit, sous quel
+  délai, et surtout — fait-il des bilans, ou seulement du suivi. Cette
+  dernière est la bifurcation la plus décisive du parcours d'une famille, elle
+  mérite sa place ici plutôt qu'au fond d'une fiche.
+
+  Le tarif, lui, n'y figure PAS, alors qu'il en avait l'air un bon candidat.
+  Mesuré sur les 320 fiches publiées, il fait 60 caractères de médiane et
+  jusqu'à 711 : deux tiers dépassent 40 caractères, et une pastille les
+  déforme. Il ne se résume pas davantage, parce qu'un praticien annonce
+  couramment plusieurs prix pour plusieurs actes — « évaluations entre 450 et
+  550 euros, consultations de suivi 60 euros ». N'en montrer qu'un tromperait
+  dans un sens ou dans l'autre. Il reste sur la fiche, où il a la place et son
+  contexte.
 
   Rien n'est affiché sur ce qu'on ignore : une fiche sans information de
   bilans n'affiche pas « non ».
@@ -64,7 +73,6 @@ const delaiCourt = computed(() => {
           <span v-for="age in p.ages" :key="age" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full">{{ age }}</span>
           <span v-if="p.fait_bilans === 1" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">Réalise des bilans</span>
           <span v-if="p.teleconsultation" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full">Téléconsultation</span>
-          <span v-if="p.tarifs" class="px-2.5 py-1 bg-gray-100 text-gray-700 text-xs font-semibold rounded-full tabular-nums">{{ p.tarifs }}</span>
           <span v-if="p.delai" class="px-2.5 py-1 text-xs font-medium rounded-full" :class="delaiCourt ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'">Délai : {{ p.delai }}</span>
         </div>
       </div>

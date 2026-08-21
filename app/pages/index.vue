@@ -155,36 +155,27 @@ function scrollToAnnuaire() {
           </div>
         </div>
 
-        <div class="flex flex-wrap justify-center gap-4">
-          <a href="#annuaire" class="px-8 py-3.5 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-700 transition-colors text-lg inline-flex items-center gap-2">
-            🔍 Rechercher un praticien
-          </a>
-          <NuxtLink to="/suggerer" class="px-8 py-3.5 border border-gray-300 bg-white text-gray-800 font-semibold rounded-xl hover:bg-gray-50 transition-colors text-lg inline-flex items-center gap-2">
-            + Suggérer un praticien
-          </NuxtLink>
+        <!-- La recherche vit DANS le hero : c'est elle le contenu principal.
+             Le bouton « Rechercher » qui redescendait la page disparaît, il
+             n'avait de sens que tant que l'annuaire était plus bas. Le panneau
+             reprend l'alignement à gauche — un formulaire centré se lit mal. -->
+        <div class="max-w-3xl mx-auto text-left">
+          <FiltresPraticiens
+            ref="filtres"
+            v-model:recherche="search"
+            v-model:type="filtreType"
+            v-model:age="filtreAge"
+            v-model:tele="filtreTele"
+            v-model:bilans="filtreBilans"
+            :praticiens="praticiens"
+          />
         </div>
       </div>
     </section>
 
-    <!-- ANNUAIRE -->
-    <section id="annuaire" class="bg-gray-50 py-20">
+    <!-- RÉSULTATS -->
+    <section id="annuaire" class="bg-gray-50 py-10">
       <div class="max-w-4xl mx-auto px-6">
-
-        <div class="text-center mb-10">
-          <span class="text-indigo-600 font-semibold text-sm uppercase tracking-wider">Annuaire</span>
-          <h2 class="text-3xl font-black text-gray-900 mt-2">Trouver un praticien</h2>
-        </div>
-
-        <FiltresPraticiens
-          ref="filtres"
-          v-model:recherche="search"
-          v-model:type="filtreType"
-          v-model:age="filtreAge"
-          v-model:tele="filtreTele"
-          v-model:bilans="filtreBilans"
-          :praticiens="praticiens"
-          class="mb-6"
-        />
 
         <!-- États -->
         <div v-if="enChargement" class="text-center py-16 text-gray-500 text-sm">
