@@ -13,6 +13,7 @@ const form = reactive({
   categorie: '',
   description: '',
   lien: '',
+  contactAuteur: '',
   hp: ''
 })
 
@@ -37,7 +38,8 @@ async function soumettre() {
       annee: form.annee ? parseInt(form.annee) : null,
       categorie: form.categorie || null,
       description: form.description || null,
-      lien: form.lien || null
+      lien: form.lien || null,
+      contact_auteur: form.contactAuteur || null
     })
     success.value = true
   } catch (e) {
@@ -128,6 +130,8 @@ async function soumettre() {
             </div>
           </div>
         </div>
+
+        <ChampContactAuteur v-model="form.contactAuteur" sujet="cette suggestion" />
 
         <input v-model="form.hp" type="text" name="email_confirm" autocomplete="off" aria-hidden="true" style="display:none" tabindex="-1" />
 

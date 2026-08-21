@@ -20,6 +20,7 @@ const form = reactive({
   services: '',
   age_public: '',
   description: '',
+  contactAuteur: '',
   hp: ''
 })
 
@@ -50,6 +51,7 @@ async function soumettre() {
       services: form.services || null,
       age_public: form.age_public || null,
       description: form.description || null,
+      contact_auteur: form.contactAuteur || null,
       hp: form.hp
     })
     success.value = true
@@ -193,6 +195,8 @@ async function soumettre() {
             </div>
           </div>
         </div>
+
+        <ChampContactAuteur v-model="form.contactAuteur" sujet="cette fiche" />
 
         <input v-model="form.hp" type="text" name="email_confirm" autocomplete="off" aria-hidden="true" style="display:none" tabindex="-1" />
 

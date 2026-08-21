@@ -26,6 +26,7 @@ const form = reactive({
   modalites: '',
   tarifs: '',
   autresInfos: '',
+  contactAuteur: '',
   consentement: false,
   hp: ''
 })
@@ -90,6 +91,7 @@ async function soumettre() {
       tarifs: form.tarifs || null,
       autres_infos: form.autresInfos || null,
       adeli: form.adeli || null,
+      contact_auteur: form.contactAuteur || null,
       ages: form.ages,
       statut: 'en_attente',
       source: 'communaute'
@@ -335,6 +337,8 @@ async function soumettre() {
             </div>
           </div>
         </div>
+
+        <ChampContactAuteur v-model="form.contactAuteur" sujet="cette fiche" />
 
         <!-- Honeypot -->
         <input v-model="form.hp" type="text" name="email_confirm" autocomplete="off" aria-hidden="true" style="display:none" tabindex="-1" />

@@ -246,6 +246,7 @@ async function deconnexion() {
             <div class="font-bold text-gray-900">{{ s.titre }}</div>
             <div class="text-sm text-gray-500">{{ s.auteur }}{{ s.annee ? ' · ' + s.annee : '' }}{{ s.categorie ? ' · ' + s.categorie : '' }}</div>
             <div v-if="s.description" class="text-xs text-gray-500 mt-2 p-2 bg-gray-50 rounded">{{ s.description }}</div>
+            <ContactAuteurAdmin :contact="s.contact_auteur" :objet="`votre suggestion — ${s.titre}`" />
             <div v-if="s.lien" class="text-xs mt-1"><a :href="s.lien" target="_blank" class="text-blue-600 hover:underline">{{ s.lien }}</a></div>
             <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100">
               <button type="button" class="px-3 py-1.5 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors" @click="validerSuggestion(s.id)">Valider → Publier</button>

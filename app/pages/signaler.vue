@@ -38,7 +38,8 @@ const RACCOURCIS: Record<string, string> = {
 
 const form = reactive({
   motif: '',
-  details: ''
+  details: '',
+  contactAuteur: ''
 })
 
 // Pour la même raison, le motif est appliqué dès que l'adresse réelle est connue, et
@@ -72,7 +73,12 @@ async function soumettre() {
   try {
     await $fetch(`${config.public.apiBase}/signalements.php`, {
       method: 'POST',
-      body: { praticien_id: id.value, motif: form.motif, detail: form.details || null }
+      body: {
+        praticien_id: id.value,
+        motif: form.motif,
+        detail: form.details || null,
+        contact_auteur: form.contactAuteur || null
+      }
     })
     success.value = true
   } catch (e) {
@@ -165,6 +171,8 @@ async function soumettre() {
             </div>
           </div>
         </div>
+
+        <ChampContactAuteur v-model="form.contactAuteur" sujet="ce signalement" />
 
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <div class="flex justify-end gap-3">

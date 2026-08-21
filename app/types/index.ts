@@ -115,6 +115,10 @@ export interface SuggestionPraticien {
   tarifs?: string | null
   autres_infos?: string | null
   adeli?: string | null
+  // Adresse à laquelle répondre à l'auteur de la contribution. Distincte de
+  // toute adresse publiée : elle ne sert qu'à la correspondance, et n'apparaît
+  // jamais sur une fiche.
+  contact_auteur?: string | null
   ages: string[]
   statut: string
   source: string
@@ -127,6 +131,10 @@ export interface Signalement {
   praticien_nom: string
   motif: string
   detail?: string | null
+  // Adresse à laquelle répondre à l'auteur de la contribution. Distincte de
+  // toute adresse publiée : elle ne sert qu'à la correspondance, et n'apparaît
+  // jamais sur une fiche.
+  contact_auteur?: string | null
   statut: string
   created_at?: string
 }
@@ -153,6 +161,10 @@ export interface SuggestionAssociation {
   services?: string | null
   age_public?: string | null
   description?: string | null
+  // Adresse à laquelle répondre à l'auteur de la contribution. Distincte de
+  // toute adresse publiée : elle ne sert qu'à la correspondance, et n'apparaît
+  // jamais sur une fiche.
+  contact_auteur?: string | null
   hp: string
 }
 
@@ -180,4 +192,8 @@ export interface SuggestionLivre {
   categorie?: string | null
   description?: string | null
   lien?: string | null
+  // Adresse à laquelle répondre à l'auteur de la contribution. Distincte de
+  // toute adresse publiée : elle ne sert qu'à la correspondance, et n'apparaît
+  // jamais sur une fiche.
+  contact_auteur?: string | null
 }

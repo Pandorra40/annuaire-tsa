@@ -148,6 +148,7 @@ async function deconnexion() {
             <div v-if="s.services" class="text-xs text-gray-500 mt-2"><strong>Services :</strong> {{ s.services }}</div>
             <div v-if="s.age_public" class="text-xs text-gray-500 mt-1"><strong>Public :</strong> {{ s.age_public }}</div>
             <div v-if="s.description" class="text-xs text-gray-500 mt-2 p-2 bg-gray-50 rounded whitespace-pre-line">{{ s.description }}</div>
+            <ContactAuteurAdmin :contact="s.contact_auteur" :objet="`votre suggestion — ${s.nom}`" />
             <div class="flex gap-2 mt-3 pt-3 border-t border-gray-100">
               <button type="button" class="px-3 py-1.5 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors" @click="statuer(s.id, 'valide')">Valider → Publier</button>
               <button type="button" class="px-3 py-1.5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="statuer(s.id, 'refuse')">Refuser</button>
