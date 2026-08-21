@@ -10,6 +10,7 @@ const fiches = ref<Praticien[]>([])
 const attente = ref<SuggestionPraticien[]>([])
 const signalements = ref<Signalement[]>([])
 const activeTab = ref('attente')
+const refusees = ref<SuggestionPraticien[]>([])
 const searchPublies = ref('')
 const loading = ref(true)
 const loadError = ref('')
@@ -41,14 +42,16 @@ async function adminFetch(url: string, options: RequestInit = {}) {
 async function charger() {
   loading.value = true
   try {
-    const [p, a, s] = await Promise.all([
+    const [p, a, s, r] = await Promise.all([
       adminFetch('admin_praticiens.php'),
       adminFetch('suggestions.php?statut=en_attente'),
-      adminFetch('signalements.php?statut=ouvert')
+      adminFetch('signalements.php?statut=ouvert'),
+      adminFetch('suggestions.php?statut=refuse')
     ])
     fiches.value = p
     attente.value = a
     signalements.value = s
+    refusees.value = r
   } catch (e) {
     loadError.value = 'Erreur de chargement : ' + ((e as Error).message ?? 'inconnue')
   } finally {
@@ -63,9 +66,57 @@ const alertes = computed(() =>
   publies.value.filter(p => nbSignalements(p.id) >= SEUIL)
 )
 
+// Vues enregistrées sur les fiches publiées.
+//
+// Ce sont les questions qu'on se pose réellement sur l'état du fonds, et pour
+// lesquelles il fallait jusqu'ici sortir du navigateur — outils/verifier-
+// praticiens.py existe précisément parce que ce panneau ne savait pas y
+// répondre. Tout se calcule sur les données déjà chargées : pas de nouvelle
+// route d'API.
+const VUES = [
+  { id: 'toutes', label: 'Toutes', test: () => true },
+  {
+    id: 'sans-contact',
+    label: 'Sans moyen de contact',
+    aide: 'Ni téléphone, ni site, ni formulaire de contact actif. Ces fiches ne mènent nulle part : à compléter ou à retirer.',
+    test: (p: Praticien) => !p.telephone && !p.site_web && !p.contact_actif
+  },
+  {
+    id: 'jamais-confirmee',
+    label: 'Jamais confirmée',
+    aide: 'Aucune famille ne les a encore validées. Ce n\'est pas un défaut en soi, mais un bon point de départ pour une vérification.',
+    test: (p: Praticien) => !p.confirmations
+  },
+  {
+    id: 'sans-identifiant',
+    label: 'Sans identifiant',
+    aide: 'Ni RPPS, ni ADELI, ni SIRET. Vos propres règles d\'admission en font une condition bloquante.',
+    test: (p: Praticien) => !p.adeli
+  },
+  {
+    id: 'bilans-inconnus',
+    label: 'Bilans non renseignés',
+    aide: 'On ignore si ces praticiens réalisent des bilans. Elles restent visibles partout, seulement absentes du filtre correspondant.',
+    test: (p: Praticien) => p.fait_bilans === null || p.fait_bilans === undefined
+  }
+] as const
+
+const vueActive = ref<string>('toutes')
+const vueCourante = computed(() => VUES.find(v => v.id === vueActive.value) ?? VUES[0])
+
+function comptePourVue(vue: typeof VUES[number]) {
+  return publies.value.filter(vue.test).length
+}
+
 const publiesFiltres = computed(() => {
-  const q = searchPublies.value.toLowerCase()
-  return q ? publies.value.filter(p => p.nom.toLowerCase().includes(q) || p.ville.toLowerCase().includes(q)) : publies.value
+  const q = searchPublies.value.toLowerCase().trim()
+  return publies.value
+    .filter(vueCourante.value.test)
+    .filter(p => !q
+      || p.nom.toLowerCase().includes(q)
+      || p.ville.toLowerCase().includes(q)
+      || p.departement.toLowerCase().includes(q)
+      || p.type.toLowerCase().includes(q))
 })
 
 // Aperçu compact des sept rubriques d'une suggestion en attente, sans balise
@@ -95,72 +146,135 @@ function setTab(tab: string) {
   sessionStorage.setItem('admin_tab', tab)
 }
 
-let enCours = false
+// Réactif, contrairement à l'ancien `let` : il empêchait bien le double clic
+// mais ne changeait rien à l'écran — on cliquait « Valider » et rien ne bougeait
+// pendant la requête, sans savoir si le clic avait été pris.
+const enCours = ref(false)
+
+// Bande « annuler » plutôt que boîte de confirmation. Plus rapide dans le cas
+// normal — aucun clic supplémentaire — et plus sûr dans le cas rare, puisque
+// valider et refuser ne se rattrapaient pas du tout jusqu'ici.
+const DUREE_ANNULATION = 8000
+const derniereAction = ref<{ texte: string, retablir: () => Promise<void> } | null>(null)
+let minuteurAnnulation: ReturnType<typeof setTimeout> | null = null
+
+function proposerAnnulation(texte: string, retablir: () => Promise<void>) {
+  if (minuteurAnnulation) clearTimeout(minuteurAnnulation)
+  derniereAction.value = { texte, retablir }
+  minuteurAnnulation = setTimeout(() => {
+    derniereAction.value = null
+  }, DUREE_ANNULATION)
+}
+
+onBeforeUnmount(() => {
+  if (minuteurAnnulation) clearTimeout(minuteurAnnulation)
+})
+
+async function annulerDerniereAction() {
+  const action = derniereAction.value
+  if (!action) return
+  derniereAction.value = null
+  if (minuteurAnnulation) clearTimeout(minuteurAnnulation)
+  await agir(action.retablir)
+}
+
+/**
+ * Exécute une action puis met la liste à jour sur place.
+ *
+ * L'ancien code relançait charger() après chaque validation, chaque refus,
+ * chaque mise en pause : trois appels et les 319 praticiens retéléchargés pour
+ * un seul changement, la liste reconstruite, et la position de défilement
+ * perdue à chaque fois. On ne recharge plus qu'en cas d'échec, pour se
+ * resynchroniser sur ce que le serveur a réellement retenu.
+ */
+async function agir(operation: () => Promise<void>) {
+  if (enCours.value) return
+  enCours.value = true
+  erreurAction.value = ''
+  try {
+    await operation()
+  } catch (e) {
+    erreurAction.value = (e as Error).message
+    await charger()
+  } finally {
+    enCours.value = false
+  }
+}
+
+// Affichée dans la page plutôt qu'en alert() : ces fenêtres bloquent tout,
+// ne se ferment qu'au clic, et coupent le rythme quand on traite une série.
+const erreurAction = ref('')
+
+function retirerDeLAttente(id: number) {
+  const i = attente.value.findIndex(d => d.id === id)
+  if (i !== -1) return attente.value.splice(i, 1)[0]
+  return null
+}
 
 async function valider(id: number) {
-  if (enCours) return
-  enCours = true
-  try {
+  await agir(async () => {
     await adminFetch('suggestions.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'valide' }) })
+    retirerDeLAttente(id)
+    // La fiche créée n'est pas dans la liste locale : c'est le seul cas où un
+    // rechargement se justifie, et il ne coûte rien puisqu'il est unique.
     await charger()
-  } catch (e) {
-    alert('Erreur : ' + (e as Error).message)
-  } finally {
-    enCours = false
-  }
+  })
 }
 
 async function refuser(id: number) {
-  if (enCours) return
-  enCours = true
-  try {
+  const suggestion = attente.value.find(d => d.id === id)
+  const nom = suggestion?.nom ?? 'La suggestion'
+  await agir(async () => {
     await adminFetch('suggestions.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'refuse' }) })
-    await charger()
-  } catch (e) {
-    alert('Erreur : ' + (e as Error).message)
-  } finally {
-    enCours = false
-  }
+    const retiree = retirerDeLAttente(id)
+    if (retiree) refusees.value.unshift(retiree)
+    proposerAnnulation(`${nom} — refusée`, () => remettreEnAttente(id))
+  })
+}
+
+async function remettreEnAttente(id: number) {
+  await adminFetch('suggestions.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'en_attente' }) })
+  const i = refusees.value.findIndex(d => d.id === id)
+  if (i === -1) return
+  const [restauree] = refusees.value.splice(i, 1)
+  if (restauree) attente.value.push(restauree)
+}
+
+async function restaurer(id: number) {
+  await agir(() => remettreEnAttente(id))
 }
 
 async function supprimer(id: number) {
-  if (enCours) return
+  // Seule action réellement irréversible du panneau : elle garde sa
+  // confirmation, là où valider et refuser gagnent à s'annuler après coup.
   if (!confirm('Supprimer définitivement ce praticien ? Cette action est irréversible.')) return
-  enCours = true
-  try {
+  await agir(async () => {
     await adminFetch('admin_praticiens.php?id=' + id, { method: 'DELETE' })
-    await charger()
-  } catch (e) {
-    alert('Erreur : ' + (e as Error).message)
-  } finally {
-    enCours = false
-  }
+    fiches.value = fiches.value.filter(f => f.id !== id)
+  })
 }
 
 async function basculerVisibilite(id: number, statut: string) {
-  if (enCours) return
-  enCours = true
-  try {
+  const fiche = fiches.value.find(f => f.id === id)
+  const ancien = fiche?.statut
+  await agir(async () => {
     await adminFetch('admin_praticiens.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut }) })
-    await charger()
-  } catch (e) {
-    alert('Erreur : ' + (e as Error).message)
-  } finally {
-    enCours = false
-  }
+    if (fiche) fiche.statut = statut
+    proposerAnnulation(
+      statut === 'masquee' ? `${fiche?.nom} — mise en pause` : `${fiche?.nom} — remise en ligne`,
+      async () => {
+        await adminFetch('admin_praticiens.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: ancien }) })
+        if (fiche && ancien) fiche.statut = ancien
+      }
+    )
+  })
 }
 
 async function ignorerSignalement(id: number) {
-  if (enCours) return
-  enCours = true
-  try {
+  await agir(async () => {
     await adminFetch('signalements.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'ignore' }) })
-    await charger()
-  } catch (e) {
-    alert('Erreur : ' + (e as Error).message)
-  } finally {
-    enCours = false
-  }
+    signalements.value = signalements.value.filter(s => s.id !== id)
+  })
 }
 
 async function deconnexion() {
@@ -214,20 +328,38 @@ async function deconnexion() {
 
       <!-- STATS -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">
-        <UCard v-for="stat in [
-          { val: publies.length, label: 'Praticiens publiés', color: 'text-blue-600' },
-          { val: masquees.length, label: 'Fiches en pause', color: 'text-gray-600' },
-          { val: attente.length, label: 'En attente', color: 'text-amber-600' },
-          { val: signalements.length, label: 'Signalements', color: 'text-red-600' },
-          { val: alertes.length, label: 'Alertes', color: 'text-red-700' }
-        ]" :key="stat.label">
-          <div :class="['text-2xl font-bold', stat.color]">{{ stat.val }}</div>
+        <!-- Cliquables : « 3 signalements » affiché sans l'être obligeait à
+             aller chercher l'onglet correspondant à chaque consultation. -->
+        <button
+          v-for="stat in [
+            { tab: 'publies', val: publies.length, label: 'Praticiens publiés', color: 'text-blue-600' },
+            { tab: 'masquees', val: masquees.length, label: 'Fiches en pause', color: 'text-gray-600' },
+            { tab: 'attente', val: attente.length, label: 'En attente', color: 'text-amber-600' },
+            { tab: 'signalements', val: signalements.length, label: 'Signalements', color: 'text-red-600' },
+            { tab: 'alertes', val: alertes.length, label: 'Alertes', color: 'text-red-700' }
+          ]"
+          :key="stat.label"
+          type="button"
+          class="text-left bg-white border rounded-xl px-4 py-3 transition-colors"
+          :class="activeTab === stat.tab ? 'border-gray-900 ring-1 ring-gray-900' : 'border-gray-200 hover:border-gray-400'"
+          :aria-current="activeTab === stat.tab ? 'true' : undefined"
+          @click="setTab(stat.tab)"
+        >
+          <div :class="['text-2xl font-bold tabular-nums', stat.color]">{{ stat.val }}</div>
           <div class="text-xs text-gray-500 mt-1">{{ stat.label }}</div>
-        </UCard>
+        </button>
       </div>
 
       <!-- ERREUR CHARGEMENT -->
       <div v-if="loadError" class="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700 mb-4">⚠️ {{ loadError }}</div>
+
+      <!-- Affichée dans la page plutôt qu'en alert() : une fenêtre modale
+           bloque tout et coupe le rythme quand on traite une série. -->
+      <div v-if="erreurAction" class="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700 mb-4 flex items-start gap-3">
+        <span aria-hidden="true">⚠️</span>
+        <span class="flex-1">L'action a échoué : {{ erreurAction }}. La liste a été rechargée pour refléter ce que le serveur a réellement retenu.</span>
+        <button type="button" class="text-red-500 hover:text-red-700" aria-label="Fermer" @click="erreurAction = ''">×</button>
+      </div>
 
       <!-- CHARGEMENT -->
       <div v-if="loading" class="flex justify-center py-16">
@@ -246,7 +378,8 @@ async function deconnexion() {
               { id: 'publies', label: 'Publiés', count: null },
               { id: 'masquees', label: 'En pause', count: masquees.length },
               { id: 'signalements', label: 'Signalements', count: signalements.length },
-              { id: 'alertes', label: 'Alertes', count: alertes.length }
+              { id: 'alertes', label: 'Alertes', count: alertes.length },
+              { id: 'refusees', label: 'Refusées', count: refusees.length }
             ]"
             :key="tab.id"
             class="px-4 py-2 text-sm font-medium border-b-2 transition-colors -mb-px"
@@ -294,7 +427,25 @@ async function deconnexion() {
 
         <!-- PUBLIÉS -->
         <div v-if="activeTab === 'publies'">
-          <UInput v-model="searchPublies" placeholder="Rechercher un praticien publié…" icon="i-lucide-search" class="mb-4 max-w-md" />
+          <UInput v-model="searchPublies" placeholder="Nom, ville, département, métier…" icon="i-lucide-search" class="mb-4 max-w-md" />
+
+          <div class="flex flex-wrap gap-2 mb-3">
+            <button
+              v-for="v in VUES"
+              :key="v.id"
+              type="button"
+              class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
+              :class="vueActive === v.id ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
+              :aria-pressed="vueActive === v.id"
+              @click="vueActive = v.id"
+            >
+              {{ v.label }} <span class="tabular-nums opacity-60">{{ comptePourVue(v) }}</span>
+            </button>
+          </div>
+
+          <p v-if="'aide' in vueCourante && vueCourante.aide" class="text-sm text-gray-500 mb-4 border-l-4 border-l-gray-300 pl-3">
+            {{ vueCourante.aide }}
+          </p>
           <div v-if="!publiesFiltres.length" class="text-center py-12 text-gray-500">Aucun résultat.</div>
           <div v-else class="space-y-3">
             <UCard v-for="d in publiesFiltres" :key="d.id">
@@ -379,7 +530,38 @@ async function deconnexion() {
           </div>
         </div>
 
+        <!-- REFUSÉES -->
+        <div v-if="activeTab === 'refusees'">
+          <div v-if="!refusees.length" class="text-center py-12 text-gray-500">Aucune suggestion refusée.</div>
+          <div v-else class="space-y-3">
+            <p class="text-sm text-gray-500 mb-4">
+              Ces suggestions ont été écartées mais restent conservées. Un refus
+              par erreur se rattrape ici, sans passer par la base.
+            </p>
+            <UCard v-for="d in refusees" :key="d.id" class="opacity-80">
+              <div class="font-bold text-gray-900">{{ d.nom }}</div>
+              <div class="text-sm text-gray-500">
+                {{ d.type }} · {{ d.ville }} ({{ d.departement }})
+              </div>
+              <ContactAuteurAdmin :contact="d.contact_auteur" :objet="`votre suggestion — ${d.nom}`" />
+              <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100">
+                <button type="button" :disabled="enCours" class="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 disabled:opacity-50 transition-colors" @click="restaurer(d.id)">
+                  Remettre en attente
+                </button>
+              </div>
+            </UCard>
+          </div>
+        </div>
       </template>
+    </div>
+
+    <!-- Bande d'annulation : huit secondes pour revenir sur une action, plutôt
+         qu'une confirmation à chaque fois. -->
+    <div v-if="derniereAction" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-gray-900 text-white rounded-xl shadow-lg px-4 py-3 flex items-center gap-4 text-sm">
+      <span>{{ derniereAction.texte }}</span>
+      <button type="button" class="font-bold bg-white/15 hover:bg-white/25 rounded-lg px-3 py-1 transition-colors" @click="annulerDerniereAction">
+        Annuler
+      </button>
     </div>
   </div>
 </template>
