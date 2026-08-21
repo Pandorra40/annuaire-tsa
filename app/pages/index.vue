@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import type { Praticien } from '~/types/index'
-import { TYPES_PRATICIENS, AGES_OPTIONS } from '~/types/index'
-import { initiales, isNew } from '~/composables/usePraticien'
 
 useSeoMeta({
   title: 'Annuaire TSA / Autisme — Trouvez un spécialiste près de chez vous',
@@ -48,9 +46,20 @@ const search = ref((route.query.q as string) || '')
 const filtreType = ref((route.query.type as string) || 'tous')
 const filtreAge = ref((route.query.age as string) || 'tous')
 const filtreTele = ref((route.query.tele as string) || 'tous')
+const filtreBilans = ref((route.query.bilans as string) || 'tous')
 
-const types = TYPES_PRATICIENS
-const ages = AGES_OPTIONS
+// Chiffres du bandeau d'accueil. Calculés sur les données réelles plutôt
+// qu'écrits en dur : ils répondent à la seule question d'un nouveau visiteur —
+// est-ce que ce site couvre ma région ? Les anciens « 100 % / 0 / ✏️ »
+// occupaient le même emplacement sans rien apprendre.
+const nbDepartements = computed(() => {
+  const vus = new Set<string>()
+  for (const p of praticiens.value) {
+    if (p.departement) vus.add(p.departement)
+    if (p.departement2) vus.add(p.departement2)
+  }
+  return vus.size
+})
 
 const howItWorks = [
   { titre: 'Trouver un spécialiste', desc: 'Recherchez par ville, département ou spécialité. Filtrez selon vos besoins.', emoji: '🔍', bg: 'bg-indigo-50 border-indigo-100', iconBg: 'bg-indigo-100' },
@@ -68,24 +77,14 @@ const specialites = [
 const PAGE_SIZE = 20
 const page = ref(Number(route.query.page) || 1)
 
+// Le filtrage vit dans FiltresPraticiens, qui l'expose : les compteurs de
+// chaque pastille s'en servent déjà, et le dupliquer ici les ferait diverger.
+const filtres = ref<{ passe: (p: Praticien) => boolean } | null>(null)
+
 const praticiensFiltres = computed(() => {
-  const q = normaliserRecherche(search.value).trim()
-  return praticiens.value.filter((p: Praticien) => {
-    // Le second lieu compte autant que le premier : sans ces deux dernières
-    // conditions, chercher « Toulouse » ne remontait pas un praticien dont
-    // c'est la seconde adresse. Le filtre serveur et les pages département
-    // tenaient déjà compte de ville2/departement2, pas cette recherche-ci.
-    const matchQ = !q
-      || normaliserRecherche(p.ville).includes(q)
-      || p.departement.includes(q)
-      || normaliserRecherche(p.nom).includes(q)
-      || normaliserRecherche(p.ville2 ?? '').includes(q)
-      || (p.departement2 ?? '').includes(q)
-    const matchT = filtreType.value === 'tous' || p.type === filtreType.value
-    const matchA = filtreAge.value === 'tous' || p.ages.includes(filtreAge.value)
-    const matchL = filtreTele.value === 'tous' || (filtreTele.value === 'oui' && p.teleconsultation)
-    return matchQ && matchT && matchA && matchL
-  })
+  const test = filtres.value?.passe
+  if (!test) return praticiens.value
+  return praticiens.value.filter(test)
 })
 
 const totalPages = computed(() => Math.ceil(praticiensFiltres.value.length / PAGE_SIZE))
@@ -94,17 +93,18 @@ const pageActuelle = computed(() => Math.min(Math.max(page.value, 1), Math.max(t
 const praticiensPagines = computed(() => praticiensFiltres.value.slice((pageActuelle.value - 1) * PAGE_SIZE, pageActuelle.value * PAGE_SIZE))
 
 // Un changement de filtre revient à la page 1
-watch([search, filtreType, filtreAge, filtreTele], () => {
+watch([search, filtreType, filtreAge, filtreTele, filtreBilans], () => {
   page.value = 1
 })
 
 // Reflète l'état (page + filtres) dans l'URL pour le restaurer au retour navigateur
-watch([search, filtreType, filtreAge, filtreTele, page], () => {
+watch([search, filtreType, filtreAge, filtreTele, filtreBilans, page], () => {
   const query: Record<string, string> = {}
   if (search.value.trim()) query.q = search.value.trim()
   if (filtreType.value !== 'tous') query.type = filtreType.value
   if (filtreAge.value !== 'tous') query.age = filtreAge.value
   if (filtreTele.value !== 'tous') query.tele = filtreTele.value
+  if (filtreBilans.value !== 'tous') query.bilans = filtreBilans.value
   if (page.value > 1) query.page = String(page.value)
   router.replace({ query })
 })
@@ -121,7 +121,7 @@ function scrollToAnnuaire() {
   <div>
 
     <!-- HERO -->
-    <section class="relative overflow-hidden py-24 text-center" style="background: linear-gradient(160deg, #f8f4ff 0%, #f0f9ff 40%, #f0fdf4 70%, #fffbeb 100%)">
+    <section class="relative overflow-hidden py-16 text-center" style="background: linear-gradient(160deg, #f8f4ff 0%, #f0f9ff 40%, #f0fdf4 70%, #fffbeb 100%)">
       <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at 15% 50%, rgba(239,68,68,0.06) 0%, transparent 50%), radial-gradient(ellipse at 85% 30%, rgba(99,102,241,0.07) 0%, transparent 50%), radial-gradient(ellipse at 50% 80%, rgba(74,222,128,0.05) 0%, transparent 50%)" />
       <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #f87171, #fb923c, #fbbf24, #4ade80, #60a5fa, #a78bfa, #f472b6)" />
 
@@ -141,52 +141,27 @@ function scrollToAnnuaire() {
           Psychiatres, psychologues, neuropsychologues, orthophonistes,<br class="hidden sm:block" /> ergothérapeutes et psychomotriciens spécialisés en autisme et TSA.
         </p>
 
+        <!-- Chiffres réels, calculés sur les données. Ils remplacent le bandeau
+             « 100 % / 0 / ✏️ » qui occupait un emplacement de choix avec des
+             valeurs décoratives — dont un crayon présenté comme un chiffre. -->
+        <div class="flex flex-wrap justify-center gap-x-12 gap-y-6 mb-10">
+          <div>
+            <div class="text-3xl font-black text-indigo-700 tabular-nums leading-none">{{ praticiens.length || '—' }}</div>
+            <div class="text-gray-600 text-xs font-semibold uppercase tracking-wider mt-1">Fiches publiées</div>
+          </div>
+          <div>
+            <div class="text-3xl font-black text-indigo-700 tabular-nums leading-none">{{ nbDepartements || '—' }}</div>
+            <div class="text-gray-600 text-xs font-semibold uppercase tracking-wider mt-1">Départements couverts</div>
+          </div>
+        </div>
+
         <div class="flex flex-wrap justify-center gap-4">
           <a href="#annuaire" class="px-8 py-3.5 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-700 transition-colors text-lg inline-flex items-center gap-2">
             🔍 Rechercher un praticien
           </a>
-          <NuxtLink to="/suggerer" class="px-8 py-3.5 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-700 transition-colors text-lg inline-flex items-center gap-2">
+          <NuxtLink to="/suggerer" class="px-8 py-3.5 border border-gray-300 bg-white text-gray-800 font-semibold rounded-xl hover:bg-gray-50 transition-colors text-lg inline-flex items-center gap-2">
             + Suggérer un praticien
           </NuxtLink>
-        </div>
-      </div>
-    </section>
-
-    <!-- STATS -->
-    <section class="py-12 text-white" style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #9333ea 100%)">
-      <div class="max-w-5xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
-        <div>
-          <div class="text-5xl font-black mb-1">100%</div>
-          <div class="text-indigo-200 text-sm font-medium uppercase tracking-wider">Gratuit</div>
-        </div>
-        <div>
-          <div class="text-5xl font-black mb-1">0</div>
-          <div class="text-indigo-200 text-sm font-medium uppercase tracking-wider">Publicité</div>
-        </div>
-        <div>
-          <div class="text-5xl font-black mb-1">✏️</div>
-          <div class="text-indigo-200 text-sm font-medium uppercase tracking-wider">Sans inscription</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- COMMENT ÇA MARCHE -->
-    <section class="bg-white py-20">
-      <div class="max-w-5xl mx-auto px-6">
-        <div class="text-center mb-14">
-          <span class="text-indigo-600 font-semibold text-sm uppercase tracking-wider">Comment ça marche ?</span>
-          <h2 class="text-4xl font-black text-gray-900 mt-3">Un projet fait pour les familles,<br />nourri par les familles.</h2>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div v-for="item in howItWorks" :key="item.titre"
-            class="rounded-2xl p-8 border transition-all duration-300 hover:-translate-y-1 hover:shadow-md cursor-default"
-            :class="item.bg">
-            <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-5 text-2xl" :class="item.iconBg">
-              {{ item.emoji }}
-            </div>
-            <h3 class="font-bold text-gray-900 text-lg mb-2">{{ item.titre }}</h3>
-            <p class="text-gray-700 text-sm leading-relaxed">{{ item.desc }}</p>
-          </div>
         </div>
       </div>
     </section>
@@ -200,62 +175,16 @@ function scrollToAnnuaire() {
           <h2 class="text-3xl font-black text-gray-900 mt-2">Trouver un praticien</h2>
         </div>
 
-        <!-- Barre de recherche + filtres -->
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 mb-6">
-          <div class="relative mb-4">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-base">🔍</span>
-            <input
-              v-model="search"
-              type="search"
-              aria-label="Rechercher un praticien par ville, département ou nom"
-              placeholder="Bordeaux, 33, Dr Dupont…"
-              class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
-            />
-          </div>
-
-          <div class="flex flex-wrap gap-2 mb-3">
-            <button type="button"
-              class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
-              :class="filtreType === 'tous' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
-              @click="filtreType = 'tous'"
-            >Tous</button>
-            <button type="button"
-              v-for="t in types"
-              :key="t"
-              class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
-              :class="filtreType === t ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
-              @click="filtreType = t"
-            >{{ t }}</button>
-          </div>
-
-          <div class="flex flex-wrap gap-2 mb-3">
-            <button type="button"
-              class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
-              :class="filtreAge === 'tous' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
-              @click="filtreAge = 'tous'"
-            >Tous âges</button>
-            <button type="button"
-              v-for="a in ages"
-              :key="a"
-              class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
-              :class="filtreAge === a ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
-              @click="filtreAge = a"
-            >{{ a }}</button>
-          </div>
-
-          <div class="flex flex-wrap gap-2">
-            <button type="button"
-              class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
-              :class="filtreTele === 'tous' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
-              @click="filtreTele = 'tous'"
-            >Présentiel & télé</button>
-            <button type="button"
-              class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
-              :class="filtreTele === 'oui' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
-              @click="filtreTele = 'oui'"
-            >Téléconsultation uniquement</button>
-          </div>
-        </div>
+        <FiltresPraticiens
+          ref="filtres"
+          v-model:recherche="search"
+          v-model:type="filtreType"
+          v-model:age="filtreAge"
+          v-model:tele="filtreTele"
+          v-model:bilans="filtreBilans"
+          :praticiens="praticiens"
+          class="mb-6"
+        />
 
         <!-- États -->
         <div v-if="enChargement" class="text-center py-16 text-gray-500 text-sm">
@@ -277,41 +206,7 @@ function scrollToAnnuaire() {
           </div>
 
           <div v-else class="space-y-3">
-            <NuxtLink
-              v-for="p in praticiensPagines"
-              :key="p.id"
-              :to="`/praticien/${p.id}`"
-              class="block bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-indigo-200 hover:-translate-y-0.5 transition-all duration-200 p-6"
-            >
-              <div class="flex items-start gap-5">
-                <div class="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-white text-base shrink-0" style="background: linear-gradient(135deg, #6366f1, #8b5cf6)">
-                  {{ initiales(p.nom) }}
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2 flex-wrap mb-1">
-                    <span class="font-black text-gray-900 text-lg">{{ p.nom }}</span>
-                    <span v-if="isNew(p.created_at)" class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">● Nouveau</span>
-                  </div>
-                  <p class="text-gray-700 text-sm mb-3">{{ p.type }} · {{ p.ville }} ({{ p.departement }})</p>
-                  <div class="flex flex-wrap gap-1.5">
-                    <span v-for="age in p.ages" :key="age" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full">{{ age }}</span>
-                    <span v-if="p.teleconsultation" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full">Téléconsultation</span>
-                    <span v-if="p.delai" class="px-2.5 py-1 text-xs font-medium rounded-full" :class="p.delai === 'Disponible' ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'">Délai : {{ p.delai }}</span>
-                  </div>
-                </div>
-                <div class="hidden sm:flex flex-col items-end gap-2 shrink-0">
-                  <button type="button" class="text-xs font-bold bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg hover:bg-gray-200 transition-colors" @click.prevent.stop="navigateTo(`/departement/${p.departement}`)">Dép. {{ p.departement }}</button>
-                  <span v-if="p.confirmations > 0" class="text-xs text-emerald-700 font-medium">✓ {{ p.confirmations }} confirmation{{ p.confirmations > 1 ? 's' : '' }}</span>
-                </div>
-              </div>
-              <div class="border-t border-gray-100 mt-5 pt-4 flex items-center justify-between">
-                <span v-if="p.telephone" class="text-sm font-semibold text-indigo-600 flex items-center gap-1.5">
-                  📞 {{ p.telephone }}
-                </span>
-                <span v-else class="text-sm text-gray-600">Téléphone non renseigné</span>
-                <span class="text-xs text-gray-600">Voir la fiche →</span>
-              </div>
-            </NuxtLink>
+            <CartePraticien v-for="p in praticiensPagines" :key="p.id" :praticien="p" />
           </div>
 
           <!-- PAGINATION -->
@@ -339,6 +234,27 @@ function scrollToAnnuaire() {
             >Suivant →</button>
           </div>
         </template>
+      </div>
+    </section>
+
+    <!-- COMMENT ÇA MARCHE -->
+    <section class="bg-white py-20">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="text-center mb-14">
+          <span class="text-indigo-600 font-semibold text-sm uppercase tracking-wider">Comment ça marche ?</span>
+          <h2 class="text-4xl font-black text-gray-900 mt-3">Un projet fait pour les familles,<br />nourri par les familles.</h2>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div v-for="item in howItWorks" :key="item.titre"
+            class="rounded-2xl p-8 border transition-all duration-300 hover:-translate-y-1 hover:shadow-md cursor-default"
+            :class="item.bg">
+            <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-5 text-2xl" :class="item.iconBg">
+              {{ item.emoji }}
+            </div>
+            <h3 class="font-bold text-gray-900 text-lg mb-2">{{ item.titre }}</h3>
+            <p class="text-gray-700 text-sm leading-relaxed">{{ item.desc }}</p>
+          </div>
+        </div>
       </div>
     </section>
 

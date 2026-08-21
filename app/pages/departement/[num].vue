@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Praticien } from '~/types/index'
-import { initiales } from '~/composables/usePraticien'
 
 const route = useRoute()
 const num = route.params.num as string
@@ -66,6 +65,82 @@ const praticiens = computed<Praticien[]>(() =>
     || p.departement2 === num.toUpperCase() || p.departement2 === num
   )
 )
+
+// Mêmes filtres que sur l'accueil. Cette page était la seule liste du site
+// sans aucun moyen de se réduire, alors qu'on y atterrit depuis une fiche.
+const recherche = ref('')
+const filtreType = ref('tous')
+const filtreAge = ref('tous')
+const filtreTele = ref('tous')
+const filtreBilans = ref('tous')
+
+const filtres = ref<{ passe: (p: Praticien) => boolean } | null>(null)
+
+const praticiensFiltres = computed(() => {
+  const test = filtres.value?.passe
+  if (!test) return praticiens.value
+  return praticiens.value.filter(test)
+})
+
+// Départements limitrophes, pour qu'un département vide cesse d'être un
+// cul-de-sac. Vingt kilomètres pèsent plus qu'une frontière administrative
+// quand on cherche un rendez-vous — et la liste est celle des voisins réels,
+// pas des numéros voisins : le 01 ne touche pas le 02.
+const LIMITROPHES: Record<string, string[]> = {
+  '01': ['39', '71', '69', '38', '73', '74'], '02': ['59', '60', '77', '51', '08', '80'],
+  '03': ['18', '58', '71', '42', '63', '23'], '04': ['05', '26', '84', '83', '06'],
+  '05': ['38', '73', '26', '04'], '06': ['04', '83'],
+  '07': ['26', '38', '42', '43', '48', '30', '84'], '08': ['02', '51', '55'],
+  '09': ['31', '11', '66'], '10': ['77', '51', '52', '21', '89'],
+  '11': ['09', '31', '81', '34', '66'], '12': ['46', '15', '48', '30', '34', '81', '82'],
+  '13': ['84', '83', '30'], '14': ['50', '61', '27', '76'],
+  '15': ['19', '63', '43', '48', '12', '46'], '16': ['79', '86', '87', '24', '17'],
+  '17': ['85', '79', '16', '24', '33'], '18': ['41', '45', '58', '03', '23', '36'],
+  '19': ['23', '87', '24', '46', '15', '63'], '21': ['89', '10', '52', '70', '39', '71', '58'],
+  '22': ['29', '56', '35'], '23': ['18', '36', '87', '19', '63', '03'],
+  '24': ['16', '87', '19', '46', '47', '33'], '25': ['70', '39', '90'],
+  '26': ['38', '05', '84', '30', '07'], '27': ['76', '60', '95', '78', '28', '61', '14'],
+  '28': ['27', '78', '91', '45', '41', '72', '61'], '29': ['22', '56'],
+  '2A': ['2B'], '2B': ['2A'],
+  '30': ['07', '48', '12', '34', '13', '84'], '31': ['65', '32', '82', '81', '11', '09'],
+  '32': ['40', '47', '82', '31', '65', '64'], '33': ['17', '24', '47', '40'],
+  '34': ['12', '30', '11', '81'], '35': ['22', '56', '44', '49', '53', '50'],
+  '36': ['37', '41', '18', '23', '87', '86'], '37': ['72', '41', '36', '86', '49'],
+  '38': ['01', '73', '05', '26', '07', '42', '69'], '39': ['25', '70', '21', '71', '01'],
+  '40': ['33', '47', '32', '64'], '41': ['28', '45', '18', '36', '37', '72'],
+  '42': ['71', '03', '63', '43', '07', '38', '69'], '43': ['63', '42', '07', '48', '15'],
+  '44': ['35', '56', '49', '85'], '45': ['77', '89', '58', '18', '41', '28', '91'],
+  '46': ['24', '19', '15', '12', '82', '47'], '47': ['33', '24', '46', '82', '32', '40'],
+  '48': ['43', '07', '30', '34', '12', '15'], '49': ['44', '35', '53', '72', '37', '86', '79', '85'],
+  '50': ['14', '61', '35'], '51': ['02', '08', '55', '52', '10', '77'],
+  '52': ['51', '55', '88', '70', '21', '10'], '53': ['35', '50', '61', '72', '49'],
+  '54': ['55', '57', '88'], '55': ['08', '51', '52', '88', '54'],
+  '56': ['29', '22', '35', '44'], '57': ['54', '67', '88'],
+  '58': ['45', '89', '21', '71', '03', '18'], '59': ['62', '02'],
+  '60': ['80', '02', '77', '95', '27', '76'], '61': ['50', '14', '27', '28', '72', '53'],
+  '62': ['59', '80'], '63': ['03', '42', '43', '15', '19', '23'],
+  '64': ['40', '32', '65'], '65': ['64', '32', '31'],
+  '66': ['09', '11'], '67': ['57', '88', '68'], '68': ['67', '88', '90'],
+  '69': ['01', '38', '42', '71'], '70': ['52', '88', '90', '25', '39', '21'],
+  '71': ['21', '39', '01', '69', '42', '03', '58'], '72': ['61', '28', '41', '37', '49', '53'],
+  '73': ['74', '01', '38', '05'], '74': ['01', '73'],
+  '75': ['92', '93', '94'], '76': ['80', '60', '27', '14'],
+  '77': ['02', '51', '10', '89', '45', '91', '94', '93', '95', '60'],
+  '78': ['95', '92', '91', '28', '27'], '79': ['85', '49', '86', '16', '17'],
+  '80': ['62', '02', '60', '76'], '81': ['12', '34', '11', '31', '82'],
+  '82': ['46', '12', '81', '31', '32', '47'], '83': ['13', '84', '04', '06'],
+  '84': ['26', '04', '83', '13', '30'], '85': ['44', '49', '79', '17'],
+  '86': ['49', '37', '36', '87', '16', '79'], '87': ['86', '36', '23', '19', '24', '16'],
+  '88': ['52', '55', '54', '57', '67', '68', '90', '70'], '89': ['77', '10', '21', '58', '45'],
+  '90': ['70', '88', '68', '25'], '91': ['78', '92', '94', '77', '45', '28'],
+  '92': ['95', '78', '91', '94', '75', '93'], '93': ['95', '77', '94', '75', '92'],
+  '94': ['93', '77', '91', '92', '75'], '95': ['60', '77', '93', '92', '78', '27']
+}
+
+const voisins = computed(() =>
+  (LIMITROPHES[num.toUpperCase()] ?? [])
+    .map(n => ({ num: n, nom: DEPARTEMENTS[n] ?? n }))
+)
 </script>
 
 <template>
@@ -100,46 +175,61 @@ const praticiens = computed<Praticien[]>(() =>
         </div>
 
         <template v-else>
+          <FiltresPraticiens
+            ref="filtres"
+            v-model:recherche="recherche"
+            v-model:type="filtreType"
+            v-model:age="filtreAge"
+            v-model:tele="filtreTele"
+            v-model:bilans="filtreBilans"
+            :praticiens="praticiens"
+            :placeholder="`Un nom, une ville du ${num}…`"
+            class="mb-6"
+          />
+
           <p class="text-sm font-semibold text-gray-500 mb-4 px-2">
-            {{ praticiens.length }} praticien{{ praticiens.length > 1 ? 's' : '' }} trouvé{{ praticiens.length > 1 ? 's' : '' }}
+            {{ praticiensFiltres.length }} praticien{{ praticiensFiltres.length > 1 ? 's' : '' }} trouvé{{ praticiensFiltres.length > 1 ? 's' : '' }}
+            <span v-if="praticiensFiltres.length !== praticiens.length" class="font-normal text-gray-400">
+              sur {{ praticiens.length }} dans le département
+            </span>
           </p>
 
-          <div v-if="praticiens.length === 0" class="text-center py-16">
-            <div class="text-gray-500 mb-4">Aucun praticien référencé dans ce département pour le moment.</div>
+          <div v-if="praticiensFiltres.length === 0" class="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
+            <p class="text-gray-600 mb-2 font-medium">
+              {{ praticiens.length ? 'Aucun praticien ne correspond à ces critères.' : 'Aucun praticien référencé dans ce département pour le moment.' }}
+            </p>
+            <p v-if="voisins.length" class="text-sm text-gray-500 mb-4">Essayez un département limitrophe :</p>
+            <div v-if="voisins.length" class="flex flex-wrap gap-2 justify-center px-6 mb-6">
+              <NuxtLink
+                v-for="v in voisins"
+                :key="v.num"
+                :to="`/departement/${v.num}`"
+                class="px-3 py-1.5 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-full text-sm font-semibold hover:bg-indigo-100 transition-colors"
+              >{{ v.nom }} ({{ v.num }})</NuxtLink>
+            </div>
             <NuxtLink to="/suggerer" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors">
               Suggérer un praticien →
             </NuxtLink>
           </div>
 
           <div v-else class="space-y-3">
-            <NuxtLink
-              v-for="p in praticiens"
-              :key="p.id"
-              :to="`/praticien/${p.id}`"
-              class="block bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-indigo-200 hover:-translate-y-0.5 transition-all duration-200 p-6"
-            >
-              <div class="flex items-start gap-5">
-                <div class="w-14 h-14 rounded-2xl flex items-center justify-center font-black text-white text-base shrink-0" style="background: linear-gradient(135deg, #6366f1, #8b5cf6)">
-                  {{ initiales(p.nom) }}
-                </div>
-                <div class="flex-1 min-w-0">
-                  <div class="font-black text-gray-900 text-lg mb-1">{{ p.nom }}</div>
-                  <p class="text-gray-500 text-sm mb-3">{{ p.type }} · {{ p.ville }}</p>
-                  <div class="flex flex-wrap gap-1.5">
-                    <span v-for="age in p.ages" :key="age" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full">{{ age }}</span>
-                    <span v-if="p.teleconsultation" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full">Téléconsultation</span>
-                  </div>
-                </div>
-              </div>
-              <div class="border-t border-gray-100 mt-5 pt-4 flex items-center justify-between">
-                <span v-if="p.telephone" class="text-sm font-semibold text-indigo-600 flex items-center gap-1.5">
-                  📞 {{ p.telephone }}
-                </span>
-                <span v-else class="text-sm text-gray-500">Téléphone non renseigné</span>
-                <span v-if="p.confirmations > 0" class="text-xs text-emerald-600 font-medium">✓ {{ p.confirmations }} confirmation{{ p.confirmations > 1 ? 's' : '' }}</span>
-              </div>
-            </NuxtLink>
+            <CartePraticien v-for="p in praticiensFiltres" :key="p.id" :praticien="p" masquer-departement />
           </div>
+
+          <!-- Affichés même quand la liste est pleine : chercher plus loin est
+               souvent le bon réflexe, pas seulement un dernier recours. -->
+          <div v-if="praticiensFiltres.length && voisins.length" class="mt-10 pt-6 border-t border-gray-200">
+            <p class="text-sm font-semibold text-gray-500 mb-3">Départements limitrophes</p>
+            <div class="flex flex-wrap gap-2">
+              <NuxtLink
+                v-for="v in voisins"
+                :key="v.num"
+                :to="`/departement/${v.num}`"
+                class="px-3 py-1.5 bg-white border border-gray-200 text-gray-600 rounded-full text-sm hover:border-gray-400 transition-colors"
+              >{{ v.nom }} <span class="tabular-nums text-gray-400">{{ v.num }}</span></NuxtLink>
+            </div>
+          </div>
+
         </template>
       </div>
     </section>
