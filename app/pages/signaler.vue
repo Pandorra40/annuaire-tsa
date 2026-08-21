@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { MOTIF_RETRAIT } from '~/types/index'
+import type { Praticien } from '~/types/index'
 
 useSeoMeta({
   title: 'Signaler une erreur — Annuaire TSA'
@@ -42,6 +43,81 @@ const form = reactive({
   contactAuteur: ''
 })
 
+// La fiche visée, pour afficher la valeur actuelle en face de chaque correction.
+// `server: false` est justifié ici, contrairement aux pages de liste : au build
+// l'identifiant n'existe pas encore, il arrive par la barre d'adresse.
+const { fetchPraticien } = useApi()
+const { data: ficheChargee } = await useAsyncData(
+  () => `signaler-fiche-${id.value || 'aucune'}`,
+  () => (id.value ? fetchPraticien(Number(id.value)) : Promise.resolve(null)),
+  { watch: [id], server: false }
+)
+const fiche = computed<Praticien | null>(() => ficheChargee.value?.[0] ?? null)
+
+// Les rubriques corrigeables reprennent exactement les champs de la fiche.
+// C'est le cœur du correctif : un signalement « TARIF MODIFIÉ » sans le
+// nouveau tarif devient impossible à produire, parce que cocher une rubrique
+// ouvre le champ qui doit la remplacer.
+const CHAMPS_CORRIGEABLES = [
+  { cle: 'tarifs', label: 'Tarifs', lignes: 1 },
+  { cle: 'types_intervention', label: 'Types d\'intervention', lignes: 3 },
+  { cle: 'bilans', label: 'Bilans', lignes: 2 },
+  { cle: 'formations', label: 'Formations complémentaires', lignes: 2 },
+  { cle: 'experience', label: 'Expérience', lignes: 2 },
+  { cle: 'modalites', label: 'Modalités', lignes: 2 },
+  { cle: 'autres_infos', label: 'Autres informations', lignes: 3 },
+  { cle: 'adresse', label: 'Adresse', lignes: 1 },
+  { cle: 'ville', label: 'Ville', lignes: 1 },
+  { cle: 'telephone', label: 'Téléphone', lignes: 1 },
+  { cle: 'site_web', label: 'Site web ou prise de rendez-vous', lignes: 1 }
+] as const
+
+type CleChamp = typeof CHAMPS_CORRIGEABLES[number]['cle']
+
+const champsCoches = ref<CleChamp[]>([])
+const corrections = reactive<Record<string, string>>({})
+
+function basculerChamp(cle: CleChamp) {
+  const i = champsCoches.value.indexOf(cle)
+  if (i === -1) {
+    champsCoches.value.push(cle)
+  } else {
+    champsCoches.value.splice(i, 1)
+    // La saisie est vidée avec la case : garder une valeur pour une rubrique
+    // décochée l'enverrait sans que personne ne l'ait voulu. Vidée et non
+    // supprimée — `releveDesCorrections` ne parcourt que les cases cochées, et
+    // effacer une clé dynamique n'apporte rien qu'une chaîne vide ne fasse.
+    corrections[cle] = ''
+  }
+}
+
+function valeurActuelle(cle: CleChamp): string {
+  const valeur = fiche.value?.[cle as keyof Praticien]
+  const texte = typeof valeur === 'string' ? valeur.trim() : ''
+  return texte || 'Non renseigné'
+}
+
+const champsIncomplets = computed(() =>
+  champsCoches.value.filter(cle => !(corrections[cle] ?? '').trim())
+)
+
+const pretAEnvoyer = computed(() =>
+  champsCoches.value.length > 0 && champsIncomplets.value.length === 0
+)
+
+// Le relevé envoyé à l'admin : rubrique, valeur en ligne, valeur proposée.
+// Composé côté client plutôt que stocké en colonnes séparées — trois fiches
+// sur mille sont concernées à la fois, une table dédiée serait hors de
+// proportion, et le texte reste lisible tel quel dans l'administration.
+function releveDesCorrections(): string {
+  return champsCoches.value
+    .map((cle) => {
+      const label = CHAMPS_CORRIGEABLES.find(c => c.cle === cle)?.label ?? cle
+      return `${label}\n  actuel  : ${valeurActuelle(cle)}\n  corrigé : ${corrections[cle]?.trim()}`
+    })
+    .join('\n\n')
+}
+
 // Pour la même raison, le motif est appliqué dès que l'adresse réelle est connue, et
 // une seule fois : un choix déjà fait par le visiteur ne doit pas être écrasé.
 watch(() => route.query.motif, (valeur) => {
@@ -62,13 +138,33 @@ async function soumettre() {
     error.value = 'Merci de sélectionner un motif.'
     return
   }
-  // Un signalement sans explication n'est pas exploitable : il faut réécrire au praticien
-  // pour savoir quoi corriger. Seule la demande de retrait en est dispensée — exiger une
-  // justification pour une opposition serait contraire à l'article 21 du RGPD.
-  if (!demandeRetrait.value && form.details.trim().length < 10) {
+
+  // Une demande de correction passe par les rubriques, pas par un champ libre :
+  // c'est ce qui empêche un signalement du type « TARIF MODIFIÉ » sans le
+  // nouveau tarif — reçu le 21 août, et resté sans suite possible.
+  if (demandeCorrection.value) {
+    if (!champsCoches.value.length) {
+      error.value = 'Cochez au moins une rubrique à corriger.'
+      return
+    }
+    if (champsIncomplets.value.length) {
+      error.value = 'Indiquez la nouvelle valeur de chaque rubrique cochée : sans elle, la correction ne peut pas être appliquée.'
+      return
+    }
+  } else if (!demandeRetrait.value && form.details.trim().length < 10) {
+    // Les autres motifs gardent le champ libre. Seule la demande de retrait en
+    // est dispensée — exiger une justification pour une opposition serait
+    // contraire à l'article 21 du RGPD.
     error.value = 'Merci de décrire ce qui est inexact, et si possible la bonne information.'
     return
   }
+
+  // Le commentaire libre reste possible en plus des rubriques, pour le contexte
+  // qu'aucune case ne couvre.
+  const detail = demandeCorrection.value
+    ? [releveDesCorrections(), form.details.trim()].filter(Boolean).join('\n\n———\n')
+    : form.details.trim()
+
   loading.value = true
   try {
     await $fetch(`${config.public.apiBase}/signalements.php`, {
@@ -76,7 +172,7 @@ async function soumettre() {
       body: {
         praticien_id: id.value,
         motif: form.motif,
-        detail: form.details || null,
+        detail: detail || null,
         contact_auteur: form.contactAuteur || null
       }
     })
@@ -162,7 +258,67 @@ async function soumettre() {
               <a href="mailto:annuaire.tsa@gmail.com?subject=Correction%20de%20ma%20fiche" class="font-semibold underline">annuaire.tsa@gmail.com</a>
             </div>
 
-            <div>
+            <!-- CORRECTION : par rubriques, avec la valeur actuelle en face.
+                 Cocher une rubrique ouvre le champ qui doit la remplacer, et
+                 l'envoi reste bloqué tant qu'il est vide : un signalement qui
+                 dit ce qui est faux sans dire ce qu'il faut mettre à la place
+                 n'est plus possible à produire. -->
+            <div v-if="demandeCorrection">
+              <span class="block text-sm font-semibold text-gray-700 mb-2">Qu'est-ce qui doit changer ? *</span>
+              <div class="flex flex-wrap gap-2">
+                <button
+                  v-for="c in CHAMPS_CORRIGEABLES"
+                  :key="c.cle"
+                  type="button"
+                  :aria-pressed="champsCoches.includes(c.cle)"
+                  class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
+                  :class="champsCoches.includes(c.cle)
+                    ? 'bg-gray-900 text-white border-gray-900'
+                    : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
+                  @click="basculerChamp(c.cle)"
+                >{{ c.label }}</button>
+              </div>
+
+              <p v-if="!champsCoches.length" class="text-xs text-gray-500 mt-3 italic">
+                Cochez au moins une rubrique — les champs à corriger apparaîtront ici.
+              </p>
+
+              <div v-else class="mt-4 space-y-3">
+                <div v-for="cle in champsCoches" :key="cle" class="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
+                  <p class="text-sm font-semibold text-indigo-900 mb-3">
+                    {{ CHAMPS_CORRIGEABLES.find(c => c.cle === cle)?.label }}
+                  </p>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <span class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">Actuellement sur la fiche</span>
+                      <p class="bg-white border border-dashed border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-600 whitespace-pre-line">{{ valeurActuelle(cle) }}</p>
+                    </div>
+                    <div>
+                      <label :for="`corr-${cle}`" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
+                        Nouvelle valeur <span class="text-red-600">*</span>
+                      </label>
+                      <textarea
+                        :id="`corr-${cle}`"
+                        v-model="corrections[cle]"
+                        :rows="CHAMPS_CORRIGEABLES.find(c => c.cle === cle)?.lignes ?? 2"
+                        placeholder="La bonne information…"
+                        class="w-full border border-indigo-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 bg-white text-gray-900 resize-vertical"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <label for="details" class="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Autre chose à signaler ? <span class="text-gray-500 font-normal">(optionnel)</span>
+                </label>
+                <textarea id="details" v-model="form.details" rows="2" placeholder="Le contexte qu'aucune rubrique ci-dessus ne couvre." class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
+              </div>
+            </div>
+
+            <!-- AUTRES MOTIFS : le champ libre reste la bonne réponse. -->
+            <div v-else>
               <label for="details" class="block text-sm font-semibold text-gray-700 mb-1.5">
                 Détails <span v-if="!demandeRetrait">*</span>
                 <span v-else class="text-gray-500 font-normal">(optionnel)</span>
@@ -175,7 +331,21 @@ async function soumettre() {
         <ChampContactAuteur v-model="form.contactAuteur" sujet="ce signalement" />
 
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-          <div class="flex justify-end gap-3">
+          <div class="flex flex-wrap items-center justify-end gap-3">
+            <!-- L'état est annoncé avant le clic, pas découvert après : c'est ce
+                 qui rend la règle compréhensible plutôt que frustrante. -->
+            <p v-if="demandeCorrection" class="text-sm mr-auto" :class="pretAEnvoyer ? 'text-emerald-700 font-medium' : 'text-gray-500'">
+              <template v-if="!champsCoches.length">Cochez une rubrique pour pouvoir envoyer.</template>
+              <template v-else-if="champsIncomplets.length">
+                {{ champsIncomplets.length }}
+                {{ champsIncomplets.length > 1 ? 'rubriques attendent' : 'rubrique attend' }}
+                encore sa nouvelle valeur.
+              </template>
+              <template v-else>
+                ✓ {{ champsCoches.length }}
+                {{ champsCoches.length > 1 ? 'corrections prêtes' : 'correction prête' }} à envoyer.
+              </template>
+            </p>
             <NuxtLink :to="retour" class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
               Annuler
             </NuxtLink>
