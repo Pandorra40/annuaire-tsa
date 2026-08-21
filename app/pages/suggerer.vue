@@ -27,6 +27,7 @@ const form = reactive({
   tarifs: '',
   autresInfos: '',
   faitBilans: false,
+  ceQueJeSais: '',
   contactAuteur: '',
   consentement: false,
   hp: ''
@@ -39,6 +40,20 @@ const agesOptions = AGES_OPTIONS
 // qui identifie un professionnel. On lui demande son SIRET ou son FINESS, tout
 // aussi vérifiables et publics.
 const estStructure = computed(() => form.type === 'Structure')
+
+// Qui remplit ? C'est le nœud de cette page. Un parent connaît le nom, la
+// ville et la spécialité — la page d'accueil le lui promet — mais ni les
+// tarifs, ni les formations, ni le parcours. Lui présenter les sept rubriques
+// détaillées d'un praticien, c'est démentir cette promesse et récolter au
+// mieux des approximations.
+const role = ref<'famille' | 'praticien'>('famille')
+const estPraticien = computed(() => role.value === 'praticien')
+
+// Le libellé du premier champ suit le type choisi. Le formulaire savait déjà
+// faire cette distinction pour le numéro d'identifiant ; elle n'avait pas été
+// étendue au nom, qui proposait « Dr Marie Dupont » même pour une structure.
+const labelNom = computed(() => estStructure.value ? 'Nom de la structure *' : 'Nom et prénom *')
+const exempleNom = computed(() => estStructure.value ? 'Institut Mentis Portae' : 'Dr Marie Dupont')
 
 function toggleAge(age: string) {
   const idx = form.ages.indexOf(age)
@@ -84,13 +99,17 @@ async function soumettre() {
       departement2: secondLieuOuvert.value && form.codepostal2 ? departementDepuisSaisie(form.codepostal2) : null,
       telephone: form.telephone || null,
       site_web: form.site_web || null,
-      types_intervention: form.typesIntervention || null,
-      bilans: form.bilans || null,
-      formations: form.formations || null,
-      experience: form.experience || null,
-      modalites: form.modalites || null,
-      tarifs: form.tarifs || null,
-      autres_infos: form.autresInfos || null,
+      types_intervention: (estPraticien.value && form.typesIntervention) || null,
+      bilans: (estPraticien.value && form.bilans) || null,
+      formations: (estPraticien.value && form.formations) || null,
+      experience: (estPraticien.value && form.experience) || null,
+      modalites: (estPraticien.value && form.modalites) || null,
+      tarifs: (estPraticien.value && form.tarifs) || null,
+      // Ce qu'un proche sait de la pratique rejoint « autres informations » :
+      // c'est le fourre-tout prévu pour ce qui ne relève d'aucune rubrique
+      // précise, et il est plus honnête d'y mettre un témoignage que de le
+      // ranger sous « Types d'intervention » comme s'il était vérifié.
+      autres_infos: (estPraticien.value ? form.autresInfos : form.ceQueJeSais) || null,
       adeli: form.adeli || null,
       // Case décochée : on envoie null, « on ne sait pas », et surtout pas 0.
       // Un tiers de bonne foi ne peut pas affirmer qu'un praticien ne fait pas
@@ -155,49 +174,79 @@ async function soumettre() {
              plus souvent un parent, et que le champ de l'identifiant lui reste
              facultatif : la page d'accueil promet que le nom, la ville et la spécialité
              suffisent. -->
-        <section class="bg-white rounded-2xl border-2 border-gray-900 shadow-sm p-6" aria-labelledby="regles-admission">
-          <h2 id="regles-admission" class="font-black text-gray-900 text-lg mb-1 flex items-center gap-2">
-            <span aria-hidden="true">🛡️</span> Ce que nous vérifions avant de publier une fiche
+        <!-- Une phrase visible, le détail à un clic. Les 250 mots de conditions
+             occupaient tout le premier écran : l'intention était juste — mieux
+             vaut prévenir avant que quelqu'un remplisse dix champs pour rien —
+             mais au moment où l'on décide si l'on s'y met, c'est ce qui fait
+             renoncer. C'est le seul repli de tout le site, et il est assumé :
+             ce contenu est une explication, pas une information nécessaire
+             pour remplir le formulaire. -->
+        <section class="bg-gray-50 border border-gray-200 border-l-4 border-l-indigo-500 rounded-r-2xl p-5" aria-labelledby="regles-admission">
+          <h2 id="regles-admission" class="font-bold text-gray-900 mb-2 flex items-center gap-2">
+            <span aria-hidden="true">🛡️</span> Une seule condition bloquante
           </h2>
-          <p class="text-sm text-gray-500">Trois règles, appliquées à chaque fiche.</p>
-
-          <p class="bg-gray-50 rounded-xl px-4 py-3.5 mt-5 text-sm text-gray-700">
-            Vous n'avez rien à vérifier vous-même : indiquez ce que vous savez, nous faisons le reste.
+          <p class="text-sm text-gray-700 leading-relaxed">
+            L'annuaire ne référence que des praticiens inscrits au répertoire national
+            (RPPS ou ADELI) et dont l'activité est vérifiable. <strong>Nous faisons cette
+            vérification nous-même</strong> — vous n'avez rien à prouver, indiquez ce que
+            vous savez.
           </p>
 
-          <ol class="mt-5 space-y-5 text-sm text-gray-700">
-            <li>
-              <strong class="block text-gray-900 mb-1">1. L'identifiant professionnel — sans exception</strong>
-              Nous vérifions que le praticien possède un numéro RPPS ou ADELI, délivré par l'Agence
-              régionale de santé après contrôle du diplôme. C'est la seule barrière simple contre les
-              charlatans, nombreux autour de l'autisme. Une fiche dont le numéro reste introuvable n'est
-              pas publiée ; une fiche déjà en ligne dans ce cas est retirée.
-            </li>
-            <li>
-              <strong class="block text-gray-900 mb-1">2. Une activité de consultation en cours, et un moyen de contact</strong>
-              Nous cherchons au moins l'un de ces éléments : une inscription à l'annuaire national des
-              professionnels de santé, une page de prise de rendez-vous, un site professionnel à jour, ou
-              un référencement institutionnel — dispositif Mon soutien psy, réseau régional, structure de
-              soin. Un identifiant valide ne suffit pas : un annuaire qui oriente des familles ne peut pas
-              renvoyer vers un cabinet fermé.
-              Nous vérifions aussi qu'une famille peut joindre le praticien : un téléphone, un site, une
-              page de rendez-vous, ou le formulaire de contact de sa fiche. Une fiche qui n'offre aucun de
-              ces moyens ne mène nulle part ; elle est retirée, et republiée dès qu'un moyen de contact
-              existe.
-            </li>
-            <li>
-              <strong class="block text-gray-900 mb-1">3. ADELI ou RPPS, les deux comptent</strong>
-              Les psychologues basculent progressivement de l'ADELI vers le RPPS depuis juin 2024.
-              Les deux numéros sont acceptés le temps de cette bascule.
-            </li>
-          </ol>
-
-          <p class="text-sm text-gray-500 mt-5 pt-4 border-t border-gray-100">
-            Une structure — cabinet, centre, institut — n'est pas une personne physique et n'a pas de
-            RPPS : son SIRET ou son FINESS peut être indiqué, sans être exigé. Ces vérifications sont
-            faites à la publication et à chaque signalement.
-          </p>
+          <details class="mt-3">
+            <summary class="text-sm font-semibold text-indigo-700 cursor-pointer hover:text-indigo-800">
+              Voir les trois règles en détail
+            </summary>
+            <ol class="mt-4 space-y-4 text-sm text-gray-700">
+              <li>
+                <strong class="block text-gray-900 mb-1">1. L'identifiant professionnel — sans exception</strong>
+                Délivré par l'Agence régionale de santé après contrôle du diplôme. C'est la seule
+                barrière simple contre les charlatans, nombreux autour de l'autisme. Une fiche dont
+                le numéro reste introuvable n'est pas publiée ; une fiche déjà en ligne dans ce cas
+                est retirée.
+              </li>
+              <li>
+                <strong class="block text-gray-900 mb-1">2. Une activité en cours, et un moyen de contact</strong>
+                Inscription à l'annuaire national, page de prise de rendez-vous, site professionnel
+                à jour ou référencement institutionnel. Un annuaire qui oriente des familles ne peut
+                pas renvoyer vers un cabinet fermé. Une fiche qui n'offre aucun moyen de contact ne
+                mène nulle part : elle est retirée, et republiée dès qu'un moyen existe.
+              </li>
+              <li>
+                <strong class="block text-gray-900 mb-1">3. ADELI ou RPPS, les deux comptent</strong>
+                Les psychologues basculent progressivement de l'ADELI vers le RPPS depuis juin 2024.
+                Les deux numéros sont acceptés le temps de cette bascule.
+              </li>
+            </ol>
+            <p class="text-sm text-gray-500 mt-4 pt-3 border-t border-gray-200">
+              Une structure — cabinet, centre, institut — n'est pas une personne physique et n'a pas
+              de RPPS : son SIRET ou son FINESS peut être indiqué, sans être exigé.
+            </p>
+          </details>
         </section>
+
+        <!-- ÉTAPE 1 — qui remplit ? -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+          <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
+            <span class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm shrink-0">1</span>
+            Qui remplit cette fiche ?
+          </h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <label class="flex items-start gap-3 border rounded-xl p-4 cursor-pointer transition-colors" :class="role === 'famille' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 bg-gray-50 hover:border-gray-300'">
+              <input v-model="role" type="radio" value="famille" class="mt-1 accent-indigo-600 shrink-0" >
+              <span>
+                <span class="block text-sm font-semibold text-gray-900">Une famille, un proche, un visiteur</span>
+                <span class="block text-xs text-gray-600 mt-1 leading-relaxed">Vous signalez un praticien que vous connaissez. On ne vous demandera que ce que vous pouvez savoir.</span>
+              </span>
+            </label>
+            <label class="flex items-start gap-3 border rounded-xl p-4 cursor-pointer transition-colors" :class="role === 'praticien' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 bg-gray-50 hover:border-gray-300'">
+              <input v-model="role" type="radio" value="praticien" class="mt-1 accent-indigo-600 shrink-0" >
+              <span>
+                <span class="block text-sm font-semibold text-gray-900">Le praticien lui-même</span>
+                <span class="block text-xs text-gray-600 mt-1 leading-relaxed">Vous créez votre propre fiche. Le formulaire complet vous est proposé.</span>
+              </span>
+            </label>
+          </div>
+        </div>
 
         <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-4 text-sm text-indigo-700">
           ℹ️ Les informations soumises sont utilisées uniquement pour alimenter l'annuaire. Les champs marqués * sont obligatoires.
@@ -206,13 +255,13 @@ async function soumettre() {
         <!-- Identité -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
-            <span class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base">👤</span>
+            <span class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm shrink-0">2</span>
             Identité du praticien
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
-              <label for="nom" class="block text-sm font-semibold text-gray-700 mb-1.5">Nom et prénom *</label>
-              <input id="nom" v-model="form.nom" type="text" placeholder="Dr Marie Dupont" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <label for="nom" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ labelNom }}</label>
+              <input id="nom" v-model="form.nom" type="text" :placeholder="exempleNom" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
               <label for="type" class="block text-sm font-semibold text-gray-700 mb-1.5">Type de professionnel *</label>
@@ -281,8 +330,8 @@ async function soumettre() {
         <!-- Localisation -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
-            <span class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">📍</span>
-            Localisation
+            <span class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm shrink-0">3</span>
+            Où consulte-t-il ?
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
@@ -321,8 +370,8 @@ async function soumettre() {
         <!-- Contact -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
-            <span class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-base">📞</span>
-            Contact
+            <span class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm shrink-0">4</span>
+            Comment le joindre
             <span class="ml-auto text-xs text-gray-500 font-normal">Optionnel</span>
           </h2>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
@@ -343,12 +392,13 @@ async function soumettre() {
              aucun. -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
           <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
-            <span class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-base">📝</span>
-            Informations complémentaires
+            <span class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm shrink-0">5</span>
+            {{ estPraticien ? 'Votre pratique' : 'Ce que vous savez de lui' }}
             <span class="ml-auto text-xs text-gray-500 font-normal">Optionnel</span>
           </h2>
 
-          <div class="space-y-5">
+          <!-- LE PRATICIEN : ses sept rubriques. -->
+          <div v-if="estPraticien" class="space-y-5">
             <div v-for="r in RUBRIQUES" :key="r.cle">
               <label :for="r.cle" class="block text-sm font-semibold text-gray-700 mb-1.5">{{ r.label }}</label>
               <textarea :id="r.cle" v-model="form[r.cle]" rows="3" :maxlength="r.max"
@@ -360,9 +410,30 @@ async function soumettre() {
               </div>
             </div>
           </div>
+
+          <!-- UN PROCHE : un seul champ, et l'explication de ce qu'on ne lui
+               demande pas. Le silence sur ce point laisserait croire a un
+               formulaire au rabais ; dire pourquoi en fait un choix. -->
+          <div v-else>
+            <p class="text-sm text-gray-600 leading-relaxed bg-gray-50 border border-dashed border-gray-300 rounded-xl p-4 mb-5">
+              Les tarifs, les formations et le parcours ne vous sont pas demandés : vous n'avez pas
+              de raison de les connaître, et une information approximative sur une fiche publique
+              fait plus de mal que de bien. Nous les demanderons au praticien.
+            </p>
+            <label for="ceQueJeSais" class="block text-sm font-semibold text-gray-700 mb-1.5">
+              En quelques mots <span class="text-gray-500 font-normal">(optionnel)</span>
+            </label>
+            <textarea id="ceQueJeSais" v-model="form.ceQueJeSais" rows="3" maxlength="800"
+              placeholder="Ce que vous savez de sa pratique : approches utilisées, public reçu, ce qui vous a marqué…"
+              class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all resize-y" />
+            <div class="flex items-baseline justify-between gap-3 mt-1.5">
+              <p class="text-xs text-gray-500">Écrivez seulement ce dont vous êtes sûr. En cas de doute, laissez vide.</p>
+              <p class="text-xs shrink-0 tabular-nums text-gray-400">{{ form.ceQueJeSais.length }} / 800</p>
+            </div>
+          </div>
         </div>
 
-        <ChampContactAuteur v-model="form.contactAuteur" sujet="cette fiche" />
+        <ChampContactAuteur v-model="form.contactAuteur" sujet="cette fiche" :etape="6" />
 
         <!-- Honeypot -->
         <input v-model="form.hp" type="text" name="email_confirm" autocomplete="off" aria-hidden="true" style="display:none" tabindex="-1" />

@@ -24,6 +24,13 @@
 defineProps<{
   /** Ce qui ne pourra pas aboutir sans adresse, au singulier et sans article. */
   sujet: string
+  /**
+   * Numéro d'étape, sur les formulaires qui en numérotent. Omis ailleurs :
+   * ce composant sert aussi le signalement et les suggestions d'association
+   * et de livre, qui n'ont pas de parcours numéroté — y afficher un « 6 »
+   * isolé ne renverrait à rien.
+   */
+  etape?: number
 }>()
 
 const modele = defineModel<string>({ required: true })
@@ -32,7 +39,8 @@ const modele = defineModel<string>({ required: true })
 <template>
   <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
     <h2 class="font-bold text-gray-900 text-lg mb-5 flex items-center gap-3 pb-4 border-b border-gray-100">
-      <span class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base" aria-hidden="true">✉️</span>
+      <span v-if="etape" class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm shrink-0" aria-hidden="true">{{ etape }}</span>
+      <span v-else class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base" aria-hidden="true">✉️</span>
       Comment vous répondre
       <span class="ml-auto text-xs text-gray-500 font-normal">Optionnel</span>
     </h2>
