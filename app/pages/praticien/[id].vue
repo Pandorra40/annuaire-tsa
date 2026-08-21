@@ -35,6 +35,37 @@ const hasNotes = computed(() => !!(praticien.value && (
 
 const aSecondLieu = computed(() => !!(praticien.value?.ville2 || praticien.value?.departement2))
 
+// Deux liens « Voir tous les praticiens du 31 » côte à côte, pour le même
+// département, n'apprenaient rien de plus qu'un seul. On ne les sépare que
+// lorsqu'ils mènent réellement ailleurs.
+const memeDepartement = computed(() =>
+  aSecondLieu.value && !!praticien.value?.departement2
+  && praticien.value.departement2 === praticien.value.departement
+)
+
+// Les six rubriques nommées, dans un ordre fixe et identique sur toutes les
+// fiches. Les tarifs remontent en deuxième position : c'est la question qui
+// suit immédiatement « que fait-il ? », et elle était en quatrième.
+// autres_infos est traité à part : il peut contenir ses propres sous-titres,
+// lui imposer un libellé en ajouterait un par-dessus.
+const RUBRIQUES_FICHE = [
+  { cle: 'types_intervention', label: 'Types d\'intervention' },
+  { cle: 'tarifs', label: 'Tarifs' },
+  { cle: 'bilans', label: 'Bilans' },
+  { cle: 'formations', label: 'Formations complémentaires' },
+  { cle: 'experience', label: 'Expérience' },
+  { cle: 'modalites', label: 'Modalités' }
+] as const
+
+const rubriquesRemplies = computed(() => {
+  const remplies: Array<{ label: string, valeur: string }> = []
+  for (const r of RUBRIQUES_FICHE) {
+    const valeur = praticien.value?.[r.cle]
+    if (valeur) remplies.push({ label: r.label, valeur })
+  }
+  return remplies
+})
+
 function adresseComplete(adresse?: string | null, ville?: string | null, departement?: string | null) {
   return [adresse, ville, departement ? `(${departement})` : ''].filter(Boolean).join(', ') || 'Adresse non renseignée'
 }
@@ -234,41 +265,208 @@ function libelleIdentifiant(num: string, type?: string) {
         </div>
       </section>
 
-      <!-- CONTENU -->
+      <!-- CONTENU
+           Plus de colonne latérale : elle reléguait le contact et la
+           localisation à droite, à égalité visuelle avec le partage et le
+           signalement, alors que ce sont les deux premières questions qu'on
+           se pose en arrivant. L'ordre suit désormais celui des questions
+           d'une famille — comment le joindre, où, ce qu'il fait — et les
+           actions de contribution descendent en fin de page. -->
       <section class="bg-gray-50 py-10">
-        <div class="max-w-4xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <div class="max-w-4xl mx-auto px-6 space-y-5">
 
-          <!-- COLONNE PRINCIPALE -->
-          <div class="sm:col-span-2 space-y-5">
-
-            <!-- Notes : sept rubriques reconstruites depuis les champs texte
-                 simple, plutôt qu'un seul bloc HTML injecté via v-html — plus
-                 besoin d'assainir ce contenu côté rendu, il n'y a plus de
-                 balises à y trouver. -->
-            <div v-if="hasNotes" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-              <h2 class="font-bold text-gray-900 text-lg mb-4 flex items-center gap-3">
-                <span class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-base">📝</span>
-                Informations complémentaires
-              </h2>
-              <div class="notes-content text-gray-600 text-sm leading-relaxed">
-                <p v-if="praticien.types_intervention"><strong>Types d'intervention :</strong> {{ praticien.types_intervention }}</p>
-                <p v-if="praticien.bilans"><strong>Bilans :</strong> {{ praticien.bilans }}</p>
-                <p v-if="praticien.formations"><strong>Formations complémentaires :</strong> {{ praticien.formations }}</p>
-                <p v-if="praticien.experience"><strong>Expérience :</strong> {{ praticien.experience }}</p>
-                <p v-if="praticien.modalites"><strong>Modalités :</strong> {{ praticien.modalites }}</p>
-                <p v-if="praticien.tarifs"><strong>Tarifs :</strong> {{ praticien.tarifs }}</p>
-                <p v-if="praticien.autres_infos" style="white-space:pre-line">{{ praticien.autres_infos }}</p>
-              </div>
+          <!-- Contact -->
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base">📞</span>
+              Contact
+            </h2>
+            <a v-if="praticien.telephone" :href="`tel:${praticien.telephone}`" class="flex items-center gap-3 text-indigo-600 font-semibold hover:text-indigo-700 transition-colors mb-3">
+              <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-sm">📞</div>
+              {{ praticien.telephone }}
+            </a>
+            <p v-else class="text-sm text-gray-500 mb-3">Téléphone non renseigné</p>
+            <a v-if="praticien.site_web" :href="praticien.site_web" target="_blank" rel="noopener" class="flex items-center gap-3 text-indigo-600 hover:text-indigo-700 transition-colors text-sm">
+              <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-sm">🔗</div>
+              Site web / Doctolib
+            </a>
+            <div v-if="praticien.adeli" class="flex items-center gap-3 text-gray-500 text-sm mt-3">
+              <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-sm">🪪</div>
+              <span>{{ libelleIdentifiant(praticien.adeli, praticien.type) }} : {{ praticien.adeli }}</span>
             </div>
 
+            <!-- Mention générale, sur toutes les fiches, plutôt qu'un avertissement
+                 nominatif sur celles dont l'activité n'est pas déclarée au répertoire :
+                 une fiche peut vieillir sans que son praticien y soit pour quelque
+                 chose, et désigner quelques-uns ferait porter un soupçon là où la
+                 vérification a conclu l'inverse. -->
+            <p class="text-xs text-gray-500 leading-relaxed mt-4 pt-4 border-t border-gray-100">
+              Les informations sont vérifiées au moment de la publication. Les disponibilités et
+              les tarifs peuvent avoir changé depuis : confirmez-les auprès du praticien avant de
+              vous déplacer.
+            </p>
+
+            <!-- FORMULAIRE DE CONTACT (si le praticien y a consenti) -->
+            <template v-if="contactActif">
+              <div class="border-t border-gray-100 mt-4 pt-4">
+
+                <div v-if="envoye" class="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl p-4 leading-relaxed">
+                  <span class="font-semibold">Message envoyé.</span><br>
+                  {{ praticien.nom }} vous répondra directement à l’adresse que vous avez indiquée.
+                </div>
+
+                <button type="button"
+                  v-else-if="!formOuvert"
+                  class="w-full py-2.5 border-2 border-indigo-200 text-indigo-700 rounded-xl font-semibold text-sm hover:bg-indigo-50 transition-colors"
+                  @click="ouvrirFormulaire"
+                >
+                  ✉️ Écrire à ce praticien
+                </button>
+
+                <form v-else class="space-y-3" @submit.prevent="envoyer">
+                  <p class="text-xs text-gray-500 leading-relaxed">
+                    Pas besoin d’appeler : votre message lui parvient par email, et sa réponse
+                    arrivera dans votre boîte.
+                  </p>
+
+                  <div v-if="erreurEnvoi" class="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl p-3">
+                    ⚠️ {{ erreurEnvoi }}
+                  </div>
+
+                  <input
+                    v-model="message.nom"
+                    type="text"
+                    aria-label="Votre nom"
+                    placeholder="Votre nom"
+                    maxlength="100"
+                    class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                  />
+                  <input
+                    v-model="message.email"
+                    type="email"
+                    aria-label="Votre adresse email, pour que le praticien puisse vous répondre"
+                    placeholder="Votre email"
+                    class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
+                  />
+                  <textarea
+                    v-model="message.message"
+                    rows="5"
+                    maxlength="2000"
+                    aria-label="Votre message"
+                    placeholder="Votre message. Décrivez votre demande — inutile d’entrer dans le détail médical."
+                    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-vertical transition-all"
+                  />
+
+                  <!-- Champ piège : hors écran, jamais rempli par un humain -->
+                  <input
+                    v-model="message.hp"
+                    type="text"
+                    aria-label="Ne pas remplir"
+                    tabindex="-1"
+                    autocomplete="off"
+                    aria-hidden="true"
+                    class="absolute -left-[9999px] w-px h-px opacity-0"
+                  />
+
+                  <label class="flex items-start gap-2 text-xs text-gray-600 leading-relaxed cursor-pointer">
+                    <input v-model="consentDonnees" type="checkbox" class="mt-0.5 rounded border-gray-300" />
+                    <span>
+                      J’accepte que mon nom, mon email et mon message soient transmis à ce
+                      praticien pour qu’il puisse me répondre.
+                    </span>
+                  </label>
+
+                  <button
+                    :disabled="envoi"
+                    type="submit"
+                    class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm disabled:opacity-50 transition-colors"
+                  >
+                    {{ envoi ? 'Envoi…' : 'Envoyer le message →' }}
+                  </button>
+
+                  <p class="text-xs text-gray-500 leading-relaxed">
+                    Votre message est transmis directement à ce praticien. Il n’est lu par
+                    personne d’autre et n’est conservé nulle part — ni sur le site, ni par
+                    son éditeur.
+                    <NuxtLink to="/mentions" class="underline hover:text-gray-700">En savoir plus</NuxtLink>
+                  </p>
+                </form>
+
+              </div>
+            </template>
+          </div>
+
+          <!-- Localisation : deux blocs côte à côte si un second lieu existe
+               (ex. Institut Mentis Portae, Paris et Étampes), plutôt que la
+               précédente concaténation "VILLE1 ET VILLE2" dans un seul champ. -->
+          <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">📍</span>
+              Localisation
+            </h2>
+            <div :class="aSecondLieu ? 'grid grid-cols-1 sm:grid-cols-2 gap-4' : ''">
+              <div>
+                <p v-if="aSecondLieu" class="text-xs font-semibold text-gray-500 mb-1">Lieu 1</p>
+                <p class="text-gray-600 text-sm mb-2">
+                  {{ adresseComplete(praticien.adresse, praticien.ville, praticien.departement) }}
+                </p>
+                <NuxtLink v-if="praticien.departement" :to="`/departement/${praticien.departement}`" class="inline-flex items-center gap-1.5 text-indigo-600 text-sm hover:text-indigo-700 transition-colors font-medium">
+                  Voir tous les praticiens du {{ praticien.departement }} →
+                </NuxtLink>
+              </div>
+              <div v-if="aSecondLieu">
+                <p class="text-xs font-semibold text-gray-500 mb-1">Lieu 2</p>
+                <p class="text-gray-600 text-sm mb-2">
+                  {{ adresseComplete(praticien.adresse2, praticien.ville2, praticien.departement2) }}
+                </p>
+                <NuxtLink v-if="praticien.departement2 && !memeDepartement" :to="`/departement/${praticien.departement2}`" class="inline-flex items-center gap-1.5 text-indigo-600 text-sm hover:text-indigo-700 transition-colors font-medium">
+                  Voir tous les praticiens du {{ praticien.departement2 }} →
+                </NuxtLink>
+                <p v-else-if="memeDepartement" class="text-xs text-gray-500">Même département que le lieu 1</p>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="hasNotes" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <h2 class="font-bold text-gray-900 text-lg mb-4 flex items-center gap-3">
+              <span class="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-base">📝</span>
+              Informations complémentaires
+            </h2>
+            <!-- Libellé en colonne fixe à gauche, contenu à droite. C'est ce
+                 qui remplace le repliement : rien n'est masqué, mais l'œil
+                 descend la colonne des libellés pour trouver sa rubrique sans
+                 lire le reste. Les libellés en gras au fil du texte n'offraient
+                 aucun point d'accroche. -->
+            <dl class="divide-y divide-gray-100">
+              <div v-for="r in rubriquesRemplies" :key="r.label" class="grid grid-cols-1 sm:grid-cols-[12rem_1fr] gap-1 sm:gap-6 py-3.5 first:pt-0">
+                <dt class="text-sm font-bold text-gray-900">{{ r.label }}</dt>
+                <dd class="text-sm text-gray-600 leading-relaxed" style="white-space:pre-line">{{ r.valeur }}</dd>
+              </div>
+              <div v-if="praticien.autres_infos" class="py-3.5">
+                <p class="text-sm text-gray-600 leading-relaxed" style="white-space:pre-line">{{ praticien.autres_infos }}</p>
+              </div>
+            </dl>
+          </div>
+
+          <!-- Zone de contribution, en fin de page : elle s'adresse à qui a
+               fini de lire, pas à qui cherche un téléphone. -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-4">
             <!-- Confirmations -->
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 text-lg mb-4 flex items-center gap-3">
                 <span class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">👥</span>
                 Avis de la communauté
               </h2>
-              <div class="flex items-center gap-4 mb-4">
-                <div class="text-4xl font-black text-emerald-600">{{ voteCount }}</div>
+              <!-- Un « 0 » en gros chiffre se lit comme un signal d'alerte —
+                   la fiche paraît suspecte — alors qu'il dit seulement que
+                   personne n'est encore passé. Le zéro devient une invitation,
+                   et le chiffre ne s'affiche qu'à partir de un. -->
+              <p v-if="!voteCount" class="text-sm text-gray-600 leading-relaxed mb-4">
+                Personne n'a encore confirmé cette fiche. Si vous connaissez ce praticien,
+                votre confirmation aidera les familles suivantes.
+              </p>
+              <div v-else class="flex items-center gap-4 mb-4">
+                <div class="text-4xl font-black text-emerald-600 tabular-nums">{{ voteCount }}</div>
                 <div>
                   <div class="font-semibold text-gray-900">confirmation{{ voteCount > 1 ? 's' : '' }}</div>
                   <div class="text-sm text-gray-500">Des familles ont vérifié cette fiche</div>
@@ -283,162 +481,6 @@ function libelleIdentifiant(num: string, type?: string) {
                 {{ alreadyVoted ? '✓ Confirmé' : '✓ Confirmer cette fiche' }}
               </button>
               <p v-if="voteThanks" class="text-sm text-emerald-600 mt-3 text-center">Merci pour votre confirmation !</p>
-            </div>
-
-          </div>
-
-          <!-- COLONNE LATÉRALE -->
-          <div class="space-y-5">
-
-            <!-- Contact -->
-            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-              <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
-                <span class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base">📞</span>
-                Contact
-              </h2>
-              <a v-if="praticien.telephone" :href="`tel:${praticien.telephone}`" class="flex items-center gap-3 text-indigo-600 font-semibold hover:text-indigo-700 transition-colors mb-3">
-                <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-sm">📞</div>
-                {{ praticien.telephone }}
-              </a>
-              <p v-else class="text-sm text-gray-500 mb-3">Téléphone non renseigné</p>
-              <a v-if="praticien.site_web" :href="praticien.site_web" target="_blank" rel="noopener" class="flex items-center gap-3 text-indigo-600 hover:text-indigo-700 transition-colors text-sm">
-                <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-sm">🔗</div>
-                Site web / Doctolib
-              </a>
-              <div v-if="praticien.adeli" class="flex items-center gap-3 text-gray-500 text-sm mt-3">
-                <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-sm">🪪</div>
-                <span>{{ libelleIdentifiant(praticien.adeli, praticien.type) }} : {{ praticien.adeli }}</span>
-              </div>
-
-              <!-- Mention générale, sur toutes les fiches, plutôt qu'un avertissement
-                   nominatif sur celles dont l'activité n'est pas déclarée au répertoire :
-                   une fiche peut vieillir sans que son praticien y soit pour quelque
-                   chose, et désigner quelques-uns ferait porter un soupçon là où la
-                   vérification a conclu l'inverse. -->
-              <p class="text-xs text-gray-500 leading-relaxed mt-4 pt-4 border-t border-gray-100">
-                Les informations sont vérifiées au moment de la publication. Les disponibilités et
-                les tarifs peuvent avoir changé depuis : confirmez-les auprès du praticien avant de
-                vous déplacer.
-              </p>
-
-              <!-- FORMULAIRE DE CONTACT (si le praticien y a consenti) -->
-              <template v-if="contactActif">
-                <div class="border-t border-gray-100 mt-4 pt-4">
-
-                  <div v-if="envoye" class="text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl p-4 leading-relaxed">
-                    <span class="font-semibold">Message envoyé.</span><br>
-                    {{ praticien.nom }} vous répondra directement à l’adresse que vous avez indiquée.
-                  </div>
-
-                  <button type="button"
-                    v-else-if="!formOuvert"
-                    class="w-full py-2.5 border-2 border-indigo-200 text-indigo-700 rounded-xl font-semibold text-sm hover:bg-indigo-50 transition-colors"
-                    @click="ouvrirFormulaire"
-                  >
-                    ✉️ Écrire à ce praticien
-                  </button>
-
-                  <form v-else class="space-y-3" @submit.prevent="envoyer">
-                    <p class="text-xs text-gray-500 leading-relaxed">
-                      Pas besoin d’appeler : votre message lui parvient par email, et sa réponse
-                      arrivera dans votre boîte.
-                    </p>
-
-                    <div v-if="erreurEnvoi" class="text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl p-3">
-                      ⚠️ {{ erreurEnvoi }}
-                    </div>
-
-                    <input
-                      v-model="message.nom"
-                      type="text"
-                      aria-label="Votre nom"
-                      placeholder="Votre nom"
-                      maxlength="100"
-                      class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
-                    />
-                    <input
-                      v-model="message.email"
-                      type="email"
-                      aria-label="Votre adresse email, pour que le praticien puisse vous répondre"
-                      placeholder="Votre email"
-                      class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
-                    />
-                    <textarea
-                      v-model="message.message"
-                      rows="5"
-                      maxlength="2000"
-                      aria-label="Votre message"
-                      placeholder="Votre message. Décrivez votre demande — inutile d’entrer dans le détail médical."
-                      class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-vertical transition-all"
-                    />
-
-                    <!-- Champ piège : hors écran, jamais rempli par un humain -->
-                    <input
-                      v-model="message.hp"
-                      type="text"
-                      aria-label="Ne pas remplir"
-                      tabindex="-1"
-                      autocomplete="off"
-                      aria-hidden="true"
-                      class="absolute -left-[9999px] w-px h-px opacity-0"
-                    />
-
-                    <label class="flex items-start gap-2 text-xs text-gray-600 leading-relaxed cursor-pointer">
-                      <input v-model="consentDonnees" type="checkbox" class="mt-0.5 rounded border-gray-300" />
-                      <span>
-                        J’accepte que mon nom, mon email et mon message soient transmis à ce
-                        praticien pour qu’il puisse me répondre.
-                      </span>
-                    </label>
-
-                    <button
-                      :disabled="envoi"
-                      type="submit"
-                      class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-semibold text-sm disabled:opacity-50 transition-colors"
-                    >
-                      {{ envoi ? 'Envoi…' : 'Envoyer le message →' }}
-                    </button>
-
-                    <p class="text-xs text-gray-500 leading-relaxed">
-                      Votre message est transmis directement à ce praticien. Il n’est lu par
-                      personne d’autre et n’est conservé nulle part — ni sur le site, ni par
-                      son éditeur.
-                      <NuxtLink to="/mentions" class="underline hover:text-gray-700">En savoir plus</NuxtLink>
-                    </p>
-                  </form>
-
-                </div>
-              </template>
-            </div>
-
-            <!-- Localisation : deux blocs côte à côte si un second lieu existe
-                 (ex. Institut Mentis Portae, Paris et Étampes), plutôt que la
-                 précédente concaténation "VILLE1 ET VILLE2" dans un seul champ. -->
-            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
-              <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
-                <span class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center text-base">📍</span>
-                Localisation
-              </h2>
-              <div :class="aSecondLieu ? 'grid grid-cols-1 sm:grid-cols-2 gap-4' : ''">
-                <div>
-                  <p v-if="aSecondLieu" class="text-xs font-semibold text-gray-500 mb-1">Lieu 1</p>
-                  <p class="text-gray-600 text-sm mb-2">
-                    {{ adresseComplete(praticien.adresse, praticien.ville, praticien.departement) }}
-                  </p>
-                  <NuxtLink v-if="praticien.departement" :to="`/departement/${praticien.departement}`" class="inline-flex items-center gap-1.5 text-indigo-600 text-sm hover:text-indigo-700 transition-colors font-medium">
-                    Voir tous les praticiens du {{ praticien.departement }} →
-                  </NuxtLink>
-                </div>
-                <div v-if="aSecondLieu">
-                  <p class="text-xs font-semibold text-gray-500 mb-1">Lieu 2</p>
-                  <p class="text-gray-600 text-sm mb-2">
-                    {{ adresseComplete(praticien.adresse2, praticien.ville2, praticien.departement2) }}
-                  </p>
-                  <NuxtLink v-if="praticien.departement2" :to="`/departement/${praticien.departement2}`" class="inline-flex items-center gap-1.5 text-indigo-600 text-sm hover:text-indigo-700 transition-colors font-medium">
-                    Voir tous les praticiens du {{ praticien.departement2 }} →
-                  </NuxtLink>
-                </div>
-              </div>
             </div>
 
             <!-- Exactitude de la fiche : un seul encadré pour les deux publics, placé
@@ -521,8 +563,8 @@ function libelleIdentifiant(num: string, type?: string) {
                 </button>
               </div>
             </div>
-
           </div>
+
         </div>
       </section>
 
