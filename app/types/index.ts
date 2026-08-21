@@ -38,6 +38,11 @@ export interface Praticien {
   tarifs?: string | null
   autres_infos?: string | null
   adeli?: string
+  // Réalise des bilans diagnostiques. Trois états, et la nuance compte :
+  // null « on ne sait pas », 1 « oui », 0 « non, oriente ailleurs ». Un null ne
+  // doit jamais se lire comme un non — écarter un praticien d'une recherche sur
+  // une absence d'information lui nuirait sans rien affirmer.
+  fait_bilans?: number | null
   confirmations: number
   // « publie » ou « masquee ». Absent des réponses publiques, qui ne renvoient
   // que les fiches publiées : seul admin_praticiens.php expose la colonne.
@@ -115,6 +120,11 @@ export interface SuggestionPraticien {
   tarifs?: string | null
   autres_infos?: string | null
   adeli?: string | null
+  // Réalise des bilans diagnostiques. Trois états, et la nuance compte :
+  // null « on ne sait pas », 1 « oui », 0 « non, oriente ailleurs ». Un null ne
+  // doit jamais se lire comme un non — écarter un praticien d'une recherche sur
+  // une absence d'information lui nuirait sans rien affirmer.
+  fait_bilans?: number | null
   // Adresse à laquelle répondre à l'auteur de la contribution. Distincte de
   // toute adresse publiée : elle ne sert qu'à la correspondance, et n'apparaît
   // jamais sur une fiche.

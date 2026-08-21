@@ -15,7 +15,7 @@ const notice = ref('')
 const form = reactive({
   nom: '', type: '', adresse: '', ville: '', departement: '',
   adresse2: '', ville2: '', departement2: '',
-  telephone: '', site_web: '', teleconsultation: false,
+  telephone: '', site_web: '', teleconsultation: false, faitBilans: '',
   delai: '', ages: [] as string[], adeli: '',
   typesIntervention: '', bilans: '', formations: '', experience: '', modalites: '', tarifs: '', autresInfos: ''
 })
@@ -86,6 +86,11 @@ async function chargerFiche() {
     form.telephone = data.telephone || ''
     form.site_web = data.site_web || ''
     form.teleconsultation = !!data.teleconsultation
+    // null reste '' : « non renseigné » est un état à part entière,
+    // qu'un rechargement ne doit pas transformer en « non ».
+    form.faitBilans = data.fait_bilans === null || data.fait_bilans === undefined
+      ? ''
+      : String(data.fait_bilans)
     form.delai = data.delai || ''
     form.ages = data.ages || []
     form.adeli = data.adeli || ''
@@ -131,6 +136,7 @@ async function sauvegarder() {
         telephone: form.telephone || null,
         site_web: form.site_web || null,
         teleconsultation: form.teleconsultation,
+        fait_bilans: form.faitBilans === '' ? null : Number(form.faitBilans),
         delai: form.delai || null,
         types_intervention: form.typesIntervention || null,
         bilans: form.bilans || null,
@@ -283,6 +289,17 @@ async function sauvegarder() {
             <input type="checkbox" v-model="form.teleconsultation" class="rounded" />
             Propose la téléconsultation
           </label>
+          <UFormField label="Réalise des bilans diagnostiques" class="mt-4">
+            <select v-model="form.faitBilans" class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-white">
+              <option value="">— Non renseigné —</option>
+              <option value="1">Oui</option>
+              <option value="0">Non — oriente vers un CRA ou un confrère</option>
+            </select>
+            <template #description>
+              « Non renseigné » n'est pas « non » : la fiche reste visible partout,
+              simplement absente du filtre. Ne posez « Non » que si vous le savez.
+            </template>
+          </UFormField>
         </UCard>
 
         <!-- Notes : sept champs texte simple plutôt qu'un éditeur riche —

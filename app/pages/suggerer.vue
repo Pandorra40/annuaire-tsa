@@ -26,6 +26,7 @@ const form = reactive({
   modalites: '',
   tarifs: '',
   autresInfos: '',
+  faitBilans: false,
   contactAuteur: '',
   consentement: false,
   hp: ''
@@ -91,6 +92,10 @@ async function soumettre() {
       tarifs: form.tarifs || null,
       autres_infos: form.autresInfos || null,
       adeli: form.adeli || null,
+      // Case décochée : on envoie null, « on ne sait pas », et surtout pas 0.
+      // Un tiers de bonne foi ne peut pas affirmer qu'un praticien ne fait pas
+      // de bilans, et l'API refuse de toute façon un 0 venu du public.
+      fait_bilans: form.faitBilans ? 1 : null,
       contact_auteur: form.contactAuteur || null,
       ages: form.ages,
       statut: 'en_attente',
@@ -226,6 +231,25 @@ async function soumettre() {
               </label>
             </div>
           </div>
+          <!-- Placé dans l'identité et non dans les rubriques de texte : c'est
+               un fait vérifiable, pas une description. La nuance sur la case
+               décochée est écrite à côté parce que sans elle, une absence de
+               coche se lirait comme une négation. -->
+          <div class="mt-5 bg-emerald-50/70 border border-emerald-100 rounded-xl p-4">
+            <label class="flex items-start gap-3 cursor-pointer">
+              <input v-model="form.faitBilans" type="checkbox" class="checkbox-custom mt-0.5 shrink-0" >
+              <span>
+                <span class="block text-sm font-semibold text-gray-800">Ce praticien réalise des bilans diagnostiques</span>
+                <span class="block text-xs text-gray-600 mt-1 leading-relaxed">
+                  ADOS, ADI-R, WISC, évaluations à visée diagnostique. C'est la question
+                  qui oriente le plus les familles : elles cherchent soit un diagnostic,
+                  soit un suivi. <strong>Laissez décoché si vous ne savez pas</strong> —
+                  une case décochée veut dire « on ne sait pas », jamais « il n'en fait pas ».
+                </span>
+              </span>
+            </label>
+          </div>
+
           <div class="mt-5">
             <label for="adeli" class="block text-sm font-semibold text-gray-700 mb-1.5">
               {{ estStructure ? 'Numéro SIRET ou FINESS' : 'Numéro RPPS ou ADELI' }}

@@ -215,6 +215,15 @@ function libelleIdentifiant(num: string, type?: string) {
               </p>
               <div class="flex flex-wrap gap-2">
                 <span v-for="age in praticien.ages" :key="age" class="px-3 py-1 bg-indigo-100 text-indigo-700 text-sm font-medium rounded-full border border-indigo-200">{{ age }}</span>
+                <!-- Affiché uniquement quand la réponse est connue. Une fiche
+                     sans information n'affiche rien plutôt qu'un « non » qui
+                     n'a jamais été vérifié. -->
+                <span v-if="praticien.fait_bilans === 1" class="px-3 py-1 bg-emerald-100 text-emerald-800 text-sm font-semibold rounded-full border border-emerald-200">
+                  Réalise des bilans
+                </span>
+                <span v-else-if="praticien.fait_bilans === 0" class="px-3 py-1 bg-gray-100 text-gray-600 text-sm font-medium rounded-full border border-gray-200">
+                  Ne réalise pas de bilans
+                </span>
                 <span v-if="praticien.teleconsultation" class="px-3 py-1 bg-emerald-100 text-emerald-700 text-sm font-medium rounded-full border border-emerald-200">Téléconsultation</span>
                 <span v-if="praticien.delai" class="px-3 py-1 text-sm font-medium rounded-full border" :class="praticien.delai === 'Disponible' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-amber-100 text-amber-700 border-amber-200'">
                   Délai : {{ praticien.delai }}
