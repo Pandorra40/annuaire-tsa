@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.8
+# Annuaire TSA — V4.9
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -171,9 +171,20 @@ api/                             # API PHP (à déployer sur LWS)
   lieu optionnel (`ville2`, `adresse2`, `departement2`) permet à un praticien avec
   deux cabinets d'apparaître sur les deux pages département. L'ancienne colonne
   `notes` (HTML libre, Tiptap) reste en base sans être lue par le code, en filet de
-  sécurité — voir `api/migrations/2026-08-21_notes_structurees_backfill.php`
+  sécurité — voir `api/migrations/2026-08-21_notes_structurees_backfill.php`.
+  `fait_bilans` (`TINYINT` nullable) dit si le praticien réalise des bilans
+  diagnostiques : **`NULL` veut dire « on ne sait pas », jamais « non »** — une
+  fiche sans information reste visible partout, seulement absente du filtre. Le
+  `0` est une affirmation, que seule l'administration peut poser
 - `suggestions` — suggestions de praticiens en attente de validation, même structure
-- `signalements` — signalements d'erreurs sur les fiches
+- `signalements` — signalements d'erreurs sur les fiches. `detail` porte le relevé
+  structuré produit par `/signaler` (rubrique, valeur actuelle, valeur corrigée)
+Les quatre tables de contribution — `suggestions`, `signalements`,
+`suggestions_associations`, `suggestions_livres` — portent une colonne
+`contact_auteur` : l'adresse à laquelle répondre à qui a écrit. Facultative, et
+distincte de toute adresse publiée : dans `suggestions_associations`, `email`
+désigne l'adresse publique de l'association elle-même.
+
 - `admin_sessions` — sessions administrateur
 - `praticiens_contact` — email, consentement et jeton de désactivation du formulaire de contact. Table **séparée** de `praticiens` : `praticiens.php` fait `SELECT *` et publierait l'adresse
 - `contact_journal` — métadonnées des messages envoyés (date, fiche, IP, adresse de l'expéditeur). **Jamais le contenu des messages**, et purgé au-delà de douze mois, au fil des envois
@@ -282,6 +293,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 | V4.7 | Critère d'admission écrit et appliqué : identifiant vérifié obligatoire pour les praticiens, SIRET ou FINESS facultatif pour les structures, énoncé sur `/suggerer` et `/donnees-praticiens`. Formulaire public de suggestion d'associations et écran de modération. Purge du journal de contact à douze mois |
 | V4.6 | Rubrique `/ressources` réunissant les livres et une nouvelle section vidéos (façade au clic, chaînes en liens sortants, catégories par position d'énonciation), `api/videos.php`, admin dédiée, redirections 301 depuis `/livres` |
 | V4.8 | Note en sept rubriques nommées remplaçant le champ HTML unique (retrait de Tiptap, formulaire public et admin identiques), second lieu optionnel pour les praticiens à deux cabinets (`/departement/XX` retrouve la fiche depuis les deux départements) |
+| V4.9 | Audit UX des 25 pages et sa mise en œuvre. Quatre bugs corrigés : département de la Corse et de l'outre-mer (`2A`/`2B` et `971`–`976` au lieu de `20`/`97`, avec corruption à chaque sauvegarde admin), quatre listes publiées vides faute de données au build, recherche de l'accueil aveugle au second lieu, variable fantôme laissée par le retrait de Tiptap. Moyen de recontacter l'auteur d'une contribution sur les quatre formulaires. Signalement par rubriques : une correction sans valeur de remplacement devient impossible à envoyer. Champ « réalise des bilans diagnostiques » à trois états, filtrable. Recherche remontée en tête d'accueil, filtres nommés avec compteurs, carte de résultat et panneau de filtres partagés entre l'accueil et les pages département, départements limitrophes. Administration : fin des rechargements complets, annulation à la place de la confirmation, onglet « Refusées », vues enregistrées sur l'état du fonds
 
 ## Remerciements
 
