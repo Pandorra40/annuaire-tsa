@@ -37,33 +37,72 @@ const router = useRouter()
 // État initialisé depuis l'URL (restauré au retour navigateur, partageable par lien)
 const search = ref((route.query.q as string) || '')
 const filtreDept = ref((route.query.dept as string) || '')
+// Services séparés par une virgule dans l'URL — un seul paramètre plutôt
+// qu'un par service, pour rester lisible dans un lien partagé.
+const servicesActifs = ref<string[]>(
+  route.query.services ? (route.query.services as string).split(',').filter(Boolean) : []
+)
 
-const associationsFiltrees = computed(() => {
+function passeFiltres(a: Association, sauf?: 'dept' | 'service') {
   const q = normaliserRecherche(search.value).trim()
-  const d = filtreDept.value.trim()
-  return associations.value.filter((a) => {
-    const matchQ = !q || normaliserRecherche(a.nom).includes(q) || normaliserRecherche(a.ville).includes(q) || a.departement.includes(q) || normaliserRecherche(a.services ?? '').includes(q)
-    const matchD = !d || a.departement === d
-    return matchQ && matchD
-  })
+  const matchQ = !q
+    || normaliserRecherche(a.nom).includes(q)
+    || normaliserRecherche(a.ville).includes(q)
+    || a.departement.includes(q)
+    || normaliserRecherche(a.services ?? '').includes(q)
+  if (!matchQ) return false
+  if (sauf !== 'dept' && filtreDept.value && a.departement !== filtreDept.value) return false
+  if (sauf !== 'service' && servicesActifs.value.length) {
+    const services = parserServices(a.services)
+    if (!servicesActifs.value.every(s => services.includes(s))) return false
+  }
+  return true
+}
+
+const associationsFiltrees = computed(() => associations.value.filter(a => passeFiltres(a)))
+
+// Département en liste nommée plutôt qu'un champ où taper un numéro de
+// mémoire : uniquement ceux qui ont réellement une association, avec leur
+// nombre, calculé en ignorant le filtre département lui-même — sinon un
+// département déjà choisi retomberait à zéro dans sa propre liste.
+const departementsDisponibles = computed(() => {
+  const compte = new Map<string, number>()
+  for (const a of associations.value) {
+    if (!a.departement || !passeFiltres(a, 'dept')) continue
+    compte.set(a.departement, (compte.get(a.departement) ?? 0) + 1)
+  }
+  return [...compte.entries()]
+    .map(([num, n]) => ({ num, nom: nomDepartement(num), n }))
+    .sort((x, y) => x.num.localeCompare(y.num))
 })
+
+function compteService(service: string) {
+  return associations.value.filter(a => passeFiltres(a, 'service') && parserServices(a.services).includes(service)).length
+}
+
+function basculerService(service: string) {
+  const i = servicesActifs.value.indexOf(service)
+  if (i === -1) servicesActifs.value.push(service)
+  else servicesActifs.value.splice(i, 1)
+}
 
 const PAGE_SIZE = 20
 const page = ref(Number(route.query.page) || 1)
 
 // Un changement de filtre revient à la page 1
-watch([search, filtreDept], () => {
+watch([search, filtreDept, servicesActifs], () => {
   page.value = 1
-})
+}, { deep: true })
 
 // Reflète l'état (page + filtres) dans l'URL pour le restaurer au retour navigateur
-watch([search, filtreDept, page], () => {
+watch([search, filtreDept, servicesActifs, page], () => {
   const query: Record<string, string> = {}
   if (search.value.trim()) query.q = search.value.trim()
   if (filtreDept.value.trim()) query.dept = filtreDept.value.trim()
+  if (servicesActifs.value.length) query.services = servicesActifs.value.join(',')
   if (page.value > 1) query.page = String(page.value)
   router.replace({ query })
-})
+}, { deep: true })
 
 const totalPages = computed(() => Math.ceil(associationsFiltrees.value.length / PAGE_SIZE))
 // Borne la page si l'URL restaurée dépasse le nombre de pages disponibles
@@ -117,14 +156,38 @@ function scrollTop() {
                 class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
               />
             </div>
-            <input
+            <!-- Liste nommée plutôt qu'un champ où taper un numéro de mémoire :
+                 « 7 » ne donnait rien, ni « Gironde ». Limitée aux départements
+                 qui ont réellement une association, avec leur nombre. -->
+            <select
               v-model="filtreDept"
-              type="text"
-              aria-label="Filtrer par numéro de département"
-              placeholder="N° département (ex: 75)"
-              maxlength="3"
-              class="w-full sm:w-44 px-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
-            />
+              aria-label="Filtrer par département"
+              class="w-full sm:w-64 px-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
+            >
+              <option value="">Tous les départements</option>
+              <option v-for="d in departementsDisponibles" :key="d.num" :value="d.num">
+                {{ d.nom }} ({{ d.num }}) — {{ d.n }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Services : le même test que pour « fait des bilans » côté
+               praticiens — une mauvaise réponse fait-elle perdre du temps à
+               une famille qui cherche précisément ce service ? « Autre »,
+               104 occurrences mais aucune information, n'est pas retenu. -->
+          <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
+            <button
+              v-for="s in SERVICES_ASSOCIATIONS"
+              :key="s"
+              type="button"
+              :aria-pressed="servicesActifs.includes(s)"
+              :disabled="compteService(s) === 0 && !servicesActifs.includes(s)"
+              class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              :class="servicesActifs.includes(s) ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
+              @click="basculerService(s)"
+            >
+              {{ s }} <span class="tabular-nums opacity-60">{{ compteService(s) }}</span>
+            </button>
           </div>
         </div>
 
@@ -170,13 +233,16 @@ function scrollTop() {
                       <span v-if="a.type_association" class="text-gray-500">{{ a.type_association }}</span>
                     </p>
 
-                    <!-- Services -->
+                    <!-- Services : parserServices() plutôt qu'un split() brut —
+                         la donnée source contient des retours à la ligne au
+                         milieu de certains libellés, qui s'affichaient sinon
+                         coupés en deux lignes dans la pastille. -->
                     <div v-if="a.services" class="flex flex-wrap gap-1.5 mb-3">
                       <span
-                        v-for="service in a.services.split(',').slice(0, 4)"
+                        v-for="service in parserServices(a.services).slice(0, 4)"
                         :key="service"
                         class="px-2.5 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-full"
-                      >{{ service.trim() }}</span>
+                      >{{ service }}</span>
                     </div>
 
                     <!-- Age public -->
