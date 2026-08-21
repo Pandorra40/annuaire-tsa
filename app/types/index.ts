@@ -5,6 +5,8 @@ export const AGES_OPTIONS = ['Enfant', 'Adolescent', 'Adulte'] as const
 // priorité, contrairement aux signalements communautaires. La même chaîne est reprise
 // telle quelle dans api/signalements.php — toute modification doit l'être des deux côtés.
 export const MOTIF_RETRAIT = 'Je suis ce praticien et je demande le retrait de ma fiche'
+// Chaîne dupliquée dans api/signalements.php — toute modification doit l'être des deux côtés.
+export const MOTIF_RETRAIT_ASSOCIATION = 'Je représente cette association et je demande le retrait de la fiche'
 
 export interface Praticien {
   id: number
@@ -137,8 +139,12 @@ export interface SuggestionPraticien {
 
 export interface Signalement {
   id: number
-  praticien_id: number
-  praticien_nom: string
+  // Un signalement porte sur un praticien OU une association, jamais les
+  // deux — l'un des deux couples id/nom est toujours null.
+  praticien_id?: number | null
+  praticien_nom?: string | null
+  association_id?: number | null
+  association_nom?: string | null
   motif: string
   detail?: string | null
   // Adresse à laquelle répondre à l'auteur de la contribution. Distincte de

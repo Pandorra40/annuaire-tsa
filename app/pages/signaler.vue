@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { MOTIF_RETRAIT } from '~/types/index'
-import type { Praticien } from '~/types/index'
+import { MOTIF_RETRAIT, MOTIF_RETRAIT_ASSOCIATION } from '~/types/index'
+import type { Association, Praticien } from '~/types/index'
 
 useSeoMeta({
   title: 'Signaler une erreur — Annuaire TSA'
@@ -15,12 +15,21 @@ const config = useRuntimeConfig()
 // l'API refuse. Tout ce qui vient de l'URL doit rester réactif.
 const id = computed(() => (route.query.id as string) || '')
 
+// Un seul formulaire pour les deux fiches : la fiche association n'avait
+// jusqu'ici aucun chemin de correction, contrairement à la fiche praticien.
+// Plutôt qu'une deuxième page presque identique, le type distingue les deux
+// dans les rubriques, le motif de retrait et l'identifiant envoyé à l'API.
+const estAssociation = computed(() => route.query.type === 'association')
+
 // Lien de retour : vers la fiche d'origine si on vient d'une fiche, sinon l'annuaire
-const retour = computed(() => (id.value ? `/praticien/${id.value}` : '/'))
+const retour = computed(() => {
+  if (!id.value) return '/'
+  return estAssociation.value ? `/association/${id.value}` : `/praticien/${id.value}`
+})
 
 const MOTIF_CORRECTION = 'Informations incorrectes (adresse, téléphone…)'
 
-const motifs = [
+const MOTIFS_PRATICIEN = [
   MOTIF_RETRAIT,
   MOTIF_CORRECTION,
   'Praticien n\'exerce plus',
@@ -30,12 +39,22 @@ const motifs = [
   'Autre'
 ]
 
-// La fiche praticien envoie ici avec un motif déjà choisi, pour que le praticien
-// n'ait pas à se reconnaître dans une liste écrite pour les visiteurs.
-const RACCOURCIS: Record<string, string> = {
+const MOTIFS_ASSOCIATION = [
+  MOTIF_RETRAIT_ASSOCIATION,
+  MOTIF_CORRECTION,
+  'Association n\'existe plus',
+  'Doublon',
+  'Autre'
+]
+
+const motifs = computed(() => estAssociation.value ? MOTIFS_ASSOCIATION : MOTIFS_PRATICIEN)
+
+// La fiche envoie ici avec un motif déjà choisi, pour que qui la gère n'ait
+// pas à se reconnaître dans une liste écrite pour les visiteurs.
+const raccourcis = computed<Record<string, string>>(() => ({
   correction: MOTIF_CORRECTION,
-  retrait: MOTIF_RETRAIT
-}
+  retrait: estAssociation.value ? MOTIF_RETRAIT_ASSOCIATION : MOTIF_RETRAIT
+}))
 
 const form = reactive({
   motif: '',
@@ -46,19 +65,23 @@ const form = reactive({
 // La fiche visée, pour afficher la valeur actuelle en face de chaque correction.
 // `server: false` est justifié ici, contrairement aux pages de liste : au build
 // l'identifiant n'existe pas encore, il arrive par la barre d'adresse.
-const { fetchPraticien } = useApi()
+const { fetchPraticien, fetchAssociation } = useApi()
 const { data: ficheChargee } = await useAsyncData(
-  () => `signaler-fiche-${id.value || 'aucune'}`,
-  () => (id.value ? fetchPraticien(Number(id.value)) : Promise.resolve(null)),
-  { watch: [id], server: false }
+  () => `signaler-fiche-${estAssociation.value ? 'a' : 'p'}-${id.value || 'aucune'}`,
+  async () => {
+    if (!id.value) return null
+    return estAssociation.value ? await fetchAssociation(Number(id.value)) : await fetchPraticien(Number(id.value))
+  },
+  { watch: [id, estAssociation], server: false }
 )
-const fiche = computed<Praticien | null>(() => ficheChargee.value?.[0] ?? null)
+const fiche = computed<Praticien | Association | null>(() => ficheChargee.value?.[0] ?? null)
 
-// Les rubriques corrigeables reprennent exactement les champs de la fiche.
-// C'est le cœur du correctif : un signalement « TARIF MODIFIÉ » sans le
-// nouveau tarif devient impossible à produire, parce que cocher une rubrique
-// ouvre le champ qui doit la remplacer.
-const CHAMPS_CORRIGEABLES = [
+// Les rubriques corrigeables reprennent exactement les champs de la fiche —
+// deux jeux distincts, une association n'ayant ni tarifs ni types
+// d'intervention. C'est le cœur du correctif : un signalement « TARIF
+// MODIFIÉ » sans le nouveau tarif devient impossible à produire, parce que
+// cocher une rubrique ouvre le champ qui doit la remplacer.
+const CHAMPS_PRATICIEN = [
   { cle: 'tarifs', label: 'Tarifs', lignes: 1 },
   { cle: 'types_intervention', label: 'Types d\'intervention', lignes: 3 },
   { cle: 'bilans', label: 'Bilans', lignes: 2 },
@@ -72,10 +95,31 @@ const CHAMPS_CORRIGEABLES = [
   { cle: 'site_web', label: 'Site web ou prise de rendez-vous', lignes: 1 }
 ] as const
 
-type CleChamp = typeof CHAMPS_CORRIGEABLES[number]['cle']
+const CHAMPS_ASSOCIATION = [
+  { cle: 'nom', label: 'Nom de l\'association', lignes: 1 },
+  { cle: 'adresse', label: 'Adresse', lignes: 1 },
+  { cle: 'ville', label: 'Ville', lignes: 1 },
+  { cle: 'telephone', label: 'Téléphone', lignes: 1 },
+  { cle: 'email', label: 'Adresse email', lignes: 1 },
+  { cle: 'site_web', label: 'Site web', lignes: 1 },
+  { cle: 'services', label: 'Services proposés', lignes: 2 },
+  { cle: 'age_public', label: 'Public concerné', lignes: 1 },
+  { cle: 'description', label: 'Présentation', lignes: 3 }
+] as const
+
+type CleChamp = typeof CHAMPS_PRATICIEN[number]['cle'] | typeof CHAMPS_ASSOCIATION[number]['cle']
+
+const champsCorrigeables = computed(() => estAssociation.value ? CHAMPS_ASSOCIATION : CHAMPS_PRATICIEN)
 
 const champsCoches = ref<CleChamp[]>([])
 const corrections = reactive<Record<string, string>>({})
+
+// Changer de fiche en cours de route n'arrive pas dans l'usage réel — l'URL
+// fixe le type au chargement — mais si jamais, les cases cochées pour l'autre
+// jeu de rubriques n'auraient plus de sens affichées.
+watch(champsCorrigeables, () => {
+  champsCoches.value = []
+})
 
 function basculerChamp(cle: CleChamp) {
   const i = champsCoches.value.indexOf(cle)
@@ -92,7 +136,7 @@ function basculerChamp(cle: CleChamp) {
 }
 
 function valeurActuelle(cle: CleChamp): string {
-  const valeur = fiche.value?.[cle as keyof Praticien]
+  const valeur = (fiche.value as Record<string, unknown> | null)?.[cle]
   const texte = typeof valeur === 'string' ? valeur.trim() : ''
   return texte || 'Non renseigné'
 }
@@ -106,13 +150,13 @@ const pretAEnvoyer = computed(() =>
 )
 
 // Le relevé envoyé à l'admin : rubrique, valeur en ligne, valeur proposée.
-// Composé côté client plutôt que stocké en colonnes séparées — trois fiches
-// sur mille sont concernées à la fois, une table dédiée serait hors de
+// Composé côté client plutôt que stocké en colonnes séparées — un volume
+// modeste de fiches est concerné à la fois, une table dédiée serait hors de
 // proportion, et le texte reste lisible tel quel dans l'administration.
 function releveDesCorrections(): string {
   return champsCoches.value
     .map((cle) => {
-      const label = CHAMPS_CORRIGEABLES.find(c => c.cle === cle)?.label ?? cle
+      const label = champsCorrigeables.value.find(c => c.cle === cle)?.label ?? cle
       return `${label}\n  actuel  : ${valeurActuelle(cle)}\n  corrigé : ${corrections[cle]?.trim()}`
     })
     .join('\n\n')
@@ -121,11 +165,11 @@ function releveDesCorrections(): string {
 // Pour la même raison, le motif est appliqué dès que l'adresse réelle est connue, et
 // une seule fois : un choix déjà fait par le visiteur ne doit pas être écrasé.
 watch(() => route.query.motif, (valeur) => {
-  const cible = RACCOURCIS[valeur as string]
+  const cible = raccourcis.value[valeur as string]
   if (cible && !form.motif) form.motif = cible
 }, { immediate: true })
 
-const demandeRetrait = computed(() => form.motif === MOTIF_RETRAIT)
+const demandeRetrait = computed(() => form.motif === MOTIF_RETRAIT || form.motif === MOTIF_RETRAIT_ASSOCIATION)
 const demandeCorrection = computed(() => form.motif === MOTIF_CORRECTION)
 
 const loading = ref(false)
@@ -170,7 +214,8 @@ async function soumettre() {
     await $fetch(`${config.public.apiBase}/signalements.php`, {
       method: 'POST',
       body: {
-        praticien_id: id.value,
+        praticien_id: estAssociation.value ? null : id.value,
+        association_id: estAssociation.value ? id.value : null,
         motif: form.motif,
         detail: detail || null,
         contact_auteur: form.contactAuteur || null
@@ -267,7 +312,7 @@ async function soumettre() {
               <span class="block text-sm font-semibold text-gray-700 mb-2">Qu'est-ce qui doit changer ? *</span>
               <div class="flex flex-wrap gap-2">
                 <button
-                  v-for="c in CHAMPS_CORRIGEABLES"
+                  v-for="c in champsCorrigeables"
                   :key="c.cle"
                   type="button"
                   :aria-pressed="champsCoches.includes(c.cle)"
@@ -286,7 +331,7 @@ async function soumettre() {
               <div v-else class="mt-4 space-y-3">
                 <div v-for="cle in champsCoches" :key="cle" class="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
                   <p class="text-sm font-semibold text-indigo-900 mb-3">
-                    {{ CHAMPS_CORRIGEABLES.find(c => c.cle === cle)?.label }}
+                    {{ champsCorrigeables.find(c => c.cle === cle)?.label }}
                   </p>
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
@@ -300,7 +345,7 @@ async function soumettre() {
                       <textarea
                         :id="`corr-${cle}`"
                         v-model="corrections[cle]"
-                        :rows="CHAMPS_CORRIGEABLES.find(c => c.cle === cle)?.lignes ?? 2"
+                        :rows="champsCorrigeables.find(c => c.cle === cle)?.lignes ?? 2"
                         placeholder="La bonne information…"
                         class="w-full border border-indigo-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 bg-white text-gray-900 resize-vertical"
                       />

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { MOTIF_RETRAIT } from '~/types/index'
+import { MOTIF_RETRAIT, MOTIF_RETRAIT_ASSOCIATION } from '~/types/index'
 import type { Praticien, Signalement, SuggestionPraticien } from '~/types'
 
 definePageMeta({ layout: 'admin' })
@@ -345,8 +345,10 @@ async function deconnexion() {
           :aria-current="activeTab === stat.tab ? 'true' : undefined"
           @click="setTab(stat.tab)"
         >
-          <div :class="['text-2xl font-bold tabular-nums', stat.color]">{{ stat.val }}</div>
-          <div class="text-xs text-gray-500 mt-1">{{ stat.label }}</div>
+          <!-- span et non div : le contenu d'un <button> se limite au contenu
+             phrasant, un <div> n'y est pas permis. -->
+          <span :class="['block text-2xl font-bold tabular-nums', stat.color]">{{ stat.val }}</span>
+          <span class="block text-xs text-gray-500 mt-1">{{ stat.label }}</span>
         </button>
       </div>
 
@@ -492,17 +494,32 @@ async function deconnexion() {
         <div v-if="activeTab === 'signalements'">
           <div v-if="!signalements.length" class="text-center py-12 text-gray-500">Aucun signalement en cours.</div>
           <div v-else class="space-y-3">
-            <UCard v-for="s in signalements" :key="s.id" :class="s.motif === MOTIF_RETRAIT ? 'ring-2 ring-red-400' : ''">
+            <UCard v-for="s in signalements" :key="s.id" :class="(s.motif === MOTIF_RETRAIT || s.motif === MOTIF_RETRAIT_ASSOCIATION) ? 'ring-2 ring-red-400' : ''">
               <div v-if="s.motif === MOTIF_RETRAIT" class="mb-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700 font-semibold">
                 ⚠ Demande de retrait par le praticien · délai légal : un mois maximum
               </div>
-              <div class="font-bold text-gray-900">{{ s.praticien_nom || 'Praticien #' + s.praticien_id }}</div>
+              <div v-else-if="s.motif === MOTIF_RETRAIT_ASSOCIATION" class="mb-3 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-700 font-semibold">
+                ⚠ Demande de retrait par l'association · délai légal : un mois maximum
+              </div>
+              <div class="font-bold text-gray-900">
+                {{ s.association_id ? (s.association_nom || 'Association #' + s.association_id) : (s.praticien_nom || 'Praticien #' + s.praticien_id) }}
+                <UBadge v-if="s.association_id" color="neutral" variant="soft" size="xs" class="ml-1">Association</UBadge>
+              </div>
               <div class="text-sm text-gray-500 mt-1">{{ s.motif }}</div>
               <div v-if="s.detail" class="text-xs text-gray-500 mt-2 p-2 bg-gray-50 rounded">{{ s.detail }}</div>
-              <ContactAuteurAdmin :contact="s.contact_auteur" :objet="`votre signalement — ${s.praticien_nom}`" />
+              <ContactAuteurAdmin :contact="s.contact_auteur" :objet="`votre signalement — ${s.association_id ? s.association_nom : s.praticien_nom}`" />
               <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100 flex-wrap">
-                <NuxtLink :to="`/admin/modifier?id=${s.praticien_id}`" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Modifier la fiche</NuxtLink>
-                <button type="button" v-if="s.motif === MOTIF_RETRAIT" class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(s.praticien_id)">Supprimer la fiche</button>
+                <template v-if="s.association_id">
+                  <!-- Pas d'édition depuis l'admin pour les associations à ce
+                       jour — la correction se fait encore à la main en base,
+                       contrairement aux praticiens. Le lien permet au moins de
+                       relire la fiche visée avant d'y toucher. -->
+                  <NuxtLink :to="`/association/${s.association_id}`" target="_blank" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Voir la fiche ↗</NuxtLink>
+                </template>
+                <template v-else>
+                  <NuxtLink :to="`/admin/modifier?id=${s.praticien_id}`" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Modifier la fiche</NuxtLink>
+                  <button type="button" v-if="s.motif === MOTIF_RETRAIT && s.praticien_id" class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(s.praticien_id)">Supprimer la fiche</button>
+                </template>
                 <button type="button" class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors" @click="ignorerSignalement(s.id)">Ignorer</button>
               </div>
             </UCard>

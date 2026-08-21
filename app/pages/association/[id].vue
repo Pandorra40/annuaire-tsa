@@ -34,13 +34,16 @@ onMounted(async () => {
 
 const association = computed<Association | null>(() => fraiche.value ?? data.value?.[0] ?? null)
 
-// Certains noms d'association sont très longs : on n'ajoute le suffixe que s'il
-// tient dans les 70 caractères affichés par les moteurs de recherche.
+// Certains noms d'association sont très longs : on n'ajoute le suffixe que
+// s'il tient dans les 70 caractères affichés par les moteurs de recherche —
+// et si le nom seul dépasse déjà cette limite (ex. « CERESA Centre Régional
+// d'Education et de Services pour l'Autisme en Midi-Pyrénées », 81
+// caractères), il est lui-même tronqué plutôt que publié tel quel.
 const titre = computed(() => {
   const nom = association.value?.nom
   if (!nom) return 'Association TSA'
   const complet = `${nom} — Associations TSA`
-  return complet.length <= 70 ? complet : nom
+  return tronquerPourTitre(complet) === complet ? complet : tronquerPourTitre(nom)
 })
 
 useSeoMeta({
@@ -167,6 +170,52 @@ useSeoMeta({
               <p class="text-gray-600 text-sm">
                 {{ [association.adresse, association.ville, association.departement ? `(${association.departement})` : ''].filter(Boolean).join(', ') }}
               </p>
+            </div>
+
+            <!-- Exactitude de la fiche : le manque le plus net relevé sur les
+                 associations — une fiche dont le téléphone a changé n'avait
+                 littéralement aucun bouton pour le dire, contrairement à un
+                 praticien. Même bloc, même vocabulaire par public. -->
+            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h2 class="font-bold text-gray-900 mb-4 flex items-center gap-3">
+                <span class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-base">🚩</span>
+                Cette fiche est-elle exacte ?
+              </h2>
+
+              <p class="font-semibold text-gray-900 text-sm mb-2">Vous consultez cette fiche ?</p>
+              <p class="text-sm text-gray-600 leading-relaxed">
+                Une information vous semble inexacte ou obsolète ?
+              </p>
+              <NuxtLink
+                :to="`/signaler?type=association&id=${association.id}`"
+                class="inline-flex items-center gap-1.5 mt-2 text-sm text-amber-700 hover:text-amber-900 transition-colors font-medium"
+              >
+                Signaler une erreur →
+              </NuxtLink>
+
+              <div class="border-t border-gray-100 mt-5 pt-5">
+                <p class="font-semibold text-gray-900 text-sm mb-2">Vous êtes cette association ?</p>
+                <p class="text-sm text-gray-600 leading-relaxed mb-4">
+                  Cette fiche vous concerne et reste modifiable à tout moment.
+                  Aucun justificatif ne vous sera demandé.
+                </p>
+                <div class="space-y-2">
+                  <NuxtLink
+                    :to="`/signaler?type=association&id=${association.id}&motif=correction`"
+                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700 transition-colors"
+                  >
+                    <UIcon name="i-lucide-pencil" class="w-4 h-4" />
+                    Corriger nos informations
+                  </NuxtLink>
+                  <NuxtLink
+                    :to="`/signaler?type=association&id=${association.id}&motif=retrait`"
+                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 text-sm font-medium hover:bg-gray-50 transition-colors"
+                  >
+                    <UIcon name="i-lucide-x" class="w-4 h-4" />
+                    Retirer la fiche
+                  </NuxtLink>
+                </div>
+              </div>
             </div>
 
           </div>
