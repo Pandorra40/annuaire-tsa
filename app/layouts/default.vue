@@ -103,7 +103,11 @@ function toggleContraste() {
                combinaisons de taille et de mode lecture tiennent, mesuré. En
                dessous, le menu compact prend le relais : il contient les mêmes
                liens, plus les réglages d'accessibilité. -->
-          <nav class="hidden xl:flex items-center gap-5">
+          <!-- Étiquette nécessaire dès qu'une page porte un second <nav> —
+               c'est le cas des pages Ressources, avec leur nav d'onglets
+               (RessourcesOnglets.vue) : sans nom distinct, les deux repères
+               de navigation sont indiscernables l'un de l'autre. -->
+          <nav class="hidden xl:flex items-center gap-5" aria-label="Navigation principale">
             <NuxtLink
               v-for="link in navLinks"
               :key="link.to"

@@ -78,9 +78,20 @@ const delaiCourt = computed(() => {
       </div>
 
       <div v-if="!masquerDepartement" class="hidden sm:flex flex-col items-end gap-2 shrink-0">
-        <button type="button" class="text-xs font-bold bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg hover:bg-gray-200 transition-colors" @click.prevent.stop="navigateTo(`/departement/${p.departement}`)">
+        <!-- Pas de <button> ici : toute la carte est déjà un <a> (NuxtLink),
+             et le contenu d'un lien ne peut pas inclure d'élément interactif
+             imbriqué — un span en fait office, avec le même comportement
+             clavier qu'un vrai bouton. -->
+        <span
+          role="button"
+          tabindex="0"
+          class="text-xs font-bold bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
+          @click.prevent.stop="navigateTo(`/departement/${p.departement}`)"
+          @keydown.enter.prevent.stop="navigateTo(`/departement/${p.departement}`)"
+          @keydown.space.prevent.stop="navigateTo(`/departement/${p.departement}`)"
+        >
           Dép. {{ p.departement }}
-        </button>
+        </span>
       </div>
     </div>
 
