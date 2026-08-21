@@ -77,9 +77,9 @@ async function soumettre() {
       nom: form.nom,
       type: form.type,
       ville: form.ville,
-      departement: form.codepostal.substring(0, 2),
+      departement: departementDepuisSaisie(form.codepostal),
       ville2: secondLieuOuvert.value && form.ville2 ? form.ville2 : null,
-      departement2: secondLieuOuvert.value && form.codepostal2 ? form.codepostal2.substring(0, 2) : null,
+      departement2: secondLieuOuvert.value && form.codepostal2 ? departementDepuisSaisie(form.codepostal2) : null,
       telephone: form.telephone || null,
       site_web: form.site_web || null,
       types_intervention: form.typesIntervention || null,
@@ -349,7 +349,10 @@ async function soumettre() {
             <NuxtLink to="/" class="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors">
               Annuler
             </NuxtLink>
-            <button type="button" :disabled="loading || notesTropLongues" class="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 disabled:opacity-50 transition-colors" @click="soumettre">
+            <!-- notesTropLongues a disparu avec l'éditeur Tiptap : le garde-fou
+                 est désormais le maxlength de chaque rubrique, aligné sur les
+                 plafonds vérifiés par l'API. -->
+            <button type="button" :disabled="loading" class="px-6 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 disabled:opacity-50 transition-colors" @click="soumettre">
               {{ loading ? 'Envoi…' : 'Envoyer la suggestion →' }}
             </button>
           </div>

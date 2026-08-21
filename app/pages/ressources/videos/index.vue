@@ -7,15 +7,32 @@ useSeoMeta({
 })
 
 const { fetchVideos } = useApi()
-// server: false — sans quoi le prérendu fige « aucun résultat » dans le HTML.
-const { data: videos, status } = await useAsyncData('videos', fetchVideos, { server: false })
+
+// `server: false` évitait bien de figer « aucun résultat » dans le HTML, mais
+// au prix du contenu entier : la page était publiée vide, invisible pour les
+// moteurs de recherche. Le vrai remède est celui des pages de détail —
+// charger au build, puis relire l'API au montage pour ne pas figer.
+const { data: prerendues, status } = await useAsyncData('videos', fetchVideos)
+
+const fraiches = ref<Video[] | null>(null)
+
+onMounted(async () => {
+  try {
+    const reponse = await fetchVideos()
+    if (reponse) fraiches.value = reponse
+  } catch {
+    // Réseau indisponible : on garde la liste du prérendu, déjà affichée.
+  }
+})
+
+const videos = computed<Video[]>(() => fraiches.value ?? prerendues.value ?? [])
 
 const search = ref('')
 const activeCat = ref('')
 
 const filtrees = computed(() => {
   const q = normaliserRecherche(search.value).trim()
-  return (videos.value ?? []).filter((v: Video) => {
+  return videos.value.filter((v: Video) => {
     const match = !q || normaliserRecherche(`${v.titre} ${v.chaine} ${v.pourquoi}`).includes(q)
     return match && (!activeCat.value || v.categorie === activeCat.value)
   })
@@ -24,7 +41,9 @@ const filtrees = computed(() => {
 const chaines = computed(() => filtrees.value.filter(v => v.type === 'chaine'))
 const clips = computed(() => filtrees.value.filter(v => v.type === 'video'))
 
-const chargement = computed(() => status.value === 'pending' || status.value === 'idle')
+const chargement = computed(() =>
+  (status.value === 'pending' || status.value === 'idle') && !videos.value.length
+)
 
 const COULEURS: Record<string, string> = {
   professionnels: 'bg-indigo-50 text-indigo-700',

@@ -42,7 +42,10 @@ export function useApi() {
     return await $fetch<Video[]>(`${base}/videos.php`)
   }
 
-  async function suggererPraticien(payload: SuggestionPraticien) {
+  // `Omit<…, 'id'>` sur les trois envois de suggestion : l'identifiant est
+  // attribué par la base, un formulaire n'en a donc jamais. Le type complet
+  // reste exigé partout où l'on relit une suggestion enregistrée, côté admin.
+  async function suggererPraticien(payload: Omit<SuggestionPraticien, 'id'>) {
     return await $fetch(`${base}/suggestions.php`, {
       method: 'POST',
       body: payload
@@ -56,14 +59,14 @@ export function useApi() {
     })
   }
 
-  async function suggererLivre(payload: SuggestionLivre) {
+  async function suggererLivre(payload: Omit<SuggestionLivre, 'id'>) {
     return await $fetch(`${base}/suggestions_livres.php`, {
       method: 'POST',
       body: payload
     })
   }
 
-  async function suggererAssociation(payload: SuggestionAssociation) {
+  async function suggererAssociation(payload: Omit<SuggestionAssociation, 'id'>) {
     return await $fetch(`${base}/suggestions_associations.php`, {
       method: 'POST',
       body: payload

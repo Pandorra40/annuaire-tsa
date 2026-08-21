@@ -10,9 +10,35 @@ useSeoMeta({
 
 const { fetchPraticiens } = useApi()
 
-const { data: praticiens, status } = await useAsyncData('praticiens', fetchPraticiens, {
-  server: false
+// Chargé à la génération du site, et non plus `server: false` : sans données au
+// build, la page d'accueil était publiée vide — aucun praticien dans le HTML,
+// donc rien pour les moteurs de recherche, et un « Chargement… » à chaque
+// visite. C'est le motif déjà en place sur departement/[num].vue.
+const { data: prerendus, status } = await useAsyncData('praticiens', fetchPraticiens)
+
+// La page étant prérendue, son contenu est figé au build : il faut relire
+// l'API au montage et servir cette version-là, sinon une fiche corrigée depuis
+// l'admin n'apparaît qu'après avoir régénéré tout le site.
+const fraiche = ref<Praticien[] | null>(null)
+
+onMounted(async () => {
+  try {
+    const reponse = await fetchPraticiens()
+    if (reponse) fraiche.value = reponse
+  } catch {
+    // Réseau indisponible : on garde la liste du prérendu, déjà affichée.
+  }
 })
+
+const praticiens = computed<Praticien[]>(() => fraiche.value ?? prerendus.value ?? [])
+
+// L'erreur ne s'affiche que si rien n'a pu être chargé, ni au build ni depuis
+// le navigateur : un échec au build seul ne doit pas figer un message d'erreur
+// dans une page qui se remplira très bien côté client.
+const enErreur = computed(() => status.value === 'error' && !praticiens.value.length)
+const enChargement = computed(() =>
+  (status.value === 'pending' || status.value === 'idle') && !praticiens.value.length
+)
 
 const route = useRoute()
 const router = useRouter()
@@ -43,10 +69,18 @@ const PAGE_SIZE = 20
 const page = ref(Number(route.query.page) || 1)
 
 const praticiensFiltres = computed(() => {
-  if (!praticiens.value) return []
   const q = normaliserRecherche(search.value).trim()
   return praticiens.value.filter((p: Praticien) => {
-    const matchQ = !q || normaliserRecherche(p.ville).includes(q) || p.departement.includes(q) || normaliserRecherche(p.nom).includes(q)
+    // Le second lieu compte autant que le premier : sans ces deux dernières
+    // conditions, chercher « Toulouse » ne remontait pas un praticien dont
+    // c'est la seconde adresse. Le filtre serveur et les pages département
+    // tenaient déjà compte de ville2/departement2, pas cette recherche-ci.
+    const matchQ = !q
+      || normaliserRecherche(p.ville).includes(q)
+      || p.departement.includes(q)
+      || normaliserRecherche(p.nom).includes(q)
+      || normaliserRecherche(p.ville2 ?? '').includes(q)
+      || (p.departement2 ?? '').includes(q)
     const matchT = filtreType.value === 'tous' || p.type === filtreType.value
     const matchA = filtreAge.value === 'tous' || p.ages.includes(filtreAge.value)
     const matchL = filtreTele.value === 'tous' || (filtreTele.value === 'oui' && p.teleconsultation)
@@ -224,11 +258,11 @@ function scrollToAnnuaire() {
         </div>
 
         <!-- États -->
-        <div v-if="status === 'pending' || status === 'idle'" class="text-center py-16 text-gray-500 text-sm">
+        <div v-if="enChargement" class="text-center py-16 text-gray-500 text-sm">
           Chargement de l'annuaire…
         </div>
 
-        <div v-else-if="status === 'error'" class="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-700 text-sm">
+        <div v-else-if="enErreur" class="bg-red-50 border border-red-200 rounded-2xl p-4 text-red-700 text-sm">
           Impossible de charger les praticiens. Réessayez dans quelques instants.
         </div>
 

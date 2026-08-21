@@ -39,6 +39,9 @@ export interface Praticien {
   autres_infos?: string | null
   adeli?: string
   confirmations: number
+  // « publie » ou « masquee ». Absent des réponses publiques, qui ne renvoient
+  // que les fiches publiées : seul admin_praticiens.php expose la colonne.
+  statut?: string
   created_at?: string
   // Vrai si le praticien a consenti au formulaire de contact. L'API ne publie
   // que ce booléen : son adresse email reste sur le serveur.

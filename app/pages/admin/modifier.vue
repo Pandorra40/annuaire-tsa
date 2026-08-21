@@ -123,11 +123,11 @@ async function sauvegarder() {
       method: 'PATCH',
       body: JSON.stringify({
         nom: form.nom, type: form.type, ville: form.ville,
-        departement: form.departement.substring(0, 2),
+        departement: departementDepuisSaisie(form.departement),
         adresse: form.adresse || null,
         ville2: secondLieuOuvert.value && form.ville2 ? form.ville2 : null,
         adresse2: secondLieuOuvert.value && form.adresse2 ? form.adresse2 : null,
-        departement2: secondLieuOuvert.value && form.departement2 ? form.departement2.substring(0, 2) : null,
+        departement2: secondLieuOuvert.value && form.departement2 ? departementDepuisSaisie(form.departement2) : null,
         telephone: form.telephone || null,
         site_web: form.site_web || null,
         teleconsultation: form.teleconsultation,

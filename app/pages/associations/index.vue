@@ -8,9 +8,28 @@ useSeoMeta({
 
 const { fetchAssociations } = useApi()
 
-const { data, status } = await useAsyncData('associations', fetchAssociations, { server: false })
+// Chargé à la génération plutôt qu'en `server: false` : sans données au build,
+// la liste était publiée vide, invisible pour les moteurs de recherche.
+const { data: prerendues, status } = await useAsyncData('associations', fetchAssociations)
 
-const associations = computed<Association[]>(() => data.value ?? [])
+// La page étant prérendue, son contenu est figé au build : relire l'API au
+// montage pour refléter les modifications faites depuis l'admin.
+const fraiches = ref<Association[] | null>(null)
+
+onMounted(async () => {
+  try {
+    const reponse = await fetchAssociations()
+    if (reponse) fraiches.value = reponse
+  } catch {
+    // Réseau indisponible : on garde la liste du prérendu, déjà affichée.
+  }
+})
+
+const associations = computed<Association[]>(() => fraiches.value ?? prerendues.value ?? [])
+
+const enChargement = computed(() =>
+  (status.value === 'pending' || status.value === 'idle') && !associations.value.length
+)
 
 const route = useRoute()
 const router = useRouter()
@@ -110,7 +129,7 @@ function scrollTop() {
         </div>
 
         <!-- CHARGEMENT -->
-        <div v-if="status === 'pending' || status === 'idle'" class="text-center py-16 text-gray-500 text-sm">
+        <div v-if="enChargement" class="text-center py-16 text-gray-500 text-sm">
           Chargement des associations…
         </div>
 

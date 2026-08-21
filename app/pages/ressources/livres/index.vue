@@ -7,9 +7,30 @@ useSeoMeta({
 })
 
 const { fetchLivres } = useApi()
-const { data: livres, status } = await useAsyncData('livres', fetchLivres, {
-  server: false
+
+// Chargé à la génération plutôt qu'en `server: false` : sans données au build,
+// la sélection était publiée vide, invisible pour les moteurs de recherche.
+// À ne pas confondre avec la requête data.bnf.fr plus bas, qui garde son
+// `server: false` pour une tout autre raison — son proxy PHP n'est pas
+// joignable pendant le build.
+const { data: prerendus, status } = await useAsyncData('livres', fetchLivres)
+
+const frais = ref<Livre[] | null>(null)
+
+onMounted(async () => {
+  try {
+    const reponse = await fetchLivres()
+    if (reponse) frais.value = reponse
+  } catch {
+    // Réseau indisponible : on garde la sélection du prérendu, déjà affichée.
+  }
 })
+
+const livres = computed<Livre[]>(() => frais.value ?? prerendus.value ?? [])
+
+const enChargement = computed(() =>
+  (status.value === 'pending' || status.value === 'idle') && !livres.value.length
+)
 
 const search = ref('')
 const activecat = ref('')
@@ -17,7 +38,7 @@ const activecat = ref('')
 const categories = ['témoignage', 'guide pratique', 'scientifique', 'bd', 'jeunesse', 'roman']
 
 const classiques = computed(() =>
-  (livres.value ?? []).filter((l: Livre) => {
+  livres.value.filter((l: Livre) => {
     const q = normaliserRecherche(search.value)
     const match = !q || normaliserRecherche(`${l.titre} ${l.auteur} ${l.description ?? ''} ${l.categorie ?? ''}`).includes(q)
     const cat = !activecat.value || l.categorie === activecat.value
@@ -49,7 +70,10 @@ const { data: newReleases, status: newReleasesStatus } = await useAsyncData('new
     const res = await $fetch<{ docs?: DocBnf[] }>(`${config.public.apiBase}/bnf-proxy.php`)
     const docs = res.docs ?? []
     return docs
-      .filter((d) => {
+      // Le prédicat de type n'est pas décoratif : sans lui, TypeScript ignore
+      // que ce filtre garantit un titre, et l'affichage de son initiale plus
+      // bas devient une erreur de compilation.
+      .filter((d): d is DocBnf & { title: string } => {
         if (!d.title) return false
         const langs = d.language ?? []
         if (langs.length > 0 && !langs.includes('fre') && !langs.includes('eng')) return false
@@ -140,7 +164,7 @@ const loadingNewReleases = computed(() =>
           <p class="text-gray-500 mt-2">Les incontournables recommandés par la communauté</p>
         </div>
 
-        <div v-if="status === 'pending' || status === 'idle'" class="text-center py-8 text-gray-500 text-sm">
+        <div v-if="enChargement" class="text-center py-8 text-gray-500 text-sm">
           Chargement des livres…
         </div>
 
