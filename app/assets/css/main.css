@@ -30,7 +30,46 @@
 }
 
 @theme static {
-  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-sans: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --font-display: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+
+  /* Neutres teintés indigo plutôt que gris pur — même échelle Tailwind
+     (gray-50…900), seules les valeurs changent. Comme le mode contraste et
+     le mode lecture ciblent ces classes par leur nom, pas par leur couleur,
+     ils continuent de fonctionner à l'identique après cette retteinte.
+     Contrastes vérifiés sur fond blanc : gray-500 ≥ 5:1, gray-600 ≥ 7:1
+     (l'existant, #6b7280, tenait 4,84:1 — pas de régression). */
+  --color-gray-50: #F7F5FC;
+  --color-gray-100: #EEEBFA;
+  --color-gray-200: #E2DEF2;
+  --color-gray-300: #C7C0DE;
+  --color-gray-400: #9D98BE;
+  --color-gray-500: #6E6A94;
+  --color-gray-600: #57527A;
+  --color-gray-700: #423D63;
+  --color-gray-800: #2D2A47;
+  --color-gray-900: #1B1830;
+
+  /* Rayons légèrement élargis — la respiration de la maquette « Boussole »,
+     sans excès sur les composants denses (pastilles, tableaux admin) qui
+     restent sur rounded-full / rounded-lg, non touchés ici. */
+  --radius-xl: 0.875rem;
+  --radius-2xl: 1.125rem;
+}
+
+/* Les titres portent la police d'accroche, le corps garde --font-sans :
+   aucune page à modifier pour cette distinction. */
+h1, h2, h3 {
+  font-family: var(--font-display);
+}
+
+/* @nuxt/ui définit --ui-radius indépendamment de l'échelle Tailwind ci-dessus
+   (vérifié : 0.25rem par défaut, sans lien avec --radius-xl/2xl). Sans cette
+   ligne, les composants Nuxt UI (admin, apropos, fiches praticien/association)
+   gardaient des angles plus serrés que le reste du site après l'élargissement
+   des rayons. +25 %, proportionnel à la hausse appliquée plus haut. */
+:root {
+  --ui-radius: 0.3rem;
 }
 
 /* Transitions douces pour le mode sombre */

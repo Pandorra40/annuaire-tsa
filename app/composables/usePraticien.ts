@@ -12,3 +12,23 @@ export function isNew(createdAt?: string) {
   if (!createdAt) return false
   return (new Date().getTime() - new Date(createdAt).getTime()) < 7 * 24 * 60 * 60 * 1000
 }
+
+// Une couleur par métier, réparties sur tout le cercle chromatique plutôt que
+// groupées dans le bleu-violet — la première version tombait à quatre métiers
+// sur sept dans le même bleu-violet. Toutes vérifiées à plus de 4,5:1 avec du
+// blanc, qui s'écrit dessus. « Structure » n'est pas un métier : gris chaud,
+// pas de couleur de métier.
+const COULEURS_METIER: Record<string, string> = {
+  Psychiatre: '#BE123C',
+  Pédopsychiatre: '#9A3412',
+  Psychologue: '#4338CA',
+  Neuropsychologue: '#A21CAF',
+  Orthophoniste: '#0369A1',
+  Ergothérapeute: '#15803D',
+  Psychomotricien: '#B45309',
+  Structure: '#57534E'
+}
+
+export function couleurMetier(type: string) {
+  return COULEURS_METIER[type] ?? '#57534E'
+}

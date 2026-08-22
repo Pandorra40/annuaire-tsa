@@ -102,7 +102,12 @@ function toggleContraste() {
                Au-delà, le conteneur est plafonné à 1152 px et toutes les
                combinaisons de taille et de mode lecture tiennent, mesuré. En
                dessous, le menu compact prend le relais : il contient les mêmes
-               liens, plus les réglages d'accessibilité. -->
+               liens, plus les réglages d'accessibilité.
+               Figtree/Noto Sans (remplaçant la police système) changent les
+               largeurs de texte mesurées ci-dessus : le seuil xl est conservé
+               tel quel, faute de pouvoir le remesurer dans cet environnement
+               (pas de navigateur disponible). À vérifier visuellement avant
+               d'envisager de le redescendre à lg. -->
           <!-- Étiquette nécessaire dès qu'une page porte un second <nav> —
                c'est le cas des pages Ressources, avec leur nav d'onglets
                (RessourcesOnglets.vue) : sans nom distinct, les deux repères
@@ -112,9 +117,9 @@ function toggleContraste() {
               v-for="link in navLinks"
               :key="link.to"
               :to="link.to"
-              class="text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
+              class="relative px-1 py-1 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
               active-class="text-gray-900"
-              exact-active-class="font-semibold"
+              exact-active-class="text-gray-900 font-semibold after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-[1.15rem] after:h-[3px] after:rounded-full after:bg-indigo-600"
             >
               {{ link.label }}
             </NuxtLink>

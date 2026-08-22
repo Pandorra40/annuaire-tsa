@@ -48,19 +48,6 @@ const filtreAge = ref((route.query.age as string) || 'tous')
 const filtreTele = ref((route.query.tele as string) || 'tous')
 const filtreBilans = ref((route.query.bilans as string) || 'tous')
 
-// Chiffres du bandeau d'accueil. Calculés sur les données réelles plutôt
-// qu'écrits en dur : ils répondent à la seule question d'un nouveau visiteur —
-// est-ce que ce site couvre ma région ? Les anciens « 100 % / 0 / ✏️ »
-// occupaient le même emplacement sans rien apprendre.
-const nbDepartements = computed(() => {
-  const vus = new Set<string>()
-  for (const p of praticiens.value) {
-    if (p.departement) vus.add(p.departement)
-    if (p.departement2) vus.add(p.departement2)
-  }
-  return vus.size
-})
-
 const howItWorks = [
   { titre: 'Trouver un spécialiste', desc: 'Recherchez par ville, département ou spécialité. Filtrez selon vos besoins.', emoji: '🔍', bg: 'bg-indigo-50 border-indigo-100', iconBg: 'bg-indigo-100' },
   { titre: 'Suggérer un praticien', desc: 'Vous connaissez un spécialiste qui n\'apparaît pas ? Ajoutez-le en quelques clics.', emoji: '➕', bg: 'bg-emerald-50 border-emerald-100', iconBg: 'bg-emerald-100' },
@@ -125,15 +112,18 @@ function scrollToAnnuaire() {
       <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at 15% 50%, rgba(239,68,68,0.06) 0%, transparent 50%), radial-gradient(ellipse at 85% 30%, rgba(99,102,241,0.07) 0%, transparent 50%), radial-gradient(ellipse at 50% 80%, rgba(74,222,128,0.05) 0%, transparent 50%)" />
       <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #f87171, #fb923c, #fbbf24, #4ade80, #60a5fa, #a78bfa, #f472b6)" />
 
-      <div class="relative max-w-4xl mx-auto px-6">
+      <div class="relative max-w-5xl mx-auto px-6">
         <div class="inline-flex items-center gap-2 bg-white border border-gray-200 shadow-sm rounded-full px-4 py-1.5 text-gray-700 text-sm font-medium mb-10">
           <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse inline-block"></span>
           Annuaire collaboratif · Gratuit · Sans inscription
         </div>
 
-        <h1 class="text-5xl sm:text-7xl font-black leading-tight mb-6 tracking-tight text-gray-900">
-          Trouvez un<br />
-          <span style="background: linear-gradient(90deg, #f87171 0%, #fb923c 20%, #fbbf24 40%, #4ade80 60%, #60a5fa 80%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">spécialiste en autisme</span><br />
+        <!-- clamp() + text-wrap: balance plutôt que des <br> figés à text-7xl :
+             en mode texte agrandi (A+), le titre occupait presque tout
+             l'écran et coupait mal. Il reste grand, il s'adapte simplement. -->
+        <h1 class="font-black leading-tight mb-6 tracking-tight text-gray-900 mx-auto" style="font-size: clamp(2.5rem, 5.5vw, 4.5rem); text-wrap: balance; max-width: 18ch">
+          Trouvez un
+          <span style="background: linear-gradient(90deg, #f87171 0%, #fb923c 20%, #fbbf24 40%, #4ade80 60%, #60a5fa 80%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">spécialiste en autisme</span>
           près de chez vous
         </h1>
 
@@ -141,25 +131,11 @@ function scrollToAnnuaire() {
           Psychiatres, psychologues, neuropsychologues, orthophonistes,<br class="hidden sm:block" /> ergothérapeutes et psychomotriciens spécialisés en autisme et TSA.
         </p>
 
-        <!-- Chiffres réels, calculés sur les données. Ils remplacent le bandeau
-             « 100 % / 0 / ✏️ » qui occupait un emplacement de choix avec des
-             valeurs décoratives — dont un crayon présenté comme un chiffre. -->
-        <div class="flex flex-wrap justify-center gap-x-12 gap-y-6 mb-10">
-          <div>
-            <div class="text-3xl font-black text-indigo-700 tabular-nums leading-none">{{ praticiens.length || '—' }}</div>
-            <div class="text-gray-600 text-xs font-semibold uppercase tracking-wider mt-1">Fiches publiées</div>
-          </div>
-          <div>
-            <div class="text-3xl font-black text-indigo-700 tabular-nums leading-none">{{ nbDepartements || '—' }}</div>
-            <div class="text-gray-600 text-xs font-semibold uppercase tracking-wider mt-1">Départements couverts</div>
-          </div>
-        </div>
-
         <!-- La recherche vit DANS le hero : c'est elle le contenu principal.
              Le bouton « Rechercher » qui redescendait la page disparaît, il
              n'avait de sens que tant que l'annuaire était plus bas. Le panneau
              reprend l'alignement à gauche — un formulaire centré se lit mal. -->
-        <div class="max-w-3xl mx-auto text-left">
+        <div class="max-w-5xl mx-auto text-left">
           <FiltresPraticiens
             ref="filtres"
             v-model:recherche="search"
@@ -175,7 +151,7 @@ function scrollToAnnuaire() {
 
     <!-- RÉSULTATS -->
     <section id="annuaire" class="bg-gray-50 py-10">
-      <div class="max-w-4xl mx-auto px-6">
+      <div class="max-w-5xl mx-auto px-6">
 
         <!-- États -->
         <div v-if="enChargement" class="text-center py-16 text-gray-500 text-sm">
@@ -187,7 +163,9 @@ function scrollToAnnuaire() {
         </div>
 
         <template v-else>
-          <p class="text-sm font-semibold text-gray-500 mb-4 px-2">
+          <!-- role="status" aria-live="polite" : un changement de filtre modifiait
+               la liste sans jamais l'annoncer à un lecteur d'écran. -->
+          <p class="text-sm font-semibold text-gray-500 mb-4 px-2" role="status" aria-live="polite">
             {{ praticiensFiltres.length }} praticien{{ praticiensFiltres.length > 1 ? 's' : '' }} trouvé{{ praticiensFiltres.length > 1 ? 's' : '' }}
             <span v-if="totalPages > 1"> — page {{ pageActuelle }} / {{ totalPages }}</span>
           </p>

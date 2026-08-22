@@ -26,6 +26,7 @@
 <script setup lang="ts">
 import type { Praticien } from '~/types/index'
 import { TYPES_PRATICIENS, AGES_OPTIONS } from '~/types/index'
+import { couleurMetier } from '~/composables/usePraticien'
 
 const props = defineProps<{
   /** L'ensemble sur lequel porte la recherche, avant filtrage. */
@@ -100,7 +101,9 @@ function toutEffacer() {
   bilans.value = 'tous'
 }
 
-const CLASSE_PASTILLE = 'px-3 py-1.5 rounded-full text-xs font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed'
+// max-sm: la cible tactile passe à 44px sous 640px, sans rien changer au-delà —
+// en dessous, px-3 py-1.5 restait sous le minimum recommandé (environ 30px).
+const CLASSE_PASTILLE = 'px-3 py-1.5 max-sm:min-h-11 max-sm:px-4 max-sm:text-sm rounded-full text-xs font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed'
 const CLASSE_ACTIVE = 'bg-gray-900 text-white border-gray-900'
 const CLASSE_INACTIVE = 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
 </script>
@@ -135,7 +138,8 @@ const CLASSE_INACTIVE = 'bg-white text-gray-600 border-gray-200 hover:border-gra
             v-for="t in TYPES_PRATICIENS"
             :key="t"
             type="button"
-            :class="[CLASSE_PASTILLE, type === t ? CLASSE_ACTIVE : CLASSE_INACTIVE]"
+            :class="[CLASSE_PASTILLE, type === t ? 'text-white border-transparent' : CLASSE_INACTIVE]"
+            :style="type === t ? { background: couleurMetier(t) } : null"
             :aria-pressed="type === t"
             :disabled="comptesType.parType[t] === 0 && type !== t"
             @click="type = type === t ? 'tous' : t"

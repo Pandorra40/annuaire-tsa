@@ -27,7 +27,7 @@
 -->
 <script setup lang="ts">
 import type { Praticien } from '~/types/index'
-import { initiales, isNew } from '~/composables/usePraticien'
+import { couleurMetier, isNew } from '~/composables/usePraticien'
 
 const props = defineProps<{
   praticien: Praticien
@@ -49,62 +49,58 @@ const delaiCourt = computed(() => {
   const d = (p.value.delai ?? '').toLowerCase()
   return d.includes('disponible') || d.startsWith('1 ')
 })
+
+// Sur les pages département, toutes les cartes partagent déjà ce département :
+// l'onglet montre alors le métier plutôt que de répéter un numéro déjà connu.
+const abregeMetier = computed(() => p.value.type.slice(0, 3).toUpperCase())
 </script>
 
 <template>
   <NuxtLink
     :to="`/praticien/${p.id}`"
-    class="block bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-indigo-200 hover:-translate-y-0.5 transition-all duration-200 p-5 sm:p-6"
+    class="flex bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg hover:border-indigo-200 hover:-translate-y-0.5 transition-all duration-200 overflow-hidden"
   >
-    <div class="flex items-start gap-4 sm:gap-5">
-      <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center font-black text-white text-sm sm:text-base shrink-0" style="background: linear-gradient(135deg, #6366f1, #8b5cf6)">
-        {{ initiales(p.nom) }}
-      </div>
-
-      <div class="flex-1 min-w-0">
-        <div class="flex items-center gap-2 flex-wrap mb-1">
-          <span class="font-black text-gray-900 text-lg">{{ p.nom }}</span>
-          <span v-if="isNew(p.created_at)" class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">● Nouveau</span>
-        </div>
-
-        <p class="text-gray-700 text-sm mb-3">{{ p.type }} · {{ lieux }}</p>
-
-        <div class="flex flex-wrap gap-1.5">
-          <span v-for="age in p.ages" :key="age" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full">{{ age }}</span>
-          <span v-if="p.fait_bilans === 1" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">Réalise des bilans</span>
-          <span v-if="p.teleconsultation" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full">Téléconsultation</span>
-          <span v-if="p.delai" class="px-2.5 py-1 text-xs font-medium rounded-full" :class="delaiCourt ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'">Délai : {{ p.delai }}</span>
-        </div>
-      </div>
-
-      <div v-if="!masquerDepartement" class="hidden sm:flex flex-col items-end gap-2 shrink-0">
-        <!-- Pas de <button> ici : toute la carte est déjà un <a> (NuxtLink),
-             et le contenu d'un lien ne peut pas inclure d'élément interactif
-             imbriqué — un span en fait office, avec le même comportement
-             clavier qu'un vrai bouton. -->
-        <span
-          role="button"
-          tabindex="0"
-          class="text-xs font-bold bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg hover:bg-gray-200 transition-colors cursor-pointer"
-          @click.prevent.stop="navigateTo(`/departement/${p.departement}`)"
-          @keydown.enter.prevent.stop="navigateTo(`/departement/${p.departement}`)"
-          @keydown.space.prevent.stop="navigateTo(`/departement/${p.departement}`)"
-        >
-          Dép. {{ p.departement }}
-        </span>
-      </div>
+    <!-- Onglet coloré par métier — remplace l'ancienne pastille d'initiales,
+         identique sur les 320 fiches et n'apprenant rien. Le métier reste
+         écrit en toutes lettres dans le sous-titre : la couleur double
+         l'information, elle ne la porte jamais seule. -->
+    <div
+      class="w-14 sm:w-[4.5rem] shrink-0 flex flex-col items-center justify-center gap-0.5 text-white py-4 px-1"
+      :style="{ background: couleurMetier(p.type) }"
+    >
+      <span v-if="!masquerDepartement" class="font-black text-xl sm:text-2xl tabular-nums leading-none">{{ p.departement }}</span>
+      <span v-if="!masquerDepartement" class="text-[0.6rem] font-bold uppercase tracking-wider opacity-85">Dép.</span>
+      <span v-else class="font-black text-base sm:text-lg tracking-tight leading-none">{{ abregeMetier }}</span>
     </div>
 
-    <div class="border-t border-gray-100 mt-4 pt-3.5 flex items-center justify-between gap-3 flex-wrap">
-      <span v-if="p.telephone" class="text-sm font-semibold text-indigo-600 flex items-center gap-1.5 tabular-nums">
-        📞 {{ p.telephone }}
-      </span>
-      <span v-else class="text-sm text-gray-600">Téléphone non renseigné</span>
+    <div class="flex-1 min-w-0 p-4 sm:p-5">
+      <div class="flex items-center gap-2 flex-wrap mb-1">
+        <span class="font-black text-gray-900 text-lg">{{ p.nom }}</span>
+        <span v-if="isNew(p.created_at)" class="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">● Nouveau</span>
+      </div>
 
-      <span class="flex items-center gap-3">
-        <span v-if="p.confirmations > 0" class="text-xs text-emerald-700 font-medium">✓ {{ p.confirmations }} confirmation{{ p.confirmations > 1 ? 's' : '' }}</span>
-        <span class="text-xs text-gray-600">Voir la fiche →</span>
-      </span>
+      <p class="text-gray-700 text-sm mb-3">
+        <span class="font-semibold" :style="{ color: couleurMetier(p.type) }">{{ p.type }}</span> · {{ lieux }}
+      </p>
+
+      <div class="flex flex-wrap gap-1.5">
+        <span v-for="age in p.ages" :key="age" class="px-2.5 py-1 bg-indigo-50 text-indigo-700 text-xs font-medium rounded-full">{{ age }}</span>
+        <span v-if="p.fait_bilans === 1" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">Réalise des bilans</span>
+        <span v-if="p.teleconsultation" class="px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-medium rounded-full">Téléconsultation</span>
+        <span v-if="p.delai" class="px-2.5 py-1 text-xs font-medium rounded-full" :class="delaiCourt ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'">Délai : {{ p.delai }}</span>
+      </div>
+
+      <div class="border-t border-gray-100 mt-4 pt-3.5 flex items-center justify-between gap-3 flex-wrap">
+        <span v-if="p.telephone" class="text-sm font-semibold text-indigo-600 flex items-center gap-1.5 tabular-nums">
+          <span aria-hidden="true">📞</span> {{ p.telephone }}
+        </span>
+        <span v-else class="text-sm text-gray-600">Téléphone non renseigné</span>
+
+        <span class="flex items-center gap-3">
+          <span v-if="p.confirmations > 0" class="text-xs text-emerald-700 font-medium"><span aria-hidden="true">✓</span> {{ p.confirmations }} confirmation{{ p.confirmations > 1 ? 's' : '' }}</span>
+          <span class="text-xs text-gray-600">Voir la fiche →</span>
+        </span>
+      </div>
     </div>
   </NuxtLink>
 </template>
