@@ -113,13 +113,19 @@ function toggleContraste() {
                (RessourcesOnglets.vue) : sans nom distinct, les deux repères
                de navigation sont indiscernables l'un de l'autre. -->
           <nav class="hidden xl:flex items-center gap-5" aria-label="Navigation principale">
+            <!-- Le soulignement du lien actif passe par [aria-current="page"] en
+                 CSS pur (main.css), pas par exact-active-class : une classe
+                 Tailwind à valeur arbitraire (after:content-['']…) glissée dans
+                 exact-active-class perdait ses tokens à l'hydratation — le HTML
+                 serveur les avait, le rendu client les perdait, silencieusement.
+                 aria-current, lui, survit à l'hydratation, vérifié. -->
             <NuxtLink
               v-for="link in navLinks"
               :key="link.to"
               :to="link.to"
               class="relative px-1 py-1 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors"
               active-class="text-gray-900"
-              exact-active-class="text-gray-900 font-semibold after:content-[''] after:absolute after:left-0 after:right-0 after:-bottom-[1.15rem] after:h-[3px] after:rounded-full after:bg-indigo-600"
+              exact-active-class="text-gray-900 font-semibold"
             >
               {{ link.label }}
             </NuxtLink>
