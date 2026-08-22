@@ -121,7 +121,7 @@ function scrollToAnnuaire() {
         <!-- clamp() + text-wrap: balance plutôt que des <br> figés à text-7xl :
              en mode texte agrandi (A+), le titre occupait presque tout
              l'écran et coupait mal. Il reste grand, il s'adapte simplement. -->
-        <h1 class="font-black leading-tight mb-6 tracking-tight text-gray-900 mx-auto" style="font-size: clamp(2.5rem, 5.5vw, 4.5rem); text-wrap: balance; max-width: 18ch">
+        <h1 class="titre-hero font-black leading-tight mb-6 tracking-tight text-gray-900 mx-auto" style="font-size: clamp(2.5rem, 5.5vw, 4.5rem); text-wrap: balance; max-width: 18ch">
           Trouvez un
           <span style="background: linear-gradient(90deg, #f87171 0%, #fb923c 20%, #fbbf24 40%, #4ade80 60%, #60a5fa 80%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">spécialiste en autisme</span>
           près de chez vous

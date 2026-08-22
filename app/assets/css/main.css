@@ -121,6 +121,17 @@ html.lecture header { letter-spacing: normal; word-spacing: normal; }
    les entrées du menu se resserrent, ce qui laisse la barre sur une seule ligne
    sans rien masquer. */
 html.lecture header nav { gap: 0.75rem; }
+/* Même défaut que la barre du haut, sur le titre du bandeau d'accueil : à sa
+   taille (jusqu'à 4,5rem, davantage encore en texte agrandi), l'espacement
+   proportionnel de lettres/mots devient énorme et le titre se délite. La
+   largeur en « ch » posée sur ce titre dépend elle aussi de la police —
+   OpenDyslexic n'a pas les mêmes métriques que Figtree — donc mieux vaut la
+   laisser filer que la garder erronée. */
+html.lecture .titre-hero {
+  letter-spacing: normal;
+  word-spacing: normal;
+  max-width: none;
+}
 
 /* ── MODE CONTRASTE ÉLEVÉ ── */
 html.contraste body { background: #ffffff !important; color: #000000 !important; }
