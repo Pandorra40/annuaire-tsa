@@ -88,9 +88,10 @@ const faq = [
                 ou le corriger.
               </p>
               <p class="text-gray-600 leading-relaxed mt-3">
-                Pour être transparent : une grande partie du code a été écrite avec
-                Claude Code, un outil d'assistance à la programmation. Ce que le site
-                fait, ce qu'il refuse, et la tenue des fiches restent des choix humains.
+                Pour être transparent : ce projet a été entièrement vibecodé avec
+                Claude Code (IA d'Anthropic) ; il continue aujourd'hui grâce à
+                Cursor (Crock et Composer). La vision, les choix fonctionnels et les
+                orientations sont humains — le code a été généré par l'IA.
               </p>
             </div>
           </div>

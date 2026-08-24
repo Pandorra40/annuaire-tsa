@@ -309,7 +309,7 @@ utilisent le site.
 
 ## Vibe coding
 
-Ce projet a été entièrement vibecodé avec [Claude Code](https://claude.ai/code) (IA d'Anthropic). La vision, les choix fonctionnels et les orientations sont humains — le code a été généré par l'IA.
+Ce projet a été entièrement vibecodé avec [Claude Code](https://claude.ai/code) (IA d'Anthropic) ; il continue aujourd'hui grâce à [Cursor](https://cursor.com) (Crock et Composer). La vision, les choix fonctionnels et les orientations sont humains — le code a été généré par l'IA.
 
 ## Licence
 
