@@ -46,7 +46,8 @@ export default defineNuxtConfig({
     '/cra': { prerender: true },
     '/apropos': { prerender: true },
     '/mentions': { prerender: true },
-    '/couts': { prerender: true },
+    '/remerciements': { prerender: true },
+    '/couts': { redirect: { to: '/remerciements', statusCode: 301 } },
     '/contact': { prerender: true },
     '/suggerer': { prerender: true },
     '/associations/suggerer': { prerender: true },
@@ -195,7 +196,10 @@ export default defineNuxtConfig({
       // n'est visible qu'après fermeture de tous les onglets).
       clientsClaim: true,
       skipWaiting: true,
-      globPatterns: ['**/*.{js,css,html,png,svg,ico}']
+      // Pas de HTML : Workbox le mettrait en CacheFirst, donc une visite
+      // gardait l'ancienne page jusqu'à rechargement. JS/CSS hashés suffisent
+      // pour l'installabilité ; le HTML se relit sur le réseau.
+      globPatterns: ['**/*.{js,css,png,svg,ico,woff2}']
     }
   },
 

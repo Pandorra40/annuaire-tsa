@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.9
+# Annuaire TSA — V4.10
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -11,7 +11,7 @@ Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, 
 - Filtres par type de praticien, tranche d'âge et mode de consultation
 - Système de confirmation et signalement communautaire
 - Formulaire de contact par praticien, pour les personnes qui ne peuvent pas téléphoner — activé uniquement avec l'accord écrit du praticien, son adresse n'est jamais publiée
-- Suggestion de praticiens par la communauté
+- Suggestion de praticiens par la communauté — formulaire en trois écrans (`/suggerer`), textes adaptés famille ou praticien
 - Pages dédiées par département (`/departement/XX`) pour le SEO
 - Pagination (20 praticiens par page) — page et filtres conservés dans l'URL (recherches partageables, état restauré au retour navigateur)
 - Identifiant national affiché sur les fiches, intitulé d'après le type de fiche et le format du numéro : « N° RPPS » à 11 chiffres, « N° ADELI » à 9 (les psychologues ont basculé vers le RPPS le 3 juin 2024), et pour une structure « N° SIRET » à 14 ou « N° FINESS » à 9 — un FINESS ayant la même longueur qu'un ADELI, la longueur seule ne suffit pas à trancher
@@ -134,7 +134,7 @@ annuaire-tsa-nuxt/
 │       ├── contact.vue
 │       ├── mentions.vue
 │       ├── donnees-praticiens.vue # Information RGPD dédiée aux praticiens
-│       ├── couts.vue            # Transparence sur les frais du site (sans appel aux dons)
+│       ├── remerciements.vue    # Gratuité du site et remerciements (remplace /couts)
 │       └── admin/
 │           ├── login.vue        # Connexion admin
 │           ├── index.vue        # Dashboard admin praticiens
@@ -247,6 +247,7 @@ php -r "echo password_hash('votre_mdp', PASSWORD_BCRYPT);"
 Ce site est une SSG multi-pages avec service worker. Quelques règles importantes apprises en production :
 
 - **Ne jamais mettre de cache long sur `sw.js`.** Le `.htaccess` force `no-cache` sur `sw.js` / `workbox-*.js`. Sinon le navigateur garde un ancien service worker qui sert un ancien front, et les mises à jour ne se propagent jamais (même après purge du cache LWS).
+- **Pas de cache long sur le HTML** : le `.htaccess` force `no-cache` sur `*.html`, et Workbox ne précache plus les pages (`globPatterns` sans `html`). Sinon l'ancienne page reste servie jusqu'à rechargement forcé.
 - **`navigateFallback` doit rester `undefined`** dans la config PWA. Un fallback vers `/` casse les pages au rechargement (le SW sert l'accueil à la place de la vraie page).
 - `clientsClaim` + `skipWaiting` sont activés pour que le nouveau SW prenne le contrôle immédiatement.
 - Après chaque déploiement : **purger le cache LWS** et tester en navigation privée.
@@ -294,6 +295,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 | V4.6 | Rubrique `/ressources` réunissant les livres et une nouvelle section vidéos (façade au clic, chaînes en liens sortants, catégories par position d'énonciation), `api/videos.php`, admin dédiée, redirections 301 depuis `/livres` |
 | V4.8 | Note en sept rubriques nommées remplaçant le champ HTML unique (retrait de Tiptap, formulaire public et admin identiques), second lieu optionnel pour les praticiens à deux cabinets (`/departement/XX` retrouve la fiche depuis les deux départements) |
 | V4.9 | Audit UX des 25 pages et sa mise en œuvre. Quatre bugs corrigés : département de la Corse et de l'outre-mer (`2A`/`2B` et `971`–`976` au lieu de `20`/`97`, avec corruption à chaque sauvegarde admin), quatre listes publiées vides faute de données au build, recherche de l'accueil aveugle au second lieu, variable fantôme laissée par le retrait de Tiptap. Moyen de recontacter l'auteur d'une contribution sur les quatre formulaires. Signalement par rubriques : une correction sans valeur de remplacement devient impossible à envoyer. Champ « réalise des bilans diagnostiques » à trois états, filtrable. Recherche remontée en tête d'accueil, filtres nommés avec compteurs, carte de résultat et panneau de filtres partagés entre l'accueil et les pages département, départements limitrophes. Administration : fin des rechargements complets, annulation à la place de la confirmation, onglet « Refusées », vues enregistrées sur l'état du fonds
+| V4.10 | Formulaire `/suggerer` en trois écrans (qui remplit, essentiel, compléments facultatifs), textes clarifiés famille/praticien. Page `/remerciements` remplace `/couts` (redirection 301). Mode lecture : OpenDyslexic limité au contenu (`main` + pied), pas au bandeau. Cache : HTML sans cache long (`.htaccess` + Workbox), marqueur `X-TSA-Config: 2026-08-23`. Cadre bénévole et pages À propos / données praticiens retouchés
 
 ## Remerciements
 

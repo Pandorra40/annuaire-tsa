@@ -15,7 +15,7 @@ const faq = [
   },
   {
     label: 'D\'où proviennent les données des praticiens ?',
-    content: 'L\'annuaire agrège des informations issues de plusieurs ressources publiques dédiées à l\'autisme, principalement Autisme Info Service (annuaire.autismeinfoservice.fr) et Tamis-Autisme (tamis-autisme.org), enrichies et complétées manuellement. Les données sont fournies à titre indicatif ; en cas de doute, contactez directement le praticien.'
+    content: 'L\'annuaire agrège des informations déjà publiques, principalement Autisme Info Service et Tamis-Autisme, enrichies et vérifiées à la main. Les données sont fournies à titre indicatif ; en cas de doute, contactez directement le praticien.'
   },
   {
     label: 'Puis-je faire confiance aux informations ?',
@@ -88,9 +88,9 @@ const faq = [
                 ou le corriger.
               </p>
               <p class="text-gray-600 leading-relaxed mt-3">
-                Pour être transparent : ce projet a été entièrement vibecodé avec Claude
-                Code, l'IA d'Anthropic. La vision, les choix fonctionnels et les
-                orientations sont humains ; le code a été généré par l'IA.
+                Pour être transparent : une grande partie du code a été écrite avec
+                Claude Code, un outil d'assistance à la programmation. Ce que le site
+                fait, ce qu'il refuse, et la tenue des fiches restent des choix humains.
               </p>
             </div>
           </div>

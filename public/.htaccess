@@ -49,7 +49,7 @@ AddType font/woff2 .woff2
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=()"
 
   # Marqueur de version : permet de vérifier depuis l'extérieur quel .htaccess est actif
-  Header always set X-TSA-Config "2026-08-04"
+  Header always set X-TSA-Config "2026-08-23"
 
   # Supprime la signature du serveur
   Header always unset X-Powered-By
@@ -84,6 +84,9 @@ RedirectMatch 404 /\..*$
 </IfModule>
 
 # --- Cache navigateur pour les ressources statiques ---
+# JS/CSS hashés : un an. Le HTML, jamais : une heure ici faisait voir
+# l'ancienne page jusqu'à Ctrl+R (revalidation), même en navigation privée
+# et après purge LWS — l'edge et le navigateur gardaient le HTML.
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType text/css "access plus 1 month"
@@ -92,7 +95,12 @@ RedirectMatch 404 /\..*$
   ExpiresByType image/png "access plus 1 month"
   ExpiresByType image/jpeg "access plus 1 month"
   ExpiresByType font/woff2 "access plus 1 year"
-  ExpiresByType text/html "access plus 1 hour"
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "\.(html)$">
+    Header set Cache-Control "no-cache, must-revalidate"
+    Header set Pragma "no-cache"
+  </FilesMatch>
 </IfModule>
 
 # --- Compression GZIP ---
@@ -125,6 +133,9 @@ Redirect 301 /admin/livres.html /admin/livres
 # sans quoi /livres/suggerer serait avalé par la redirection de /livres.
 Redirect 301 /livres/suggerer /ressources/livres/suggerer
 Redirect 301 /livres /ressources/livres
+
+# Ancienne page « Ce que coûte ce site », devenue Remerciements
+Redirect 301 /couts /remerciements
 
 # --- Routing Nuxt (SPA fallback) ---
 <IfModule mod_rewrite.c>

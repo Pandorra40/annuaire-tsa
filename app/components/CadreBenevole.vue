@@ -6,16 +6,13 @@
   délai que rien ne fonde en dehors du RGPD. L'information existait dans « À propos »,
   repliée dans un accordéon, donc jamais lue avant d'écrire.
 
-  Le texte reprend des formulations éprouvées de projets libres : dire que les gens sont
-  bénévoles (Open Food Facts), demander la patience nommément (Elastic), et affirmer que
-  la réponse peut être « non » (Open Food Facts). La dernière phrase nomme les
-  comportements exclus plutôt que d'écrire « les autres, non » : une règle vérifiable
-  plutôt qu'un tri qui paraîtrait arbitraire.
+  Le texte doit aussi parler à un parent qui signale une erreur : d'où la distinction
+  droits (toujours honorés) / coup de main (on peut dire non), plutôt qu'une liste
+  de demandes « de service » qui ne concernait que les praticiens.
 
   Fond teinté et liseré à gauche : en carte blanche comme les autres blocs, il passait
-  inaperçu sur des pages qui n'en contiennent que. Indigo et non ambre ni rouge —
-  l'ambre sert déjà à l'invitation à contribuer, et une couleur d'alerte ferait passer
-  un cadre pour un avertissement.
+  inaperçu. Indigo et non ambre ni rouge — l'ambre sert déjà à l'invitation à
+  contribuer, et une couleur d'alerte ferait passer un cadre pour un avertissement.
 -->
 <template>
   <div class="bg-indigo-50/60 rounded-2xl border border-indigo-100 border-l-4 border-l-indigo-500 p-6 sm:p-7">
@@ -36,15 +33,14 @@
     </p>
 
     <p class="text-gray-600 text-sm leading-relaxed mt-3">
-      Certaines demandes relèvent de vos droits, comme corriger une donnée inexacte ou
-      demander un retrait. D'autres relèvent d'un service rendu, comme réécrire une
-      présentation, ajouter un contenu ou modifier une mise en forme. Ces dernières
-      peuvent être acceptées, différées ou refusées.
+      Corriger une information ou retirer une fiche, ce sont vos droits : c'est toujours
+      fait. Ajouter un texte, changer une mise en forme, c'est un coup de main : ça peut
+      être accepté, reporté, ou refusé.
     </p>
 
     <p class="text-gray-900 text-sm leading-relaxed mt-3 font-medium">
-      Les messages courtois sont traités. Les messages agressifs, insultants ou
-      comminatoires ne le sont pas.
+      Les messages courtois sont traités. Les messages agressifs, insultants, menaçants
+      ou qui exigent un délai ne le sont pas.
     </p>
   </div>
 </template>

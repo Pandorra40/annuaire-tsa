@@ -29,7 +29,8 @@ useSeoMeta({
           <p class="text-gray-600 leading-relaxed mb-4">
             L'Annuaire TSA recense des professionnels spécialisés dans les troubles du
             spectre de l'autisme, à partir d'informations <strong>déjà publiques</strong> :
-            l'annuaire d'Autisme Info Service et les contributions de familles concernées.
+            les annuaires d'Autisme Info Service et de Tamis-Autisme, et les contributions
+            de familles concernées.
           </p>
           <p class="text-gray-600 leading-relaxed">
             Votre fiche ne contient que des données professionnelles : celles que vous
@@ -152,8 +153,8 @@ useSeoMeta({
           <ul class="text-gray-600 leading-relaxed space-y-2 list-disc pl-5">
             <li>
               L'annuaire public d'<a href="https://www.autisme-infoservice.fr" target="_blank" rel="noopener" class="text-indigo-600 hover:text-indigo-700 font-medium">Autisme Info Service</a>,
-              service national d'information sur l'autisme, dont les données sont diffusées
-              sous licence Apache 2.0.
+              service national d'information sur l'autisme (licence Apache 2.0),
+              et Tamis-Autisme, en licence ouverte.
             </li>
             <li>
               Des suggestions envoyées par des familles ou des professionnels via le

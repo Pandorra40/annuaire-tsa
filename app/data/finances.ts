@@ -1,7 +1,6 @@
-// Coûts du site, affichés sur /couts.
-//
-// Données statiques : deux ou trois mouvements par an ne justifient ni table
-// SQL ni page d'admin. Même choix que app/data/cra.ts.
+// Coûts du site — une phrase sur /remerciements, le détail reste ici
+// si on doit un jour le ressortir. Deux ou trois mouvements par an
+// ne justifient ni table SQL ni page d'admin. Même choix que app/data/cra.ts.
 //
 // Deux montants par ligne récurrente, parce que la première année a bénéficié
 // d'une remise de bienvenue : n'afficher que le montant payé laisserait croire

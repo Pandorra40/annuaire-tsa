@@ -139,40 +139,26 @@ html.text-md { font-size: 16px; }
 html.text-lg { font-size: 19px; }
 html.text-xl { font-size: 22px; }
 
-/* ── MODE LECTURE SIMPLIFIÉE ── */
-html.lecture {
-  font-family: 'OpenDyslexic', Arial, sans-serif !important;
-  letter-spacing: 0.05em;
-  word-spacing: 0.1em;
-  line-height: 1.8;
+/* ── MODE LECTURE SIMPLIFIÉE ──
+   OpenDyslexic est une police de lecture (texte suivi) : fonds alourdis,
+   Regular/Bold seulement, tracking déjà dans la fonte. Ce n'est pas une
+   police d'interface ni d'accroche. On l'applique à <main> et au pied,
+   pas au bandeau — un * { font-family !important } y faisait casser le
+   bouton « Suggérer un praticien » en deux lignes dans h-16.
+   Pas d'interlettrage CSS en plus : la fonte l'embarque déjà (opendyslexic.org,
+   FONTLOG). Les h1–h3 gardent Figtree (règle plus haut), qui n'est pas
+   héritée depuis main. */
+html.lecture main,
+html.lecture footer {
+  font-family: 'OpenDyslexic', Arial, sans-serif;
+  line-height: 1.65;
 }
 html.lecture * {
-  font-family: 'OpenDyslexic', Arial, sans-serif !important;
   animation: none !important;
   transition: none !important;
 }
 html.lecture .hover\:-translate-y-1:hover,
 html.lecture .hover\:-translate-y-0\.5:hover { transform: none !important; }
-/* L'espacement des lettres élargissait la barre du haut au point que le bouton
-   « Suggérer un praticien » recouvrait la navigation. Il aide à lire un texte
-   suivi, pas quatre libellés d'un menu : la police adaptée reste, l'espacement
-   supplémentaire est rendu à la barre seule. */
-html.lecture header { letter-spacing: normal; word-spacing: normal; }
-/* Au texte le plus grand, l'espacement rendu ne suffisait pas : les écarts entre
-   les entrées du menu se resserrent, ce qui laisse la barre sur une seule ligne
-   sans rien masquer. */
-html.lecture header nav { gap: 0.75rem; }
-/* Même défaut que la barre du haut, sur le titre du bandeau d'accueil : à sa
-   taille (jusqu'à 4,5rem, davantage encore en texte agrandi), l'espacement
-   proportionnel de lettres/mots devient énorme et le titre se délite. La
-   largeur en « ch » posée sur ce titre dépend elle aussi de la police —
-   OpenDyslexic n'a pas les mêmes métriques que Figtree — donc mieux vaut la
-   laisser filer que la garder erronée. */
-html.lecture .titre-hero {
-  letter-spacing: normal;
-  word-spacing: normal;
-  max-width: none;
-}
 
 /* ── NAVIGATION — lien actif souligné ──
    En CSS pur plutôt que dans exact-active-class de NuxtLink : voir le
