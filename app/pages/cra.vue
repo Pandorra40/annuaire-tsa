@@ -342,7 +342,9 @@ function initiales(nom: string) {
         </div>
 
         <p class="text-xs text-gray-500 text-center mt-10 leading-relaxed">
-          Sources : annuaire des ressources Autisme Info Service et Groupement National des Centres Ressources Autisme.<br>
+          Sources : annuaire des ressources
+          <a href="https://www.autismeinfoservice.fr" target="_blank" rel="noopener" class="text-indigo-500 hover:text-indigo-700 underline">Autisme et TND Info Service</a>
+          et Groupement National des Centres Ressources Autisme.<br>
           Une information est inexacte ? <NuxtLink to="/contact" class="text-indigo-500 hover:text-indigo-700 underline">Signalez-le nous</NuxtLink>.
         </p>
 

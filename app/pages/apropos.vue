@@ -15,7 +15,7 @@ const faq = [
   },
   {
     label: 'D\'où proviennent les données des praticiens ?',
-    content: 'L\'annuaire agrège des informations déjà publiques, principalement Autisme Info Service et Tamis-Autisme, enrichies et vérifiées à la main. Les données sont fournies à titre indicatif ; en cas de doute, contactez directement le praticien.'
+    content: 'L\'annuaire agrège des informations déjà publiques, principalement Autisme et TND Info Service et Tamis-Autisme, enrichies et vérifiées à la main. Les données sont fournies à titre indicatif ; en cas de doute, contactez directement le praticien.'
   },
   {
     label: 'Puis-je faire confiance aux informations ?',

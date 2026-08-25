@@ -90,7 +90,7 @@ export const GRATUIT: Brique[] = [
   {
     libelle: 'Fiches praticiens et associations',
     usage: 'La matière première de l\'annuaire',
-    finance: 'Autisme Info Service et Tamis-Autisme, en licence ouverte'
+    finance: 'Autisme et TND Info Service et Tamis-Autisme, en licence ouverte'
   },
   {
     libelle: 'Centres Ressources Autisme',

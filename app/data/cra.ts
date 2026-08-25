@@ -1,5 +1,5 @@
 // Centres de Ressources Autisme (CRA) et centres ressources associés.
-// Source : annuaire Autisme Info Service / GNCRA.
+// Source : annuaire Autisme et TND Info Service / GNCRA.
 // Données institutionnelles publiques — pas de table SQL, ces structures sont stables.
 
 export interface CentreRessource {

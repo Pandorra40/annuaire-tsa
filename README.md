@@ -19,7 +19,7 @@ Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, 
 - **Critère d'admission** : un praticien ne figure dans l'annuaire que si son identifiant est vérifié au répertoire national des professionnels de santé (RPPS, ou ADELI le temps de la bascule). Une structure — cabinet, centre, institut — n'est pas une personne physique et n'a pas de RPPS : SIRET ou FINESS y sont acceptés sans être exigés. Le critère est écrit sur `/suggerer` et sur `/donnees-praticiens`
 - **Note en sept rubriques nommées** — Types d'intervention, Bilans, Formations complémentaires, Expérience, Modalités, Tarifs, Autres informations — plutôt qu'un seul champ de texte libre : ça guide la saisie côté praticien et évite qu'une information atterrisse sous le mauvais libellé, ou sous aucun
 - **Second lieu optionnel** — un praticien qui reçoit à deux adresses (deux cabinets, parfois deux départements différents) peut le déclarer, sur `/suggerer` comme en admin ; les pages `/departement/XX` des deux lieux le retrouvent
-- Données issues d'Autisme Info Service et de Tamis-Autisme, enrichies manuellement
+- Données issues d'Autisme et TND Info Service et de Tamis-Autisme, enrichies manuellement
 
 ### 2. Associations TSA (`/associations/`)
 Annuaire de 290 associations spécialisées dans les troubles du spectre autistique en France.
@@ -29,7 +29,7 @@ Annuaire de 290 associations spécialisées dans les troubles du spectre autisti
 - Informations de contact : téléphone, email, site web
 - Services proposés, public concerné, description
 - Formulaire de suggestion public (`/associations/suggerer`) et modération dans `/admin/associations`
-- Données issues d'Autisme Info Service (licence Apache 2.0)
+- Données issues d'Autisme et TND Info Service (licence Apache 2.0)
 
 ### 3. Ressources (`/ressources/`)
 Deux rubriques de même niveau, réunies sous une entrée de menu commune : le livre et
@@ -63,7 +63,7 @@ Les 47 centres ressources publics de France, avec le parcours de diagnostic expl
 - Recherche par nom, région, ville ou département, filtrable par catégorie
 - Regroupement par région, coordonnées complètes (adresse, téléphone, email, site)
 - Le parcours de repérage et de diagnostic en trois niveaux, selon la Stratégie nationale pour l'autisme
-- Données institutionnelles publiques (GNCRA / Autisme Info Service) — **stockées en dur dans `app/data/cra.ts`, pas en base** : ces structures sont stables et ne se modifient pas depuis l'admin
+- Données institutionnelles publiques (GNCRA / Autisme et TND Info Service) — **stockées en dur dans `app/data/cra.ts`, pas en base** : ces structures sont stables et ne se modifient pas depuis l'admin
 
 ## Stack technique
 
