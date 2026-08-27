@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { TYPES_PRATICIENS, AGES_OPTIONS, DELAIS_PRATICIEN } from '~/types/index'
+import type { Praticien } from '~/types/index'
 
-definePageMeta({ layout: 'admin' })
+definePageMeta({ layout: 'admin', middleware: 'admin' })
 useSeoMeta({ title: 'Modifier une fiche — Administration TSA' })
 
 const route = useRoute()
+const { adminFetch } = useAdminAuth()
 const praticienId = route.query.id as string
-const token = ref('')
 const loading = ref(true)
 const success = ref(false)
 const erreur = ref('')
@@ -40,27 +41,9 @@ const RUBRIQUES = [
   { cle: 'autresInfos', label: 'Autres informations', max: 2000 }
 ] as const
 
-onMounted(async () => {
-  token.value = sessionStorage.getItem('admin_token') || ''
-  if (!token.value) {
-    navigateTo('/admin/login')
-    return
-  }
-  await chargerFiche()
+onMounted(() => {
+  void chargerFiche()
 })
-
-async function adminFetch(url: string, options: RequestInit = {}) {
-  const res = await fetch('/api/' + url, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token.value, ...options.headers }
-  })
-  if (res.status === 401) {
-    navigateTo('/admin/login')
-    throw new Error('Non authentifié')
-  }
-  if (!res.ok) throw new Error('Erreur ' + res.status)
-  return res.json()
-}
 
 async function chargerFiche() {
   if (!praticienId) {
@@ -69,7 +52,7 @@ async function chargerFiche() {
     return
   }
   try {
-    const data = await adminFetch('admin_praticiens.php?id=' + praticienId)
+    const data = await adminFetch<Praticien>('admin_praticiens.php?id=' + praticienId)
     if (!data?.id) {
       erreur.value = 'Fiche introuvable.'
       loading.value = false

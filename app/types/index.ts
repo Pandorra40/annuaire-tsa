@@ -47,8 +47,7 @@ export interface Praticien {
   // une absence d'information lui nuirait sans rien affirmer.
   fait_bilans?: number | null
   confirmations: number
-  // « publie » ou « masquee ». Absent des réponses publiques, qui ne renvoient
-  // que les fiches publiées : seul admin_praticiens.php expose la colonne.
+  // « publie » ou « masquee ». Absent des réponses publiques de praticiens.php.
   statut?: string
   created_at?: string
   // Vrai si le praticien a consenti au formulaire de contact. L'API ne publie

@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { Association, SuggestionAssociation } from '~/types'
 
-definePageMeta({ layout: 'admin' })
+definePageMeta({ layout: 'admin', middleware: 'admin' })
 useSeoMeta({ title: 'Associations — Administration TSA' })
 
-const token = ref('')
+const { adminFetch, deconnexion } = useAdminAuth()
 const suggestions = ref<SuggestionAssociation[]>([])
 const publiees = ref<Association[]>([])
 const activeTab = ref('suggestions')
@@ -12,38 +12,16 @@ const search = ref('')
 const loading = ref(true)
 const loadError = ref('')
 
-onMounted(async () => {
-  token.value = sessionStorage.getItem('admin_token') || ''
-  if (!token.value) {
-    navigateTo('/admin/login')
-    return
-  }
-  await charger()
+onMounted(() => {
+  void charger()
 })
-
-async function adminFetch(url: string, options: RequestInit = {}) {
-  const res = await fetch('/api/' + url, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token.value, ...options.headers }
-  })
-  if (res.status === 401) {
-    navigateTo('/admin/login')
-    throw new Error('Non authentifié')
-  }
-  if (!res.ok) {
-    const corps = await res.json().catch(() => ({}))
-    throw new Error(corps.error ?? 'Erreur ' + res.status)
-  }
-  if (res.status === 204) return {}
-  return res.json()
-}
 
 async function charger() {
   loading.value = true
   try {
     const [s, p] = await Promise.all([
-      adminFetch('suggestions_associations.php?statut=en_attente'),
-      adminFetch('associations.php')
+      adminFetch<SuggestionAssociation[]>('suggestions_associations.php?statut=en_attente'),
+      adminFetch<Association[]>('associations.php')
     ])
     suggestions.value = s
     publiees.value = p
@@ -76,16 +54,6 @@ async function statuer(id: number, statut: 'valide' | 'refuse') {
   } finally {
     enCours = false
   }
-}
-
-async function deconnexion() {
-  try {
-    await adminFetch('auth.php', { method: 'DELETE' })
-  } catch {
-    // déconnexion locale malgré tout : le jeton côté serveur expirera de lui-même
-  }
-  sessionStorage.removeItem('admin_token')
-  navigateTo('/admin/login')
 }
 </script>
 

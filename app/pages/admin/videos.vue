@@ -2,10 +2,10 @@
 import { CATEGORIES_VIDEOS } from '~/types/index'
 import type { Video } from '~/types'
 
-definePageMeta({ layout: 'admin' })
+definePageMeta({ layout: 'admin', middleware: 'admin' })
 useSeoMeta({ title: 'Vidéos — Administration TSA' })
 
-const token = ref('')
+const { adminFetch, deconnexion } = useAdminAuth()
 const entrees = ref<Video[]>([])
 const activeTab = ref('ajouter')
 const search = ref('')
@@ -27,36 +27,14 @@ const natureSaisie = computed(() => {
   return 'inconnu'
 })
 
-onMounted(async () => {
-  token.value = sessionStorage.getItem('admin_token') || ''
-  if (!token.value) {
-    navigateTo('/admin/login')
-    return
-  }
-  await charger()
+onMounted(() => {
+  void charger()
 })
-
-async function adminFetch(url: string, options: RequestInit = {}) {
-  const res = await fetch('/api/' + url, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token.value, ...options.headers }
-  })
-  if (res.status === 401) {
-    navigateTo('/admin/login')
-    throw new Error('Non authentifié')
-  }
-  if (!res.ok) {
-    const corps = await res.json().catch(() => ({}))
-    throw new Error(corps.error ?? 'Erreur ' + res.status)
-  }
-  if (res.status === 204) return {}
-  return res.json()
-}
 
 async function charger() {
   loading.value = true
   try {
-    entrees.value = await adminFetch('videos.php')
+    entrees.value = await adminFetch<Video[]>('videos.php')
   } catch (e) {
     loadError.value = 'Erreur de chargement : ' + ((e as Error).message ?? 'inconnue')
   } finally {
@@ -102,16 +80,6 @@ async function supprimer(id: number) {
   } finally {
     enCours = false
   }
-}
-
-async function deconnexion() {
-  try {
-    await adminFetch('auth.php', { method: 'DELETE' })
-  } catch {
-    // déconnexion locale malgré tout : le jeton côté serveur expirera de lui-même
-  }
-  sessionStorage.removeItem('admin_token')
-  navigateTo('/admin/login')
 }
 </script>
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-definePageMeta({ layout: 'admin' })
+definePageMeta({ layout: 'admin', middleware: 'admin' })
 useSeoMeta({ title: 'Formulaires de contact — Annuaire TSA' })
 
 interface FicheContact {
@@ -13,7 +13,7 @@ interface FicheContact {
   contact_consentement: string | null
 }
 
-const token = ref('')
+const { adminFetch } = useAdminAuth()
 const fiches = ref<FicheContact[]>([])
 const search = ref('')
 const seulementActifs = ref(false)
@@ -27,39 +27,18 @@ const enregistrement = ref<number | null>(null)
 const enregistre = ref<number | null>(null)
 let enregistreTimer: ReturnType<typeof setTimeout> | null = null
 
-onMounted(async () => {
-  token.value = sessionStorage.getItem('admin_token') || ''
-  if (!token.value) {
-    navigateTo('/admin/login')
-    return
-  }
-  await charger()
+onMounted(() => {
+  void charger()
 })
 
 onUnmounted(() => {
   if (enregistreTimer) clearTimeout(enregistreTimer)
 })
 
-async function adminFetch(url: string, options: RequestInit = {}) {
-  const res = await fetch('/api/' + url, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token.value, ...options.headers }
-  })
-  if (res.status === 401) {
-    navigateTo('/admin/login')
-    throw new Error('Non authentifié')
-  }
-  if (!res.ok) {
-    const detail = await res.json().catch(() => null)
-    throw new Error(detail?.error ?? 'Erreur ' + res.status)
-  }
-  return res.json()
-}
-
 async function charger() {
   loading.value = true
   try {
-    fiches.value = await adminFetch('admin_praticiens.php')
+    fiches.value = await adminFetch<FicheContact[]>('admin_praticiens.php')
     for (const f of fiches.value) brouillons[f.id] = f.contact_email ?? ''
   } catch (e) {
     loadError.value = 'Erreur de chargement : ' + ((e as Error).message ?? 'inconnue')
@@ -105,7 +84,7 @@ async function enregistrer(f: FicheContact, actif: boolean) {
     })
     // Rechargement ciblé : la date de consentement est posée par le serveur au
     // premier accord, on ne peut pas la deviner ici.
-    const maj: FicheContact = await adminFetch('admin_praticiens.php?id=' + f.id)
+    const maj = await adminFetch<FicheContact>('admin_praticiens.php?id=' + f.id)
     Object.assign(f, {
       contact_email: maj.contact_email,
       contact_actif: maj.contact_actif,

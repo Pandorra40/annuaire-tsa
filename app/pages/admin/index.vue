@@ -2,10 +2,10 @@
 import { MOTIF_RETRAIT, MOTIF_RETRAIT_ASSOCIATION } from '~/types/index'
 import type { Praticien, Signalement, SuggestionPraticien } from '~/types'
 
-definePageMeta({ layout: 'admin' })
+definePageMeta({ layout: 'admin', middleware: 'admin' })
 useSeoMeta({ title: 'Administration — Annuaire TSA' })
 
-const token = ref('')
+const { adminFetch, deconnexion } = useAdminAuth()
 const fiches = ref<Praticien[]>([])
 const attente = ref<SuggestionPraticien[]>([])
 const signalements = ref<Signalement[]>([])
@@ -17,36 +17,18 @@ const loadError = ref('')
 const SEUIL = 3
 
 onMounted(async () => {
-  token.value = sessionStorage.getItem('admin_token') || ''
-  if (!token.value) {
-    navigateTo('/admin/login')
-    return
-  }
   activeTab.value = sessionStorage.getItem('admin_tab') || 'attente'
   await charger()
 })
-
-async function adminFetch(url: string, options: RequestInit = {}) {
-  const res = await fetch('/api/' + url, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token.value, ...options.headers }
-  })
-  if (res.status === 401) {
-    navigateTo('/admin/login')
-    throw new Error('Non authentifié')
-  }
-  if (!res.ok) throw new Error('Erreur ' + res.status)
-  return res.json()
-}
 
 async function charger() {
   loading.value = true
   try {
     const [p, a, s, r] = await Promise.all([
-      adminFetch('admin_praticiens.php'),
-      adminFetch('suggestions.php?statut=en_attente'),
-      adminFetch('signalements.php?statut=ouvert'),
-      adminFetch('suggestions.php?statut=refuse')
+      adminFetch<Praticien[]>('admin_praticiens.php'),
+      adminFetch<SuggestionPraticien[]>('suggestions.php?statut=en_attente'),
+      adminFetch<Signalement[]>('signalements.php?statut=ouvert'),
+      adminFetch<SuggestionPraticien[]>('suggestions.php?statut=refuse')
     ])
     fiches.value = p
     attente.value = a
@@ -292,16 +274,6 @@ function marquerSignalementTraite(id: number) {
 
 function ignorerSignalement(id: number) {
   return cloturerSignalement(id, 'ignore')
-}
-
-async function deconnexion() {
-  try {
-    await adminFetch('auth.php', { method: 'DELETE' })
-  } catch {
-    // déconnexion locale malgré tout : le jeton côté serveur expirera de lui-même
-  }
-  sessionStorage.removeItem('admin_token')
-  navigateTo('/admin/login')
 }
 </script>
 

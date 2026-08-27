@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { Livre, SuggestionLivre } from '~/types'
 
-definePageMeta({ layout: 'admin' })
+definePageMeta({ layout: 'admin', middleware: 'admin' })
 useSeoMeta({ title: 'Livres — Administration TSA' })
 
-const token = ref('')
+const { adminFetch, deconnexion } = useAdminAuth()
 const publies = ref<Livre[]>([])
 const suggestions = ref<SuggestionLivre[]>([])
 const activeTab = ref('ajouter')
@@ -19,35 +19,16 @@ const form = reactive({
 
 const categories = ['témoignage', 'guide pratique', 'scientifique', 'jeunesse', 'roman']
 
-onMounted(async () => {
-  token.value = sessionStorage.getItem('admin_token') || ''
-  if (!token.value) {
-    navigateTo('/admin/login')
-    return
-  }
-  await charger()
+onMounted(() => {
+  void charger()
 })
-
-async function adminFetch(url: string, options: RequestInit = {}) {
-  const res = await fetch('/api/' + url, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', 'X-Admin-Token': token.value, ...options.headers }
-  })
-  if (res.status === 401) {
-    navigateTo('/admin/login')
-    throw new Error('Non authentifié')
-  }
-  if (!res.ok) throw new Error('Erreur ' + res.status)
-  if (res.status === 204) return {}
-  return res.json()
-}
 
 async function charger() {
   loading.value = true
   try {
     const [p, s] = await Promise.all([
-      adminFetch('livres.php'),
-      adminFetch('suggestions_livres.php?statut=en_attente')
+      adminFetch<Livre[]>('livres.php'),
+      adminFetch<SuggestionLivre[]>('suggestions_livres.php?statut=en_attente')
     ])
     publies.value = p
     suggestions.value = s
@@ -127,16 +108,6 @@ async function refuserSuggestion(id: number) {
   } finally {
     enCours = false
   }
-}
-
-async function deconnexion() {
-  try {
-    await adminFetch('auth.php', { method: 'DELETE' })
-  } catch {
-    // déconnexion locale malgré tout : le jeton côté serveur expirera de lui-même
-  }
-  sessionStorage.removeItem('admin_token')
-  navigateTo('/admin/login')
 }
 </script>
 
