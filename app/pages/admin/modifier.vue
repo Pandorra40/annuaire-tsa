@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TYPES_PRATICIENS, AGES_OPTIONS } from '~/types/index'
+import { TYPES_PRATICIENS, AGES_OPTIONS, DELAIS_PRATICIEN } from '~/types/index'
 
 definePageMeta({ layout: 'admin' })
 useSeoMeta({ title: 'Modifier une fiche — Administration TSA' })
@@ -22,7 +22,7 @@ const form = reactive({
 
 const types = TYPES_PRATICIENS
 const agesOptions = AGES_OPTIONS
-const delais = ['', 'Disponible', 'Quelques semaines', '1 à 3 mois', '3 à 6 mois', 'Plus de 6 mois']
+const delais = ['', ...DELAIS_PRATICIEN]
 
 const secondLieuOuvert = ref(false)
 
@@ -103,7 +103,7 @@ async function chargerFiche() {
     form.autresInfos = data.autres_infos || ''
     // Pré-ouvert si la fiche a déjà un second lieu, pour que l'admin le voie
     // tout de suite plutôt que de devoir cliquer pour découvrir qu'il existe.
-    secondLieuOuvert.value = !!(data.ville2 || data.departement2)
+    secondLieuOuvert.value = !!(data.ville2 || data.departement2 || data.adresse2)
   } catch (e) {
     erreur.value = 'Erreur : ' + (e as Error).message
   } finally {

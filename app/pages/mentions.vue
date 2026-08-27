@@ -94,9 +94,12 @@ useSeoMeta({
           <h2 class="font-bold text-gray-900 mb-2">Sources des données</h2>
           <p class="text-sm text-gray-600 leading-relaxed">
             Une partie des fiches praticiens provient de l'annuaire
-            <a href="https://www.autismeinfoservice.fr" target="_blank" rel="noopener" class="text-indigo-600 hover:underline">Autisme et TND Info Service</a>,
-            publiées sous licence <strong>Apache 2.0</strong>. Les données ont été filtrées et adaptées au format de cet annuaire.
-            Les autres fiches sont issues de contributions communautaires.
+            <a href="https://www.autismeinfoservice.fr" target="_blank" rel="noopener" class="text-indigo-600 hover:underline">Autisme et TND Info Service</a>.
+            Leur site indique que le contenu est protégé (tous droits réservés) et qu'une
+            réutilisation à des fins d'information non commerciale est possible avec citation
+            de la source — ce n'est pas une licence Apache 2.0. Les données ont été filtrées
+            et adaptées au format de cet annuaire. Les autres fiches sont issues de
+            contributions communautaires.
           </p>
         </div>
 

@@ -1,5 +1,6 @@
 export const TYPES_PRATICIENS = ['Psychiatre', 'Pédopsychiatre', 'Psychologue', 'Neuropsychologue', 'Orthophoniste', 'Ergothérapeute', 'Psychomotricien', 'Structure'] as const
 export const AGES_OPTIONS = ['Enfant', 'Adolescent', 'Adulte'] as const
+export const DELAIS_PRATICIEN = ['Disponible', 'Quelques semaines', '1 à 3 mois', '3 à 6 mois', 'Plus de 6 mois'] as const
 
 // Demande d'effacement émanant du praticien lui-même (art. 17 RGPD) : à traiter en
 // priorité, contrairement aux signalements communautaires. La même chaîne est reprise
@@ -110,6 +111,7 @@ export interface SuggestionPraticien {
   departement: string
   departement2?: string | null
   adresse?: string | null
+  adresse2?: string | null
   telephone?: string | null
   site_web?: string | null
   teleconsultation?: boolean

@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import type { Association } from '~/types/index'
+import {
+  ASSOCIATION_SEARCH_PROPERTIES,
+  docAssociation,
+  idAssociation,
+  SCHEMA_ASSOCIATION,
+  suggestionsAssociation
+} from '~/search/documents'
 
 useSeoMeta({
   title: 'Associations TSA — Annuaire TSA',
@@ -43,14 +50,17 @@ const servicesActifs = ref<string[]>(
   route.query.services ? (route.query.services as string).split(',').filter(Boolean) : []
 )
 
+const { correspond, suggestions } = useOramaRecherche(search, {
+  schema: SCHEMA_ASSOCIATION,
+  properties: ASSOCIATION_SEARCH_PROPERTIES,
+  items: () => associations.value,
+  getId: idAssociation,
+  toDocument: docAssociation,
+  toSuggestions: suggestionsAssociation
+})
+
 function passeFiltres(a: Association, sauf?: 'dept' | 'service') {
-  const q = normaliserRecherche(search.value).trim()
-  const matchQ = !q
-    || normaliserRecherche(a.nom).includes(q)
-    || normaliserRecherche(a.ville).includes(q)
-    || a.departement.includes(q)
-    || normaliserRecherche(a.services ?? '').includes(q)
-  if (!matchQ) return false
+  if (!correspond(a)) return false
   if (sauf !== 'dept' && filtreDept.value && a.departement !== filtreDept.value) return false
   if (sauf !== 'service' && servicesActifs.value.length) {
     const services = parserServices(a.services)
@@ -146,14 +156,12 @@ function scrollTop() {
         <!-- RECHERCHE -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 mb-8">
           <div class="flex flex-col sm:flex-row gap-3">
-            <div class="relative flex-1">
-              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-base">🔍</span>
-              <input
+            <div class="flex-1">
+              <ChampRechercheOrama
                 v-model="search"
-                type="search"
-                aria-label="Rechercher une association par nom, ville, département ou service"
+                :suggestions="suggestions"
                 placeholder="Nom, ville, département, service…"
-                class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
+                aria-label="Rechercher une association par nom, ville, département ou service"
               />
             </div>
             <!-- Liste nommée plutôt qu'un champ où taper un numéro de mémoire :

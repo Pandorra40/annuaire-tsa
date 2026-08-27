@@ -1,6 +1,14 @@
 <script setup lang="ts">
-import { MOTIF_RETRAIT, MOTIF_RETRAIT_ASSOCIATION } from '~/types/index'
+import { MOTIF_RETRAIT, MOTIF_RETRAIT_ASSOCIATION, DELAIS_PRATICIEN } from '~/types/index'
 import type { Association, Praticien } from '~/types/index'
+
+type ChampCorrigeable = {
+  cle: string
+  label: string
+  lignes?: number
+  type?: 'text' | 'select'
+  options?: readonly string[]
+}
 
 useSeoMeta({
   title: 'Signaler une erreur — Annuaire TSA'
@@ -81,21 +89,28 @@ const fiche = computed<Praticien | Association | null>(() => ficheChargee.value?
 // d'intervention. C'est le cœur du correctif : un signalement « TARIF
 // MODIFIÉ » sans le nouveau tarif devient impossible à produire, parce que
 // cocher une rubrique ouvre le champ qui doit la remplacer.
-const CHAMPS_PRATICIEN = [
+const CHAMPS_PRATICIEN: ChampCorrigeable[] = [
   { cle: 'tarifs', label: 'Tarifs', lignes: 1 },
   { cle: 'types_intervention', label: 'Types d\'intervention', lignes: 3 },
-  { cle: 'bilans', label: 'Bilans', lignes: 2 },
+  { cle: 'fait_bilans', label: 'Réalise des bilans diagnostiques (badge)', type: 'select', options: ['Oui', 'Non — oriente vers un CRA ou un confrère', 'Non renseigné'] },
+  { cle: 'bilans', label: 'Bilans (détail : ADOS, ADI-R…)', lignes: 2 },
   { cle: 'formations', label: 'Formations complémentaires', lignes: 2 },
   { cle: 'experience', label: 'Expérience', lignes: 2 },
   { cle: 'modalites', label: 'Modalités', lignes: 2 },
   { cle: 'autres_infos', label: 'Autres informations', lignes: 3 },
-  { cle: 'adresse', label: 'Adresse', lignes: 1 },
-  { cle: 'ville', label: 'Ville', lignes: 1 },
+  { cle: 'adresse', label: 'Adresse (1er lieu)', lignes: 1 },
+  { cle: 'ville', label: 'Ville (1er lieu)', lignes: 1 },
+  { cle: 'departement', label: 'Département (1er lieu)', lignes: 1 },
+  { cle: 'adresse2', label: 'Adresse (2e lieu)', lignes: 1 },
+  { cle: 'ville2', label: 'Ville (2e lieu)', lignes: 1 },
+  { cle: 'departement2', label: 'Département (2e lieu)', lignes: 1 },
   { cle: 'telephone', label: 'Téléphone', lignes: 1 },
-  { cle: 'site_web', label: 'Site web ou prise de rendez-vous', lignes: 1 }
-] as const
+  { cle: 'site_web', label: 'Site web ou prise de rendez-vous', lignes: 1 },
+  { cle: 'delai', label: 'Délai d\'attente', type: 'select', options: DELAIS_PRATICIEN },
+  { cle: 'teleconsultation', label: 'Téléconsultation', type: 'select', options: ['Oui', 'Non'] }
+]
 
-const CHAMPS_ASSOCIATION = [
+const CHAMPS_ASSOCIATION: ChampCorrigeable[] = [
   { cle: 'nom', label: 'Nom de l\'association', lignes: 1 },
   { cle: 'adresse', label: 'Adresse', lignes: 1 },
   { cle: 'ville', label: 'Ville', lignes: 1 },
@@ -105,9 +120,9 @@ const CHAMPS_ASSOCIATION = [
   { cle: 'services', label: 'Services proposés', lignes: 2 },
   { cle: 'age_public', label: 'Public concerné', lignes: 1 },
   { cle: 'description', label: 'Présentation', lignes: 3 }
-] as const
+]
 
-type CleChamp = typeof CHAMPS_PRATICIEN[number]['cle'] | typeof CHAMPS_ASSOCIATION[number]['cle']
+type CleChamp = string
 
 const champsCorrigeables = computed(() => estAssociation.value ? CHAMPS_ASSOCIATION : CHAMPS_PRATICIEN)
 
@@ -137,8 +152,22 @@ function basculerChamp(cle: CleChamp) {
 
 function valeurActuelle(cle: CleChamp): string {
   const valeur = (fiche.value as Record<string, unknown> | null)?.[cle]
+  if (cle === 'teleconsultation') {
+    if (valeur === true) return 'Oui'
+    if (valeur === false) return 'Non'
+    return 'Non renseigné'
+  }
+  if (cle === 'fait_bilans') {
+    if (valeur === 1) return 'Oui'
+    if (valeur === 0) return 'Non — oriente vers un CRA ou un confrère'
+    return 'Non renseigné'
+  }
   const texte = typeof valeur === 'string' ? valeur.trim() : ''
   return texte || 'Non renseigné'
+}
+
+function metaChamp(cle: CleChamp) {
+  return champsCorrigeables.value.find(c => c.cle === cle)
 }
 
 const champsIncomplets = computed(() =>
@@ -331,7 +360,7 @@ async function soumettre() {
               <div v-else class="mt-4 space-y-3">
                 <div v-for="cle in champsCoches" :key="cle" class="bg-indigo-50 border border-indigo-200 rounded-xl p-4">
                   <p class="text-sm font-semibold text-indigo-900 mb-3">
-                    {{ champsCorrigeables.find(c => c.cle === cle)?.label }}
+                    {{ metaChamp(cle)?.label }}
                   </p>
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
@@ -342,10 +371,20 @@ async function soumettre() {
                       <label :for="`corr-${cle}`" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">
                         Nouvelle valeur <span class="text-red-600">*</span>
                       </label>
-                      <textarea
+                      <select
+                        v-if="metaChamp(cle)?.type === 'select'"
                         :id="`corr-${cle}`"
                         v-model="corrections[cle]"
-                        :rows="champsCorrigeables.find(c => c.cle === cle)?.lignes ?? 2"
+                        class="w-full border border-indigo-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 bg-white text-gray-900"
+                      >
+                        <option value="">— Choisir —</option>
+                        <option v-for="opt in metaChamp(cle)?.options ?? []" :key="opt" :value="opt">{{ opt }}</option>
+                      </select>
+                      <textarea
+                        v-else
+                        :id="`corr-${cle}`"
+                        v-model="corrections[cle]"
+                        :rows="metaChamp(cle)?.lignes ?? 2"
                         placeholder="La bonne information…"
                         class="w-full border border-indigo-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 bg-white text-gray-900 resize-vertical"
                       />

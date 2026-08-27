@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import { CATEGORIES_VIDEOS, type Video } from '~/types/index'
+import {
+  docVideo,
+  idVideo,
+  SCHEMA_VIDEO,
+  VIDEO_SEARCH_PROPERTIES,
+  suggestionsVideo
+} from '~/search/documents'
 
 useSeoMeta({
   title: 'Vidéos TSA — Chaînes et vidéos sur l\'autisme',
@@ -30,11 +37,18 @@ const videos = computed<Video[]>(() => fraiches.value ?? prerendues.value ?? [])
 const search = ref('')
 const activeCat = ref('')
 
+const { correspond, suggestions } = useOramaRecherche(search, {
+  schema: SCHEMA_VIDEO,
+  properties: VIDEO_SEARCH_PROPERTIES,
+  items: () => videos.value,
+  getId: idVideo,
+  toDocument: docVideo,
+  toSuggestions: suggestionsVideo
+})
+
 const filtrees = computed(() => {
-  const q = normaliserRecherche(search.value).trim()
   return videos.value.filter((v: Video) => {
-    const match = !q || normaliserRecherche(`${v.titre} ${v.chaine} ${v.pourquoi}`).includes(q)
-    return match && (!activeCat.value || v.categorie === activeCat.value)
+    return correspond(v) && (!activeCat.value || v.categorie === activeCat.value)
   })
 })
 
@@ -101,10 +115,13 @@ function degrade(nom: string) {
     <section class="bg-gray-50 py-10">
       <div class="max-w-5xl mx-auto px-6">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
-          <div class="relative mb-4">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-base">🔍</span>
-            <input v-model="search" type="search" aria-label="Rechercher une vidéo, une chaîne ou un sujet" placeholder="Une vidéo, une chaîne, un sujet…"
-              class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+          <div class="mb-4">
+            <ChampRechercheOrama
+              v-model="search"
+              :suggestions="suggestions"
+              placeholder="Une vidéo, une chaîne, un sujet…"
+              aria-label="Rechercher une vidéo, une chaîne ou un sujet"
+            />
           </div>
           <div class="flex flex-wrap gap-2">
             <button type="button" class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"

@@ -27,6 +27,13 @@
 import type { Praticien } from '~/types/index'
 import { TYPES_PRATICIENS, AGES_OPTIONS } from '~/types/index'
 import { couleurMetier } from '~/composables/usePraticien'
+import {
+  docPraticien,
+  idPraticien,
+  PRATICIEN_SEARCH_PROPERTIES,
+  SCHEMA_PRATICIEN,
+  suggestionsPraticien
+} from '~/search/documents'
 
 const props = defineProps<{
   /** L'ensemble sur lequel porte la recherche, avant filtrage. */
@@ -41,19 +48,21 @@ const age = defineModel<string>('age', { required: true })
 const tele = defineModel<string>('tele', { required: true })
 const bilans = defineModel<string>('bilans', { required: true })
 
+const { correspond, suggestions } = useOramaRecherche(recherche, {
+  schema: SCHEMA_PRATICIEN,
+  properties: PRATICIEN_SEARCH_PROPERTIES,
+  items: () => props.praticiens,
+  getId: idPraticien,
+  toDocument: docPraticien,
+  toSuggestions: suggestionsPraticien
+})
+
 /**
  * Un praticien passe-t-il les filtres ? `sauf` permet d'ignorer une facette,
  * pour calculer ce que donnerait chacune de ses pastilles.
  */
 function passe(p: Praticien, sauf?: 'type' | 'age' | 'tele' | 'bilans') {
-  const q = normaliserRecherche(recherche.value).trim()
-  const matchQ = !q
-    || normaliserRecherche(p.ville).includes(q)
-    || p.departement.includes(q)
-    || normaliserRecherche(p.nom).includes(q)
-    || normaliserRecherche(p.ville2 ?? '').includes(q)
-    || (p.departement2 ?? '').includes(q)
-  if (!matchQ) return false
+  if (!correspond(p)) return false
   if (sauf !== 'type' && type.value !== 'tous' && p.type !== type.value) return false
   if (sauf !== 'age' && age.value !== 'tous' && !p.ages.includes(age.value)) return false
   if (sauf !== 'tele' && tele.value === 'oui' && !p.teleconsultation) return false
@@ -110,21 +119,14 @@ const CLASSE_INACTIVE = 'bg-white text-gray-600 border-gray-200 hover:border-gra
 
 <template>
   <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
-    <div class="relative mb-5">
-      <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-base" aria-hidden="true">🔍</span>
-      <input
+    <div class="mb-5">
+      <ChampRechercheOrama
         v-model="recherche"
-        type="search"
-        aria-label="Rechercher un praticien par ville, département ou nom"
+        :suggestions="suggestions"
         :placeholder="placeholder ?? 'Bordeaux, 33, Dr Dupont…'"
-        aria-describedby="portee-recherche"
-        class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
-      >
-      <!-- Une barre de recherche qui ne dit pas son périmètre laisse croire
-           qu'elle cherche partout. -->
-      <p id="portee-recherche" class="text-xs text-gray-500 mt-2">
-        Cherche dans le nom, la ville et le département — <strong>y compris le second lieu</strong> quand un praticien en a deux.
-      </p>
+        aria-label="Rechercher un praticien par ville, département ou nom"
+        aide="Cherche dans le nom, la ville, le département, le métier et les rubriques de la fiche — y compris le second lieu."
+      />
     </div>
 
     <div class="space-y-4">

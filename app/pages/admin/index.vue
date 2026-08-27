@@ -270,11 +270,28 @@ async function basculerVisibilite(id: number, statut: string) {
   })
 }
 
-async function ignorerSignalement(id: number) {
+async function cloturerSignalement(id: number, statut: 'resolu' | 'ignore') {
+  const signalement = signalements.value.find(s => s.id === id)
+  const nom = signalement?.association_nom ?? signalement?.praticien_nom ?? 'Signalement'
   await agir(async () => {
-    await adminFetch('signalements.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'ignore' }) })
+    await adminFetch('signalements.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut }) })
     signalements.value = signalements.value.filter(s => s.id !== id)
+    proposerAnnulation(
+      statut === 'resolu' ? `${nom} — traité` : `${nom} — écarté`,
+      async () => {
+        await adminFetch('signalements.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'ouvert' }) })
+        if (signalement) signalements.value.unshift(signalement)
+      }
+    )
   })
+}
+
+function marquerSignalementTraite(id: number) {
+  return cloturerSignalement(id, 'resolu')
+}
+
+function ignorerSignalement(id: number) {
+  return cloturerSignalement(id, 'ignore')
 }
 
 async function deconnexion() {
@@ -407,6 +424,9 @@ async function deconnexion() {
                     {{ d.type }} · {{ d.ville }}{{ d.ville2 ? ' + ' + d.ville2 : '' }} ({{ d.departement }}{{ d.departement2 ? ', ' + d.departement2 : '' }})
                   </div>
                   <div v-if="d.adeli" class="text-xs text-gray-500 mt-1">ADELI/RPPS : {{ d.adeli }}</div>
+                  <div v-if="d.adresse" class="text-xs text-gray-500 mt-1">{{ d.adresse }}</div>
+                  <div v-if="d.adresse2" class="text-xs text-gray-500 mt-1">2e lieu : {{ d.adresse2 }}</div>
+                  <div v-if="d.delai" class="text-xs text-gray-500 mt-1">Délai : {{ d.delai }}</div>
                   <div class="flex flex-wrap gap-1.5 mt-2">
                     <UBadge v-for="age in d.ages" :key="age" color="primary" variant="soft" size="xs">{{ age }}</UBadge>
                     <UBadge v-if="d.teleconsultation" color="success" variant="soft" size="xs">Téléconsultation</UBadge>
@@ -520,7 +540,8 @@ async function deconnexion() {
                   <NuxtLink :to="`/admin/modifier?id=${s.praticien_id}`" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Modifier la fiche</NuxtLink>
                   <button type="button" v-if="s.motif === MOTIF_RETRAIT && s.praticien_id" class="px-3 py-1.5 text-sm font-medium text-red-700 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors" @click="supprimer(s.praticien_id)">Supprimer la fiche</button>
                 </template>
-                <button type="button" class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors" @click="ignorerSignalement(s.id)">Ignorer</button>
+                <button type="button" class="px-3 py-1.5 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors" @click="marquerSignalementTraite(s.id)">Marquer comme traité</button>
+                <button type="button" class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors" @click="ignorerSignalement(s.id)">Écarter</button>
               </div>
             </UCard>
           </div>

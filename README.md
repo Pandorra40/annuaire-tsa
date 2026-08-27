@@ -29,7 +29,7 @@ Annuaire de 290 associations spécialisées dans les troubles du spectre autisti
 - Informations de contact : téléphone, email, site web
 - Services proposés, public concerné, description
 - Formulaire de suggestion public (`/associations/suggerer`) et modération dans `/admin/associations`
-- Données issues d'Autisme et TND Info Service (licence Apache 2.0)
+- Données issues d'Autisme et TND Info Service (réutilisation information non commerciale avec source citée, selon leurs mentions légales)
 
 ### 3. Ressources (`/ressources/`)
 Deux rubriques de même niveau, réunies sous une entrée de menu commune : le livre et
@@ -190,7 +190,7 @@ désigne l'adresse publique de l'association elle-même.
 - `contact_journal` — métadonnées des messages envoyés (date, fiche, IP, adresse de l'expéditeur). **Jamais le contenu des messages**, et purgé au-delà de douze mois, au fil des envois
 
 ### Tables associations
-- `associations` — associations TSA publiées (source AIS Apache 2.0)
+- `associations` — associations TSA publiées (source AIS, Tamis-Autisme)
 - `suggestions_associations` — suggestions envoyées depuis le site, en attente de modération
 
 ### Tables ressources

@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import type { Livre } from '~/types/index'
+import {
+  docLivre,
+  idLivre,
+  LIVRE_SEARCH_PROPERTIES,
+  SCHEMA_LIVRE,
+  suggestionsLivre
+} from '~/search/documents'
 
 useSeoMeta({
   title: 'Livres TSA — Sélection de livres sur l\'autisme',
@@ -37,12 +44,19 @@ const activecat = ref('')
 
 const categories = ['témoignage', 'guide pratique', 'scientifique', 'bd', 'jeunesse', 'roman']
 
+const { correspond, suggestions } = useOramaRecherche(search, {
+  schema: SCHEMA_LIVRE,
+  properties: LIVRE_SEARCH_PROPERTIES,
+  items: () => livres.value,
+  getId: idLivre,
+  toDocument: docLivre,
+  toSuggestions: suggestionsLivre
+})
+
 const classiques = computed(() =>
   livres.value.filter((l: Livre) => {
-    const q = normaliserRecherche(search.value)
-    const match = !q || normaliserRecherche(`${l.titre} ${l.auteur} ${l.description ?? ''} ${l.categorie ?? ''}`).includes(q)
     const cat = !activecat.value || l.categorie === activecat.value
-    return l.type === 'classique' && match && cat
+    return l.type === 'classique' && correspond(l) && cat
   })
 )
 
@@ -137,10 +151,13 @@ const loadingNewReleases = computed(() =>
     <section class="bg-gray-50 py-10">
       <div class="max-w-5xl mx-auto px-6">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 mb-6">
-          <div class="relative mb-4">
-            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-base">🔍</span>
-            <input v-model="search" type="search" aria-label="Rechercher un livre par titre, auteur ou mot-clé" placeholder="Titre, auteur ou mot-clé…"
-              class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+          <div class="mb-4">
+            <ChampRechercheOrama
+              v-model="search"
+              :suggestions="suggestions"
+              placeholder="Titre, auteur ou mot-clé…"
+              aria-label="Rechercher un livre par titre, auteur ou mot-clé"
+            />
           </div>
           <div class="flex flex-wrap gap-2">
             <button type="button" class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"

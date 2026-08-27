@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TYPES_PRATICIENS, AGES_OPTIONS } from '~/types/index'
+import { TYPES_PRATICIENS, AGES_OPTIONS, DELAIS_PRATICIEN } from '~/types/index'
 
 useSeoMeta({
   title: 'Suggérer un praticien — Annuaire TSA',
@@ -13,12 +13,16 @@ const champ = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outl
 const form = reactive({
   nom: '',
   type: '',
+  adresse: '',
   ville: '',
   codepostal: '',
+  adresse2: '',
   ville2: '',
   codepostal2: '',
   telephone: '',
   site_web: '',
+  teleconsultation: false,
+  delai: '',
   adeli: '',
   ages: [] as string[],
   typesIntervention: '',
@@ -37,6 +41,7 @@ const form = reactive({
 
 const types = TYPES_PRATICIENS
 const agesOptions = AGES_OPTIONS
+const delais = DELAIS_PRATICIEN
 
 const etape = ref(1)
 
@@ -90,8 +95,12 @@ const loading = ref(false)
 const success = ref(false)
 const error = ref('')
 
-watch(etape, () => {
-  if (import.meta.client) window.scrollTo({ top: 0 })
+watch(etape, async () => {
+  if (!import.meta.client) return
+  await nextTick()
+  // scrollTo(0) masquait le haut du formulaire sous la barre sticky (h-16) à
+  // chaque changement d'étape — l'effet « menu qui recouvre le type de pro ».
+  document.getElementById('etape-suggerer')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 })
 
 function continuer() {
@@ -113,12 +122,16 @@ async function soumettre() {
     await suggererPraticien({
       nom: form.nom,
       type: form.type,
+      adresse: form.adresse || null,
       ville: form.ville,
       departement: departementDepuisSaisie(form.codepostal),
+      adresse2: secondLieuOuvert.value && form.adresse2 ? form.adresse2 : null,
       ville2: secondLieuOuvert.value && form.ville2 ? form.ville2 : null,
       departement2: secondLieuOuvert.value && form.codepostal2 ? departementDepuisSaisie(form.codepostal2) : null,
       telephone: form.telephone || null,
       site_web: form.site_web || null,
+      teleconsultation: form.teleconsultation,
+      delai: form.delai || null,
       types_intervention: (estPraticien.value && form.typesIntervention) || null,
       bilans: (estPraticien.value && form.bilans) || null,
       formations: (estPraticien.value && form.formations) || null,
@@ -181,7 +194,7 @@ async function soumettre() {
           />
         </div>
         <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700">Étape {{ etape }} sur 3 — {{ libelleEtape }}</p>
-        <h1 class="mt-2 text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">{{ titreEtape }}</h1>
+        <h1 id="etape-suggerer" class="mt-2 text-3xl sm:text-4xl font-black text-gray-900 tracking-tight scroll-mt-20">{{ titreEtape }}</h1>
         <p v-if="etape === 1" class="mt-3 text-gray-500 text-lg max-w-2xl">
           <template v-if="estPraticien">Elle sera relue avant d’être publiée. Ce n’est pas un compte : vous ne pourrez pas la modifier ensuite.</template>
           <template v-else>Vous connaissez un praticien spécialisé TSA qui n’apparaît pas ? Nom, ville et spécialité suffisent.</template>
@@ -329,6 +342,15 @@ async function soumettre() {
 
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
               <h2 class="font-bold text-gray-900 text-lg mb-5 pb-4 border-b border-gray-100">{{ estPraticien ? 'Où consultez-vous ?' : 'Où consulte-t-il ?' }}</h2>
+              <div class="mb-5">
+                <label for="adresse" class="block text-sm font-semibold text-gray-700 mb-1.5">
+                  Adresse <span class="text-gray-500 font-normal">(optionnel)</span>
+                </label>
+                <input id="adresse" v-model="form.adresse" type="text" placeholder="12 rue de la Paix" :class="champ">
+                <p class="text-xs text-gray-500 mt-2 leading-relaxed">
+                  Rue et numéro, si vous les connaissez — la ville et le code postal suffisent sinon.
+                </p>
+              </div>
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
                   <label for="ville" class="block text-sm font-semibold text-gray-700 mb-1.5">Ville *</label>
@@ -345,9 +367,13 @@ async function soumettre() {
               <div v-else class="mt-5 pt-5 border-t border-gray-100">
                 <div class="flex items-center justify-between mb-3">
                   <p class="text-sm font-semibold text-gray-700">Second lieu</p>
-                  <button type="button" class="text-xs text-gray-500 hover:text-gray-700 transition-colors" @click="secondLieuOuvert = false; form.ville2 = ''; form.codepostal2 = ''">
+                  <button type="button" class="text-xs text-gray-500 hover:text-gray-700 transition-colors" @click="secondLieuOuvert = false; form.adresse2 = ''; form.ville2 = ''; form.codepostal2 = ''">
                     Retirer
                   </button>
+                </div>
+                <div class="mb-5">
+                  <label for="adresse2" class="block text-sm font-semibold text-gray-700 mb-1.5">Adresse</label>
+                  <input id="adresse2" v-model="form.adresse2" type="text" placeholder="97 avenue Charles de Gaulle" :class="champ">
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                   <div>
@@ -359,6 +385,29 @@ async function soumettre() {
                     <input id="codepostal2" v-model="form.codepostal2" type="text" placeholder="91150" maxlength="5" :class="champ">
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h2 class="font-bold text-gray-900 text-lg mb-5 pb-4 border-b border-gray-100 flex items-center">
+                Pratique
+                <span class="ml-auto text-xs text-gray-500 font-normal">Optionnel</span>
+              </h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 items-start">
+                <div>
+                  <label for="delai" class="block text-sm font-semibold text-gray-700 mb-1.5">Délai d'attente</label>
+                  <select id="delai" v-model="form.delai" :class="champ">
+                    <option value="">— Je ne sais pas —</option>
+                    <option v-for="d in delais" :key="d" :value="d">{{ d }}</option>
+                  </select>
+                </div>
+                <label class="flex items-start gap-3 cursor-pointer text-sm text-gray-700 sm:pt-8">
+                  <input v-model="form.teleconsultation" type="checkbox" class="checkbox-custom mt-0.5 shrink-0">
+                  <span>
+                    <span class="block font-semibold text-gray-800">Propose la téléconsultation</span>
+                    <span class="block text-xs text-gray-500 mt-1">Cochez seulement si vous en êtes sûr.</span>
+                  </span>
+                </label>
               </div>
             </div>
           </template>

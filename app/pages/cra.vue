@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import { CENTRES_RESSOURCES, DESCRIPTION_INTIMAGIR, type CentreRessource } from '~/data/cra'
+import {
+  CRA_SEARCH_PROPERTIES,
+  docCra,
+  idCra,
+  SCHEMA_CRA,
+  suggestionsCra
+} from '~/search/documents'
+
+type CentreIndexe = { centre: CentreRessource, index: number }
 
 useSeoMeta({
   title: 'Centres Ressources Autisme (CRA) — Annuaire TSA',
@@ -19,18 +28,25 @@ const CATEGORIES = [
   { valeur: 'Autre', label: 'Spécialisés' }
 ] as const
 
+const centresIndexes = computed<CentreIndexe[]>(() =>
+  CENTRES_RESSOURCES.map((centre, index) => ({ centre, index }))
+)
+
+const { correspond, suggestions } = useOramaRecherche(search, {
+  schema: SCHEMA_CRA,
+  properties: CRA_SEARCH_PROPERTIES,
+  items: () => centresIndexes.value,
+  getId: ({ centre, index }) => idCra(centre, index),
+  toDocument: ({ centre, index }) => docCra(centre, index),
+  toSuggestions: suggestionsCra
+})
+
 const centresFiltres = computed(() => {
-  const q = normaliserRecherche(search.value).trim()
   const cat = filtreCategorie.value
-  return CENTRES_RESSOURCES.filter((c) => {
-    const matchCat = !cat || c.categorie === cat
-    if (!q) return matchCat
-    const matchQ = normaliserRecherche(c.nom).includes(q)
-      || normaliserRecherche(c.region).includes(q)
-      || normaliserRecherche(c.ville ?? '').includes(q)
-      || c.departements.some(d => d.toLowerCase() === q || d.toLowerCase().startsWith(q))
-    return matchCat && matchQ
-  })
+  return centresIndexes.value.filter(({ centre, index }) => {
+    const matchCat = !cat || centre.categorie === cat
+    return matchCat && correspond({ centre, index })
+  }).map(x => x.centre)
 })
 
 // Regroupe par région pour un affichage structuré
@@ -235,14 +251,12 @@ function initiales(nom: string) {
         <!-- RECHERCHE -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 mb-8">
           <div class="flex flex-col sm:flex-row gap-3">
-            <div class="relative flex-1">
-              <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-base">🔍</span>
-              <input
+            <div class="flex-1">
+              <ChampRechercheOrama
                 v-model="search"
-                type="search"
-                aria-label="Rechercher un centre par région, ville ou département"
+                :suggestions="suggestions"
                 placeholder="Région, ville, département…"
-                class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
+                aria-label="Rechercher un centre par région, ville ou département"
               />
             </div>
             <select
