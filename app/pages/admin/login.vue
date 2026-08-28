@@ -13,8 +13,13 @@ const compte = ref(30)
 const loading = ref(false)
 const MAX = 5
 
-onMounted(() => {
-  if (sessionStorage.getItem('admin_token')) navigateTo('/admin')
+onMounted(async () => {
+  try {
+    const res = await fetch('/api/auth.php', { credentials: 'include' })
+    if (res.ok) navigateTo('/admin')
+  } catch {
+    // pas de session : formulaire affiché
+  }
 })
 
 async function connexion() {
@@ -28,6 +33,7 @@ async function connexion() {
   try {
     const res = await fetch('/api/auth.php', {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ password: mdp.value })
     })
@@ -37,8 +43,6 @@ async function connexion() {
       if (tentatives.value >= MAX) bloquer()
       return
     }
-    const data = await res.json()
-    sessionStorage.setItem('admin_token', data.token)
     navigateTo('/admin')
   } catch (e) {
     erreur.value = 'Erreur de connexion : ' + (e as Error).message
