@@ -31,8 +31,8 @@ useSeoMeta({
           <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center mb-4 text-base">🖥️</div>
           <h2 class="font-bold text-gray-900 mb-2">Hébergement</h2>
           <p class="text-sm text-gray-600 leading-relaxed">
-            Hébergé par <strong>LWS</strong><br>
-            2 rue Jules Ferry, 88190 Golbey, France<br>
+            Hébergé par <strong>Yulpa</strong> (marque commerciale d'Alsatis Services)<br>
+            11 rue Michel Labrousse, 31100 Toulouse, France<br>
             Données stockées en France
           </p>
         </div>

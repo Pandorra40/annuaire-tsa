@@ -203,7 +203,7 @@ export default defineNuxtConfig({
     }
   },
 
-  // Sans ce module, le serveur sert le robots.txt par défaut de LWS : un
+  // Sans ce module, le serveur sert le robots.txt par défaut de l'hébergeur : un
   // Crawl-delay de 60 s (soit plus de cinq heures pour explorer les 335 fiches),
   // des règles pour un livre d'or inexistant, et aucune mention du sitemap.
   // Les mêmes exclusions que celles du sitemap ci-dessous.

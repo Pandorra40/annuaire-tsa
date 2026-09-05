@@ -310,7 +310,7 @@ useSeoMeta({
             fonctionnement du service :
           </p>
           <ul class="text-gray-600 leading-relaxed space-y-2 list-disc pl-5 mt-3">
-            <li><strong>LWS</strong> — hébergement du site et de la base, en France.</li>
+            <li><strong>Yulpa</strong> (Alsatis Services) — hébergement du site et de la base, en France.</li>
             <li><strong>Google</strong> — acheminement des courriels envoyés depuis l'adresse du projet.</li>
             <li><strong>Mailmeteor</strong> — outil de publipostage utilisé pour l'envoi d'information aux praticiens.</li>
           </ul>

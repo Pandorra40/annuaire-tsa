@@ -72,7 +72,7 @@ Les 47 centres ressources publics de France, avec le parcours de diagnostic expl
 | Frontend | Nuxt 4 + Vue 3 + Nuxt UI + Tailwind CSS |
 | Backend | PHP 8.4 |
 | Base de données | MySQL |
-| Hébergement | LWS (serveur mutualisé) |
+| Hébergement | Yulpa / Alsatis Services (serveur mutualisé, France) |
 | API externe | data.bnf.fr / BnF — SPARQL (nouveautés livres) |
 | Typage | TypeScript |
 | SEO | Bing Webmaster Tools + IndexNow + @nuxtjs/sitemap |
@@ -144,7 +144,7 @@ annuaire-tsa-nuxt/
 │           ├── videos.vue       # Admin vidéos et chaînes
 │           └── associations.vue # Modération des suggestions d'associations
 
-api/                             # API PHP (à déployer sur LWS)
+api/                             # API PHP (à déployer sur Yulpa)
 ├── config.php                   # Connexion BDD + fonctions communes
 ├── auth.php                     # Authentification admin
 ├── praticiens.php               # CRUD praticiens (public)
@@ -210,14 +210,14 @@ Le site sera accessible sur `http://localhost:3000`.
 
 > **Note** : Les données sont chargées côté client (`server: false`) et viennent de l'API de production. `allowedOrigins()` dans `api/config.php` autorise `localhost:3000`, le développement local fonctionne donc avec les vraies données.
 
-## Déploiement sur LWS
+## Déploiement sur Yulpa
 
 1. Générer les fichiers statiques :
 ```bash
 pnpm generate
 ```
 
-2. Transférer par FTP à la racine `htdocs/`, **dans cet ordre** :
+2. Transférer par FTP à la racine du site, **dans cet ordre** :
    - `annuaire-tsa-upload/2-site/` — le contenu de `.output/public/` sans le `.htaccess`
    - `annuaire-tsa-upload/3-service-worker/` — `sw.js` et `workbox-*.js` en dernier,
      pour qu'aucun visiteur ne reçoive un service worker plus récent que le site
@@ -242,15 +242,16 @@ php -r "echo password_hash('votre_mdp', PASSWORD_BCRYPT);"
 
 > Le sitemap est généré automatiquement à chaque build via `@nuxtjs/sitemap`. Il inclut toutes les pages statiques + les pages `/departement/XX` dynamiquement depuis l'API. Bing est notifié automatiquement via IndexNow.
 
-### Pièges de cache (PWA / LWS) — à connaître
+### Pièges de cache (PWA / hébergeur) — à connaître
 
 Ce site est une SSG multi-pages avec service worker. Quelques règles importantes apprises en production :
 
-- **Ne jamais mettre de cache long sur `sw.js`.** Le `.htaccess` force `no-cache` sur `sw.js` / `workbox-*.js`. Sinon le navigateur garde un ancien service worker qui sert un ancien front, et les mises à jour ne se propagent jamais (même après purge du cache LWS).
+- **Ne jamais mettre de cache long sur `sw.js`.** Le `.htaccess` force `no-cache` sur `sw.js` / `workbox-*.js`. Sinon le navigateur garde un ancien service worker qui sert un ancien front, et les mises à jour ne se propagent jamais.
 - **Pas de cache long sur le HTML** : le `.htaccess` force `no-cache` sur `*.html`, et Workbox ne précache plus les pages (`globPatterns` sans `html`). Sinon l'ancienne page reste servie jusqu'à rechargement forcé.
 - **`navigateFallback` doit rester `undefined`** dans la config PWA. Un fallback vers `/` casse les pages au rechargement (le SW sert l'accueil à la place de la vraie page).
 - `clientsClaim` + `skipWaiting` sont activés pour que le nouveau SW prenne le contrôle immédiatement.
-- Après chaque déploiement : **purger le cache LWS** et tester en navigation privée.
+- Après chaque déploiement : tester en navigation privée.
+- Sur le serveur, dans `api/config.php` : `Access-Control-Allow-Headers: Content-Type` uniquement (plus de `X-Admin-Token`).
 
 ## Accès admin
 
