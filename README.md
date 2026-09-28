@@ -2,6 +2,13 @@
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
+<p align="center">
+  <img alt="Licence" src="https://img.shields.io/badge/licence-AGPL--3.0-blue?style=for-the-badge">
+  <img alt="Nuxt" src="https://img.shields.io/badge/Nuxt-4-00DC82?style=for-the-badge&logo=nuxt&logoColor=white">
+  <img alt="Vue" src="https://img.shields.io/badge/Vue-3-42b883?style=for-the-badge&logo=vuedotjs&logoColor=white">
+  <img alt="PHP" src="https://img.shields.io/badge/PHP-8.4+-777BB4?style=for-the-badge&logo=php&logoColor=white">
+</p>
+
 ## Ce que contient le projet
 
 ### 1. Annuaire TSA
