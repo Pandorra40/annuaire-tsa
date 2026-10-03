@@ -31,6 +31,8 @@ defineProps<{
    * isolé ne renverrait à rien.
    */
   etape?: number
+  /** Message d'erreur API rattaché à ce champ (email mal formé). */
+  erreur?: string
 }>()
 
 const modele = defineModel<string>({ required: true })
@@ -56,9 +58,16 @@ const modele = defineModel<string>({ required: true })
           type="email"
           autocomplete="email"
           placeholder="vous@exemple.fr"
-          aria-describedby="contact-auteur-aide"
-          class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
+          :aria-describedby="erreur ? 'contact-auteur-erreur contact-auteur-aide' : 'contact-auteur-aide'"
+          :aria-invalid="!!erreur"
+          :class="[
+            'w-full border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 bg-gray-50 text-gray-900 transition-all',
+            erreur
+              ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
+              : 'border-gray-200 focus:border-indigo-400 focus:ring-indigo-100'
+          ]"
         >
+        <p v-if="erreur" id="contact-auteur-erreur" class="text-xs text-red-600 mt-2">{{ erreur }}</p>
       </div>
       <p id="contact-auteur-aide" class="text-sm text-gray-600 leading-relaxed bg-gray-50 border-l-4 border-l-indigo-400 rounded-r-xl px-4 py-3">
         Sans adresse, si {{ sujet }} ne peut pas aboutir, vous ne saurez pas pourquoi

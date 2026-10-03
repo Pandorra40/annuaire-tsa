@@ -2,7 +2,10 @@
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
+**Site :** [https://www.annuaire-tsa.fr](https://www.annuaire-tsa.fr/)
+
 <p align="center">
+  <a href="https://www.annuaire-tsa.fr/"><img alt="Site" src="https://img.shields.io/badge/site-annuaire--tsa.fr-4f46e5?style=for-the-badge"></a>
   <img alt="Licence" src="https://img.shields.io/badge/licence-AGPL--3.0-blue?style=for-the-badge">
   <img alt="Nuxt" src="https://img.shields.io/badge/Nuxt-4-00DC82?style=for-the-badge&logo=nuxt&logoColor=white">
   <img alt="Vue" src="https://img.shields.io/badge/Vue-3-42b883?style=for-the-badge&logo=vuedotjs&logoColor=white">

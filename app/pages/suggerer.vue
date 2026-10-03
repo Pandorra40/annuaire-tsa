@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { TYPES_PRATICIENS, AGES_OPTIONS, DELAIS_PRATICIEN } from '~/types/index'
+import { normaliserUrl } from '~/utils/url'
 
 useSeoMeta({
   title: 'Suggérer un praticien — Annuaire TSA',
@@ -94,6 +95,8 @@ const RUBRIQUES = [
 const loading = ref(false)
 const success = ref(false)
 const error = ref('')
+/** Erreurs rattachées à un champ optionnel mal rempli (adeli, site_web, contact_auteur). */
+const erreursChamps = reactive<Record<string, string>>({})
 
 watch(etape, async () => {
   if (!import.meta.client) return
@@ -109,14 +112,54 @@ function continuer() {
   else void soumettre()
 }
 
+function viderErreursChamps() {
+  for (const k of Object.keys(erreursChamps)) delete erreursChamps[k]
+}
+
+function idChamp(field: string): string {
+  return field === 'contact_auteur' ? 'contact-auteur' : field
+}
+
+async function pointerChamp(field: string) {
+  if (field === 'adeli') etape.value = 2
+  else etape.value = 3
+  await nextTick()
+  const el = document.getElementById(idChamp(field))
+  el?.focus()
+  el?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+}
+
 async function soumettre() {
   error.value = ''
+  viderErreursChamps()
   if (form.hp) return
   if (!form.nom || !form.type || !form.ville || !form.codepostal || !form.ages.length || !form.consentement) {
     error.value = 'Merci de remplir tous les champs obligatoires et cocher le consentement RGPD.'
     if (!form.nom || !form.type || !form.ville || !form.codepostal || !form.ages.length) etape.value = 2
     return
   }
+
+  // Même règle que l'API : optionnel, mais une saisie incomplète bloque
+  // clairement sur le champ plutôt qu'un refus opaque en bas de page.
+  const adeliBrut = form.adeli.replace(/[\s.\-]/g, '').trim()
+  if (adeliBrut) {
+    const ok = form.type === 'Structure'
+      ? /^\d{14}$|^\d{9}$/.test(adeliBrut)
+      : /^\d{11}$|^\d{9}$/.test(adeliBrut)
+    if (!ok) {
+      const msg = form.type === 'Structure'
+        ? 'Identifiant invalide : 14 chiffres (SIRET) ou 9 chiffres (FINESS) attendus.'
+        : 'Identifiant invalide : 11 chiffres (RPPS) ou 9 chiffres (ADELI) attendus.'
+      erreursChamps.adeli = msg
+      error.value = msg
+      await pointerChamp('adeli')
+      return
+    }
+  }
+
+  const siteWeb = normaliserUrl(form.site_web)
+  if (siteWeb) form.site_web = siteWeb
+
   loading.value = true
   try {
     await suggererPraticien({
@@ -129,7 +172,7 @@ async function soumettre() {
       ville2: secondLieuOuvert.value && form.ville2 ? form.ville2 : null,
       departement2: secondLieuOuvert.value && form.codepostal2 ? departementDepuisSaisie(form.codepostal2) : null,
       telephone: form.telephone || null,
-      site_web: form.site_web || null,
+      site_web: siteWeb || null,
       teleconsultation: form.teleconsultation,
       delai: form.delai || null,
       types_intervention: (estPraticien.value && form.typesIntervention) || null,
@@ -153,8 +196,14 @@ async function soumettre() {
     })
     success.value = true
   } catch (e) {
-    const err = e as { data?: { error?: string } }
-    error.value = err?.data?.error ?? 'Une erreur est survenue. Réessayez dans un instant.'
+    const err = e as { data?: { error?: string, field?: string } }
+    const msg = err?.data?.error ?? 'Une erreur est survenue. Réessayez dans un instant.'
+    error.value = msg
+    const field = err?.data?.field
+    if (field) {
+      erreursChamps[field] = msg
+      await pointerChamp(field)
+    }
   } finally {
     loading.value = false
   }
@@ -321,10 +370,13 @@ async function soumettre() {
                   id="adeli"
                   v-model="form.adeli"
                   type="text"
-                  aria-describedby="adeli-aide"
+                  :aria-describedby="erreursChamps.adeli ? 'adeli-erreur adeli-aide' : 'adeli-aide'"
+                  :aria-invalid="!!erreursChamps.adeli"
                   :placeholder="estStructure ? 'Ex. 12345678901234' : 'Ex. 10001234567'"
-                  :class="champ"
+                  :class="[champ, erreursChamps.adeli ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : '']"
+                  @input="delete erreursChamps.adeli"
                 >
+                <p v-if="erreursChamps.adeli" id="adeli-erreur" class="text-xs text-red-600 mt-2">{{ erreursChamps.adeli }}</p>
                 <p id="adeli-aide" class="text-xs text-gray-500 mt-2 leading-relaxed">
                   <template v-if="estStructure">
                     Facultatif pour une structure. Un SIRET ou un FINESS permet de la vérifier
@@ -334,7 +386,7 @@ async function soumettre() {
                     Votre numéro accélère la publication. Sans lui on le cherche ; introuvable, la fiche n’est pas mise en ligne.
                   </template>
                   <template v-else>
-                    Vous n’êtes pas obligé de le connaître. Si vous l’avez, la vérification va plus vite.
+                    Vous n’êtes pas obligé de le connaître. Si vous l’avez, la vérification va plus vite. En cas de doute, laissez vide.
                   </template>
                 </p>
               </div>
@@ -426,7 +478,19 @@ async function soumettre() {
                 </div>
                 <div>
                   <label for="site_web" class="block text-sm font-semibold text-gray-700 mb-1.5">Site web ou Doctolib</label>
-                  <input id="site_web" v-model="form.site_web" type="url" placeholder="https://…" :class="champ">
+                  <input
+                    id="site_web"
+                    v-model="form.site_web"
+                    type="text"
+                    inputmode="url"
+                    autocomplete="url"
+                    placeholder="www.doctolib.fr/…"
+                    :aria-invalid="!!erreursChamps.site_web"
+                    :aria-describedby="erreursChamps.site_web ? 'site_web-erreur' : undefined"
+                    :class="[champ, erreursChamps.site_web ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : '']"
+                    @input="delete erreursChamps.site_web"
+                  >
+                  <p v-if="erreursChamps.site_web" id="site_web-erreur" class="text-xs text-red-600 mt-2">{{ erreursChamps.site_web }}</p>
                 </div>
               </div>
             </div>
@@ -486,9 +550,12 @@ async function soumettre() {
                     type="email"
                     autocomplete="email"
                     placeholder="vous@exemple.fr"
-                    aria-describedby="contact-auteur-aide"
-                    :class="champ"
+                    :aria-describedby="erreursChamps.contact_auteur ? 'contact-auteur-erreur contact-auteur-aide' : 'contact-auteur-aide'"
+                    :aria-invalid="!!erreursChamps.contact_auteur"
+                    :class="[champ, erreursChamps.contact_auteur ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : '']"
+                    @input="delete erreursChamps.contact_auteur"
                   >
+                  <p v-if="erreursChamps.contact_auteur" id="contact-auteur-erreur" class="text-xs text-red-600 mt-2">{{ erreursChamps.contact_auteur }}</p>
                 </div>
                 <p id="contact-auteur-aide" class="text-sm text-gray-600 leading-relaxed bg-gray-50 border-l-4 border-l-indigo-400 rounded-r-xl px-4 py-3">
                   Si un renseignement manque, ou si la suggestion ne peut pas être publiée, je vous l’écris à cette adresse. Elle n’apparaît pas sur le site.

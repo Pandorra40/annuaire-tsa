@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { TYPES_ASSOCIATION } from '~/types/index'
+import { normaliserUrl } from '~/utils/url'
 
 useSeoMeta({
   title: 'Suggérer une association — Annuaire TSA',
@@ -29,14 +30,27 @@ const types = TYPES_ASSOCIATION
 const loading = ref(false)
 const success = ref(false)
 const error = ref('')
+const erreursChamps = reactive<Record<string, string>>({})
+
+const champBase = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all'
+function classeChamp(field: string) {
+  return erreursChamps[field]
+    ? `${champBase} border-red-400 focus:border-red-400 focus:ring-red-100`
+    : champBase
+}
 
 async function soumettre() {
   error.value = ''
+  for (const k of Object.keys(erreursChamps)) delete erreursChamps[k]
   if (form.hp) return
   if (!form.nom || !form.ville || !form.departement) {
     error.value = 'Merci de renseigner au minimum le nom, la ville et le département.'
     return
   }
+
+  const siteWeb = normaliserUrl(form.site_web)
+  if (siteWeb) form.site_web = siteWeb
+
   loading.value = true
   try {
     await suggererAssociation({
@@ -47,7 +61,7 @@ async function soumettre() {
       adresse: form.adresse || null,
       telephone: form.telephone || null,
       email: form.email || null,
-      site_web: form.site_web || null,
+      site_web: siteWeb || null,
       services: form.services || null,
       age_public: form.age_public || null,
       description: form.description || null,
@@ -56,8 +70,16 @@ async function soumettre() {
     })
     success.value = true
   } catch (e) {
-    const err = e as { data?: { error?: string }, message?: string }
-    error.value = err?.data?.error ?? 'Une erreur est survenue : ' + err.message
+    const err = e as { data?: { error?: string, field?: string }, message?: string }
+    const msg = err?.data?.error ?? 'Une erreur est survenue : ' + err.message
+    error.value = msg
+    const field = err?.data?.field
+    if (field) {
+      erreursChamps[field] = msg
+      await nextTick()
+      const id = field === 'contact_auteur' ? 'contact-auteur' : field
+      document.getElementById(id)?.focus()
+    }
   } finally {
     loading.value = false
   }
@@ -161,14 +183,16 @@ async function soumettre() {
             </div>
             <div>
               <label for="email" class="block text-sm font-semibold text-gray-700 mb-1.5">Adresse électronique</label>
-              <input id="email" v-model="form.email" type="email" placeholder="contact@association.fr" aria-describedby="email-aide" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <input id="email" v-model="form.email" type="email" placeholder="contact@association.fr" :aria-describedby="erreursChamps.email ? 'email-erreur email-aide' : 'email-aide'" :aria-invalid="!!erreursChamps.email" :class="classeChamp('email')" @input="delete erreursChamps.email" />
+              <p v-if="erreursChamps.email" id="email-erreur" class="text-xs text-red-600 mt-2">{{ erreursChamps.email }}</p>
               <p id="email-aide" class="text-xs text-gray-500 mt-2">
                 Celle de l'association, pas la vôtre : elle sera publiée sur sa fiche.
               </p>
             </div>
             <div class="sm:col-span-2">
               <label for="site_web" class="block text-sm font-semibold text-gray-700 mb-1.5">Site web</label>
-              <input id="site_web" v-model="form.site_web" type="url" placeholder="https://…" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <input id="site_web" v-model="form.site_web" type="text" inputmode="url" autocomplete="url" placeholder="www.association.fr" :aria-invalid="!!erreursChamps.site_web" :aria-describedby="erreursChamps.site_web ? 'site_web-erreur' : undefined" :class="classeChamp('site_web')" @input="delete erreursChamps.site_web" />
+              <p v-if="erreursChamps.site_web" id="site_web-erreur" class="text-xs text-red-600 mt-2">{{ erreursChamps.site_web }}</p>
             </div>
           </div>
         </div>
@@ -196,7 +220,7 @@ async function soumettre() {
           </div>
         </div>
 
-        <ChampContactAuteur v-model="form.contactAuteur" sujet="cette fiche" />
+        <ChampContactAuteur v-model="form.contactAuteur" sujet="cette fiche" :erreur="erreursChamps.contact_auteur" @update:model-value="delete erreursChamps.contact_auteur" />
 
         <input v-model="form.hp" type="text" name="email_confirm" autocomplete="off" aria-hidden="true" style="display:none" tabindex="-1" />
 

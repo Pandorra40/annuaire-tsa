@@ -15,9 +15,9 @@
   "dependencies": {
     "@iconify-json/lucide": "^1.2.123",
     "@iconify-json/simple-icons": "^1.2.93",
-    "@nuxt/ui": "^4.10.0",
-    "@nuxtjs/robots": "^6.1.4",
-    "@nuxtjs/sitemap": "^8.3.4",
+    "@nuxt/ui": "^4.11.3",
+    "@nuxtjs/robots": "^6.2.4",
+    "@nuxtjs/sitemap": "^8.6.1",
     "@orama/orama": "^3.1.18",
     "@vite-pwa/nuxt": "^1.1.1",
     "nuxt": "^4.5.2",
@@ -38,7 +38,9 @@
       "svgo": ">=4.1.0",
       "@tiptap/core": "3.31.3",
       "fast-uri": ">=3.1.6",
-      "js-yaml": ">=4.3.2"
+      "js-yaml": ">=4.3.2",
+      "undici": ">=8.10.2",
+      "devalue": ">=5.9.3"
     }
   }
 }

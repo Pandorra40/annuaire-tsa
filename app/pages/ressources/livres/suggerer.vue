@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { normaliserUrl } from '~/utils/url'
+
 useSeoMeta({
   title: 'Suggérer un livre — Livres TSA',
   description: 'Signalez un livre sur le TSA qui mériterait d\'apparaître dans la sélection.'
@@ -22,14 +24,20 @@ const categories = ['témoignage', 'guide pratique', 'scientifique', 'jeunesse',
 const loading = ref(false)
 const success = ref(false)
 const error = ref('')
+const erreursChamps = reactive<Record<string, string>>({})
 
 async function soumettre() {
   error.value = ''
+  for (const k of Object.keys(erreursChamps)) delete erreursChamps[k]
   if (form.hp) return
   if (!form.titre || !form.auteur) {
     error.value = 'Merci de renseigner au minimum le titre et l\'auteur.'
     return
   }
+
+  const lien = normaliserUrl(form.lien)
+  if (lien) form.lien = lien
+
   loading.value = true
   try {
     await suggererLivre({
@@ -38,12 +46,21 @@ async function soumettre() {
       annee: form.annee ? parseInt(form.annee) : null,
       categorie: form.categorie || null,
       description: form.description || null,
-      lien: form.lien || null,
+      lien: lien || null,
       contact_auteur: form.contactAuteur || null
     })
     success.value = true
   } catch (e) {
-    error.value = 'Une erreur est survenue : ' + (e as Error).message
+    const err = e as { data?: { error?: string, field?: string }, message?: string }
+    const msg = err?.data?.error ?? 'Une erreur est survenue : ' + (err.message ?? '')
+    error.value = msg
+    const field = err?.data?.field
+    if (field) {
+      erreursChamps[field] = msg
+      await nextTick()
+      const id = field === 'contact_auteur' ? 'contact-auteur' : field
+      document.getElementById(id)?.focus()
+    }
   } finally {
     loading.value = false
   }
@@ -126,12 +143,26 @@ async function soumettre() {
             </div>
             <div>
               <label for="lien" class="block text-sm font-semibold text-gray-700 mb-1.5">Lien (Amazon, éditeur…)</label>
-              <input id="lien" v-model="form.lien" type="url" placeholder="https://…" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <input
+                id="lien"
+                v-model="form.lien"
+                type="text"
+                inputmode="url"
+                autocomplete="url"
+                placeholder="www.editeur.fr/…"
+                :aria-invalid="!!erreursChamps.lien"
+                :class="[
+                  'w-full border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 bg-gray-50 text-gray-900 transition-all',
+                  erreursChamps.lien ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-indigo-400 focus:ring-indigo-100'
+                ]"
+                @input="delete erreursChamps.lien"
+              />
+              <p v-if="erreursChamps.lien" class="text-xs text-red-600 mt-2">{{ erreursChamps.lien }}</p>
             </div>
           </div>
         </div>
 
-        <ChampContactAuteur v-model="form.contactAuteur" sujet="cette suggestion" />
+        <ChampContactAuteur v-model="form.contactAuteur" sujet="cette suggestion" :erreur="erreursChamps.contact_auteur" @update:model-value="delete erreursChamps.contact_auteur" />
 
         <input v-model="form.hp" type="text" name="email_confirm" autocomplete="off" aria-hidden="true" style="display:none" tabindex="-1" />
 
