@@ -4,6 +4,8 @@ Projet open source communautaire pour les familles concernées par les troubles 
 
 **Site :** [https://www.annuaire-tsa.fr](https://www.annuaire-tsa.fr/)
 
+En septembre 2026, le site a enregistré environ **3 800 visites** (statistiques d’hébergement, **hors robots** déjà isolés — Googlebot, bingbot, crawlers SEO, etc.).
+
 <p align="center">
   <a href="https://www.annuaire-tsa.fr/"><img alt="Site" src="https://img.shields.io/badge/site-annuaire--tsa.fr-4f46e5?style=for-the-badge"></a>
   <img alt="Licence" src="https://img.shields.io/badge/licence-AGPL--3.0-blue?style=for-the-badge">
