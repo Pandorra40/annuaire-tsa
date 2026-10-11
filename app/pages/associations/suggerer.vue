@@ -211,7 +211,7 @@ async function soumettre() {
             </div>
             <div>
               <label for="age_public" class="block text-sm font-semibold text-gray-700 mb-1.5">Public concerné</label>
-              <input id="age_public" v-model="form.age_public" type="text" placeholder="Enfants, adolescents, adultes, familles…" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <textarea id="age_public" v-model="form.age_public" rows="3" placeholder="Enfants, adolescents, adultes, familles…" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
             </div>
             <div>
               <label for="description" class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>

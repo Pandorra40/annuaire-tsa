@@ -68,6 +68,7 @@ async function statuer(id: number, statut: 'valide' | 'refuse') {
         </div>
         <div class="flex items-center gap-2">
           <NuxtLink to="/admin" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Admin Annuaire</NuxtLink>
+          <NuxtLink to="/stats" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Statistiques</NuxtLink>
           <NuxtLink to="/associations" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Voir le site</NuxtLink>
           <button type="button" class="px-3 py-1.5 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors" @click="deconnexion">Déconnexion</button>
         </div>
@@ -138,16 +139,18 @@ async function statuer(id: number, statut: 'valide' | 'refuse') {
                 <div class="text-sm text-gray-500">{{ a.ville }} ({{ a.departement }})</div>
                 <div v-if="a.services" class="text-xs text-gray-500 mt-1">{{ a.services }}</div>
               </div>
-              <UBadge v-if="a.type_association" color="neutral" variant="soft" size="xs">{{ a.type_association }}</UBadge>
+              <div class="flex flex-col items-end gap-2 shrink-0">
+                <UBadge v-if="a.type_association" color="neutral" variant="soft" size="xs">{{ a.type_association }}</UBadge>
+                <NuxtLink
+                  :to="`/admin/modifier-association?id=${a.id}`"
+                  class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors"
+                >
+                  Modifier
+                </NuxtLink>
+              </div>
             </div>
           </UCard>
         </div>
-        <!-- La modification et la suppression d'une association publiée passent encore
-             par phpMyAdmin : cet écran ne sert qu'à modérer les suggestions et à
-             vérifier ce qui est en ligne. -->
-        <p class="text-xs text-gray-400 mt-4">
-          Modification et suppression via phpMyAdmin : cette page ne fait que la modération.
-        </p>
       </div>
 
     </div>

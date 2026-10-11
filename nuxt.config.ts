@@ -57,7 +57,9 @@ export default defineNuxtConfig({
     '/admin/modifier': { prerender: true },
     '/admin/livres': { prerender: true },
     '/admin/videos': { prerender: true },
-    '/admin/associations': { prerender: true }
+    '/admin/associations': { prerender: true },
+    '/admin/modifier-association': { prerender: true },
+    '/stats': { prerender: true }
   },
 
   compatibilityDate: '2025-01-15',
@@ -208,7 +210,7 @@ export default defineNuxtConfig({
   // des règles pour un livre d'or inexistant, et aucune mention du sitemap.
   // Les mêmes exclusions que celles du sitemap ci-dessous.
   robots: {
-    disallow: ['/admin', '/signaler']
+    disallow: ['/admin', '/signaler', '/stats']
   },
 
   // indexNow retiré le 12 août 2026 : l'option n'existe pas dans @nuxtjs/sitemap

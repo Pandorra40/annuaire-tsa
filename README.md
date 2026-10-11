@@ -165,6 +165,7 @@ api/                             # API PHP (à déployer sur Yulpa)
 ├── migrations/                  # Scripts SQL, appliqués via phpMyAdmin
 ├── associations.php             # Lecture associations (public)
 ├── admin_praticiens.php         # Gestion admin praticiens
+├── admin_associations.php       # Gestion admin associations
 ├── suggestions.php              # Suggestions de praticiens
 ├── signalements.php             # Signalements
 ├── livres.php                   # CRUD livres

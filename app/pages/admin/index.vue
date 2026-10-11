@@ -288,6 +288,9 @@ function ignorerSignalement(id: number) {
           <span class="font-bold text-gray-900">Administration</span>
         </div>
         <div class="flex items-center gap-2">
+          <NuxtLink to="/stats" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+            Statistiques
+          </NuxtLink>
           <NuxtLink to="/admin/contacts" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
             ✉️ Contacts
           </NuxtLink>
@@ -502,11 +505,8 @@ function ignorerSignalement(id: number) {
               <ContactAuteurAdmin :contact="s.contact_auteur" :objet="`votre signalement — ${s.association_id ? s.association_nom : s.praticien_nom}`" />
               <div class="flex gap-2 mt-4 pt-3 border-t border-gray-100 flex-wrap">
                 <template v-if="s.association_id">
-                  <!-- Pas d'édition depuis l'admin pour les associations à ce
-                       jour — la correction se fait encore à la main en base,
-                       contrairement aux praticiens. Le lien permet au moins de
-                       relire la fiche visée avant d'y toucher. -->
-                  <NuxtLink :to="`/association/${s.association_id}`" target="_blank" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Voir la fiche ↗</NuxtLink>
+                  <NuxtLink :to="`/admin/modifier-association?id=${s.association_id}`" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Modifier la fiche</NuxtLink>
+                  <NuxtLink :to="`/association/${s.association_id}`" target="_blank" class="px-3 py-1.5 text-sm font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">Voir ↗</NuxtLink>
                 </template>
                 <template v-else>
                   <NuxtLink :to="`/admin/modifier?id=${s.praticien_id}`" class="px-3 py-1.5 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">Modifier la fiche</NuxtLink>
