@@ -59,7 +59,9 @@ export default defineNuxtConfig({
     '/admin/videos': { prerender: true },
     '/admin/associations': { prerender: true },
     '/admin/modifier-association': { prerender: true },
-    '/stats': { prerender: true }
+    '/admin/stats': { prerender: true },
+    '/admin/contacts': { prerender: true },
+    '/stats': { redirect: { to: '/admin/stats', statusCode: 301 } }
   },
 
   compatibilityDate: '2025-01-15',

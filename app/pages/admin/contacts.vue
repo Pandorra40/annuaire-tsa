@@ -121,7 +121,7 @@ function dateCourte(iso: string | null) {
           <NuxtLink to="/admin" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
             ← Administration
           </NuxtLink>
-          <NuxtLink to="/stats" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Statistiques</NuxtLink>
+          <NuxtLink to="/admin/stats" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">Statistiques</NuxtLink>
           <NuxtLink to="/" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
             Voir le site
           </NuxtLink>

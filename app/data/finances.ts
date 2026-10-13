@@ -34,7 +34,7 @@ export interface Brique {
 export const FRAIS_RECURRENTS: FraisRecurrent[] = [
   {
     libelle: 'Hébergement mutualisé',
-    detail: 'Yulpa (Alsatis Services) — serveur en France, base MySQL, certificat inclus.',
+    detail: 'Infomaniak Network SA — serveur en Suisse, base MySQL, certificat inclus.',
     paye: 17.88,
     renouvellement: 47.88
   },

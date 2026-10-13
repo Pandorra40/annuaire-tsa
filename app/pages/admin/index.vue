@@ -288,7 +288,7 @@ function ignorerSignalement(id: number) {
           <span class="font-bold text-gray-900">Administration</span>
         </div>
         <div class="flex items-center gap-2">
-          <NuxtLink to="/stats" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
+          <NuxtLink to="/admin/stats" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">
             Statistiques
           </NuxtLink>
           <NuxtLink to="/admin/contacts" class="px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-lg transition-colors">

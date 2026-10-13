@@ -84,7 +84,7 @@ Les 47 centres ressources publics de France, avec le parcours de diagnostic expl
 | Frontend | Nuxt 4 + Vue 3 + Nuxt UI + Tailwind CSS |
 | Backend | PHP 8.4 |
 | Base de données | MySQL |
-| Hébergement | Yulpa / Alsatis Services (serveur mutualisé, France) |
+| Hébergement | Infomaniak Network SA (hébergement mutualisé, Suisse) |
 | API externe | data.bnf.fr / BnF — SPARQL (nouveautés livres) |
 | Typage | TypeScript |
 | SEO | Bing Webmaster Tools + IndexNow + @nuxtjs/sitemap |
@@ -154,9 +154,10 @@ annuaire-tsa-nuxt/
 │           ├── contacts.vue     # Emails et consentements des formulaires
 │           ├── livres.vue       # Admin livres TSA
 │           ├── videos.vue       # Admin vidéos et chaînes
-│           └── associations.vue # Modération des suggestions d'associations
+│           ├── associations.vue # Modération des suggestions d'associations
+│           └── stats.vue        # Stats, IP exclues, journal login admin
 
-api/                             # API PHP (à déployer sur Yulpa)
+api/                             # API PHP (à déployer sur Infomaniak)
 ├── config.php                   # Connexion BDD + fonctions communes
 ├── auth.php                     # Authentification admin
 ├── praticiens.php               # CRUD praticiens (public)
@@ -223,7 +224,7 @@ Le site sera accessible sur `http://localhost:3000`.
 
 > **Note** : Les données sont chargées côté client (`server: false`) et viennent de l'API de production. `allowedOrigins()` dans `api/config.php` autorise `localhost:3000`, le développement local fonctionne donc avec les vraies données.
 
-## Déploiement sur Yulpa
+## Déploiement sur Infomaniak
 
 1. Générer les fichiers statiques :
 ```bash
@@ -269,9 +270,11 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 ## Accès admin
 
 - **Admin annuaire** : `https://www.annuaire-tsa.fr/admin/login`
+- **Statistiques** : `https://www.annuaire-tsa.fr/admin/stats` (réservé admin ; `/stats` redirige en 301)
 - **Admin livres** : `https://www.annuaire-tsa.fr/admin/livres`
 - **Admin vidéos** : `https://www.annuaire-tsa.fr/admin/videos`
 - **Admin associations** : `https://www.annuaire-tsa.fr/admin/associations`
+- **Formulaires de contact** : `https://www.annuaire-tsa.fr/admin/contacts`
 
 ## Sécurité
 
@@ -282,6 +285,9 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 - Limitation de débit par IP : signalements et suggestions 5/heure, formulaire de
   contact 10/heure et 40/jour, connexion admin 10 par quart d'heure, proxy BnF 12/heure
   sur les seules requêtes qui sortent réellement vers data.bnf.fr
+- Journal des tentatives de connexion admin (`admin_login_log`) avec alerte Pushbullet
+  après 5 échecs depuis la même IP en 15 minutes
+- Stats de visite agrégées sans stocker d’IP ; liste d’IP exclues éditable dans l’admin
 - Validation stricte des entrées (longueur, type de praticien, URLs) — les mêmes
   contrôles côté public et côté administration
 - HTTPS forcé + en-têtes de sécurité (HSTS, X-Frame-Options, CSP…)
@@ -309,7 +315,8 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 | V4.6 | Rubrique `/ressources` réunissant les livres et une nouvelle section vidéos (façade au clic, chaînes en liens sortants, catégories par position d'énonciation), `api/videos.php`, admin dédiée, redirections 301 depuis `/livres` |
 | V4.8 | Note en sept rubriques nommées remplaçant le champ HTML unique (retrait de Tiptap, formulaire public et admin identiques), second lieu optionnel pour les praticiens à deux cabinets (`/departement/XX` retrouve la fiche depuis les deux départements) |
 | V4.9 | Audit UX des 25 pages et sa mise en œuvre. Quatre bugs corrigés : département de la Corse et de l'outre-mer (`2A`/`2B` et `971`–`976` au lieu de `20`/`97`, avec corruption à chaque sauvegarde admin), quatre listes publiées vides faute de données au build, recherche de l'accueil aveugle au second lieu, variable fantôme laissée par le retrait de Tiptap. Moyen de recontacter l'auteur d'une contribution sur les quatre formulaires. Signalement par rubriques : une correction sans valeur de remplacement devient impossible à envoyer. Champ « réalise des bilans diagnostiques » à trois états, filtrable. Recherche remontée en tête d'accueil, filtres nommés avec compteurs, carte de résultat et panneau de filtres partagés entre l'accueil et les pages département, départements limitrophes. Administration : fin des rechargements complets, annulation à la place de la confirmation, onglet « Refusées », vues enregistrées sur l'état du fonds
-| V4.10 | Formulaire `/suggerer` en trois écrans (qui remplit, essentiel, compléments facultatifs), textes clarifiés famille/praticien. Page `/remerciements` remplace `/couts` (redirection 301). Mode lecture : OpenDyslexic limité au contenu (`main` + pied), pas au bandeau. Cache : HTML sans cache long (`.htaccess` + Workbox), marqueur `X-TSA-Config: 2026-08-23`. Cadre bénévole et pages À propos / données praticiens retouchés
+| V4.10 | Formulaire `/suggerer` en trois écrans (qui remplit, essentiel, compléments facultatifs), textes clarifiés famille/praticien. Page `/remerciements` remplace `/couts` (redirection 301). Mode lecture : OpenDyslexic limité au contenu (`main` + pied), pas au bandeau. Cache : HTML sans cache long (`.htaccess` + Workbox), marqueur `X-TSA-Config: 2026-08-23`. Cadre bénévole et pages À propos / données praticiens retouchés |
+| V4.11 | Stats réservées à l’admin (`/admin/stats`, 301 depuis `/stats`) : visites, volumes métier, exclusion d’IP (dont « ajouter mon IP »), journal des connexions admin + alerte Pushbullet sur échecs répétés. Hébergeur documenté Infomaniak (Suisse) |
 
 ## Remerciements
 
@@ -327,5 +334,5 @@ Ce projet a été entièrement vibecodé avec [Claude Code](https://claude.ai/co
 
 ## Licence
 
-Projet open source — données hébergées en France — RGPD
+Projet open source — données hébergées en Suisse — RGPD
 Fait avec ♥ pour les familles concernées par les TSA

@@ -137,6 +137,9 @@ Redirect 301 /livres /ressources/livres
 # Ancienne page « Ce que coûte ce site », devenue Remerciements
 Redirect 301 /couts /remerciements
 
+# Stats réservées à l'admin (plus d'accès public)
+Redirect 301 /stats /admin/stats
+
 # --- Routing Nuxt (SPA fallback) ---
 <IfModule mod_rewrite.c>
   RewriteEngine On

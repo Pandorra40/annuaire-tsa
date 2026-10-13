@@ -31,9 +31,10 @@ useSeoMeta({
           <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center mb-4 text-base">🖥️</div>
           <h2 class="font-bold text-gray-900 mb-2">Hébergement</h2>
           <p class="text-sm text-gray-600 leading-relaxed">
-            Hébergé par <strong>Yulpa</strong> (marque commerciale d'Alsatis Services)<br>
-            11 rue Michel Labrousse, 31100 Toulouse, France<br>
-            Données stockées en France
+            Hébergé par <strong>Infomaniak Network SA</strong><br>
+            Rue Eugène-Marziano 25, 1227 Les Acacias (GE), Suisse<br>
+            IDE/TVA : CHE-103.167.648<br>
+            Données stockées en Suisse
           </p>
         </div>
 
