@@ -25,10 +25,10 @@ async function charger() {
   loading.value = true
   try {
     const [p, a, s, r] = await Promise.all([
-      adminFetch<Praticien[]>('admin_praticiens.php'),
-      adminFetch<SuggestionPraticien[]>('suggestions.php?statut=en_attente'),
-      adminFetch<Signalement[]>('signalements.php?statut=ouvert'),
-      adminFetch<SuggestionPraticien[]>('suggestions.php?statut=refuse')
+      adminFetch<Praticien[]>('admin-praticiens'),
+      adminFetch<SuggestionPraticien[]>('suggestions?statut=en_attente'),
+      adminFetch<Signalement[]>('signalements?statut=ouvert'),
+      adminFetch<SuggestionPraticien[]>('suggestions?statut=refuse')
     ])
     fiches.value = p
     attente.value = a
@@ -195,7 +195,7 @@ function retirerDeLAttente(id: number) {
 
 async function valider(id: number) {
   await agir(async () => {
-    await adminFetch('suggestions.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'valide' }) })
+    await adminFetch('suggestions?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'valide' }) })
     retirerDeLAttente(id)
     // La fiche créée n'est pas dans la liste locale : c'est le seul cas où un
     // rechargement se justifie, et il ne coûte rien puisqu'il est unique.
@@ -207,7 +207,7 @@ async function refuser(id: number) {
   const suggestion = attente.value.find(d => d.id === id)
   const nom = suggestion?.nom ?? 'La suggestion'
   await agir(async () => {
-    await adminFetch('suggestions.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'refuse' }) })
+    await adminFetch('suggestions?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'refuse' }) })
     const retiree = retirerDeLAttente(id)
     if (retiree) refusees.value.unshift(retiree)
     proposerAnnulation(`${nom} — refusée`, () => remettreEnAttente(id))
@@ -215,7 +215,7 @@ async function refuser(id: number) {
 }
 
 async function remettreEnAttente(id: number) {
-  await adminFetch('suggestions.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'en_attente' }) })
+  await adminFetch('suggestions?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'en_attente' }) })
   const i = refusees.value.findIndex(d => d.id === id)
   if (i === -1) return
   const [restauree] = refusees.value.splice(i, 1)
@@ -231,7 +231,7 @@ async function supprimer(id: number) {
   // confirmation, là où valider et refuser gagnent à s'annuler après coup.
   if (!confirm('Supprimer définitivement ce praticien ? Cette action est irréversible.')) return
   await agir(async () => {
-    await adminFetch('admin_praticiens.php?id=' + id, { method: 'DELETE' })
+    await adminFetch('admin-praticiens?id=' + id, { method: 'DELETE' })
     fiches.value = fiches.value.filter(f => f.id !== id)
   })
 }
@@ -240,12 +240,12 @@ async function basculerVisibilite(id: number, statut: string) {
   const fiche = fiches.value.find(f => f.id === id)
   const ancien = fiche?.statut
   await agir(async () => {
-    await adminFetch('admin_praticiens.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut }) })
+    await adminFetch('admin-praticiens?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut }) })
     if (fiche) fiche.statut = statut
     proposerAnnulation(
       statut === 'masquee' ? `${fiche?.nom} — mise en pause` : `${fiche?.nom} — remise en ligne`,
       async () => {
-        await adminFetch('admin_praticiens.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: ancien }) })
+        await adminFetch('admin-praticiens?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: ancien }) })
         if (fiche && ancien) fiche.statut = ancien
       }
     )
@@ -256,12 +256,12 @@ async function cloturerSignalement(id: number, statut: 'resolu' | 'ignore') {
   const signalement = signalements.value.find(s => s.id === id)
   const nom = signalement?.association_nom ?? signalement?.praticien_nom ?? 'Signalement'
   await agir(async () => {
-    await adminFetch('signalements.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut }) })
+    await adminFetch('signalements?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut }) })
     signalements.value = signalements.value.filter(s => s.id !== id)
     proposerAnnulation(
       statut === 'resolu' ? `${nom} — traité` : `${nom} — écarté`,
       async () => {
-        await adminFetch('signalements.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'ouvert' }) })
+        await adminFetch('signalements?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'ouvert' }) })
         if (signalement) signalements.value.unshift(signalement)
       }
     )

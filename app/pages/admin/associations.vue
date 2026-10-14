@@ -20,8 +20,8 @@ async function charger() {
   loading.value = true
   try {
     const [s, p] = await Promise.all([
-      adminFetch<SuggestionAssociation[]>('suggestions_associations.php?statut=en_attente'),
-      adminFetch<Association[]>('associations.php')
+      adminFetch<SuggestionAssociation[]>('suggestions-associations?statut=en_attente'),
+      adminFetch<Association[]>('associations')
     ])
     suggestions.value = s
     publiees.value = p
@@ -44,7 +44,7 @@ async function statuer(id: number, statut: 'valide' | 'refuse') {
   if (statut === 'refuse' && !confirm('Refuser cette suggestion ?')) return
   enCours = true
   try {
-    await adminFetch('suggestions_associations.php?id=' + id, {
+    await adminFetch('suggestions-associations?id=' + id, {
       method: 'PATCH',
       body: JSON.stringify({ statut })
     })

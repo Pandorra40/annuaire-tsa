@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.10
+# Annuaire TSA — V4.12
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -11,7 +11,7 @@ En septembre 2026, le site a enregistré environ **3 800 visites** (statistiques
   <img alt="Licence" src="https://img.shields.io/badge/licence-AGPL--3.0-blue?style=for-the-badge">
   <img alt="Nuxt" src="https://img.shields.io/badge/Nuxt-4-00DC82?style=for-the-badge&logo=nuxt&logoColor=white">
   <img alt="Vue" src="https://img.shields.io/badge/Vue-3-42b883?style=for-the-badge&logo=vuedotjs&logoColor=white">
-  <img alt="PHP" src="https://img.shields.io/badge/PHP-8.4+-777BB4?style=for-the-badge&logo=php&logoColor=white">
+  <img alt="Nitro" src="https://img.shields.io/badge/Nitro-Node-00DC82?style=for-the-badge&logo=nodedotjs&logoColor=white">
 </p>
 
 ## Ce que contient le projet
@@ -82,13 +82,16 @@ Les 47 centres ressources publics de France, avec le parcours de diagnostic expl
 | Composant | Technologie |
 |---|---|
 | Frontend | Nuxt 4 + Vue 3 + Nuxt UI + Tailwind CSS |
-| Backend | PHP 8.4 |
-| Base de données | MySQL |
-| Hébergement | Infomaniak Network SA (hébergement mutualisé, Suisse) |
+| API | Nitro (Node) — routes `server/api/*`, URLs propres `/api/praticiens`, … |
+| Base de données | MariaDB (phpMyAdmin inchangé) |
+| Runtime serveur | `mysql2`, `bcryptjs`, `nodemailer` |
+| Hébergement | Hébernet (Node + Nginx + MariaDB) ; données en Suisse |
 | API externe | data.bnf.fr / BnF — SPARQL (nouveautés livres) |
 | Typage | TypeScript |
 | SEO | Bing Webmaster Tools + IndexNow + @nuxtjs/sitemap |
 | PWA | @vite-pwa/nuxt — installable sur mobile |
+
+L’ancienne API PHP (`api/*.php`) reste en archive locale pour rollback ; elle n’est plus servie en production.
 
 ## Accessibilité
 
@@ -157,23 +160,19 @@ annuaire-tsa-nuxt/
 │           ├── associations.vue # Modération des suggestions d'associations
 │           └── stats.vue        # Stats, IP exclues, journal login admin
 
-api/                             # API PHP (à déployer sur Infomaniak)
-├── config.php                   # Connexion BDD + fonctions communes
-├── auth.php                     # Authentification admin
-├── praticiens.php               # CRUD praticiens (public)
-├── contact.php                  # Formulaire de contact + lien de désactivation
-├── vendor/                      # PHPMailer installé par composer en local, transféré tel quel
-├── migrations/                  # Scripts SQL, appliqués via phpMyAdmin
-├── associations.php             # Lecture associations (public)
-├── admin_praticiens.php         # Gestion admin praticiens
-├── admin_associations.php       # Gestion admin associations
-├── suggestions.php              # Suggestions de praticiens
-├── signalements.php             # Signalements
-├── livres.php                   # CRUD livres
-├── videos.php                   # CRUD vidéos et chaînes + validation des adresses
-├── suggestions_livres.php       # Suggestions de livres
-├── suggestions_associations.php # Suggestions d'associations + modération
-└── bnf-proxy.php                # Proxy PHP vers data.bnf.fr (SPARQL)
+server/                          # API Nitro (même process Node que le front)
+├── api/
+│   ├── praticiens.get.ts        # Lectures publiques (+ PATCH confirmation)
+│   ├── associations.get.ts
+│   ├── livres.* / videos.*      # Public + mutateurs admin
+│   ├── auth.*                   # Cookie HttpOnly tsa_admin (Path=/)
+│   ├── stats-hit.post.ts / stats.get.ts
+│   ├── admin-stats-exclude.* / admin-login-log.get.ts
+│   ├── suggestions* / signalements.* / contact.*
+│   ├── admin-praticiens.* / admin-associations.*
+│   └── bnf-proxy.get.ts         # Proxy SPARQL BnF + cache fichier
+├── utils/                       # DB, auth, rateLimit, validators, mail, Pushbullet…
+└── error.ts                     # Réponses `{ "error": "…" }` alignées sur l’ancienne API
 ```
 
 ## Base de données
@@ -200,7 +199,7 @@ distincte de toute adresse publiée : dans `suggestions_associations`, `email`
 désigne l'adresse publique de l'association elle-même.
 
 - `admin_sessions` — sessions administrateur
-- `praticiens_contact` — email, consentement et jeton de désactivation du formulaire de contact. Table **séparée** de `praticiens` : `praticiens.php` fait `SELECT *` et publierait l'adresse
+- `praticiens_contact` — email, consentement et jeton de désactivation du formulaire de contact. Table **séparée** de `praticiens` : l’endpoint public ne joint que le booléen `contact_actif`
 - `contact_journal` — métadonnées des messages envoyés (date, fiche, IP, adresse de l'expéditeur). **Jamais le contenu des messages**, et purgé au-delà de douze mois, au fil des envois
 
 ### Tables associations
@@ -220,52 +219,36 @@ pnpm install
 pnpm dev
 ```
 
-Le site sera accessible sur `http://localhost:3000`.
+Le site et l’API Nitro sont sur `http://localhost:3000` (`public.apiBase` = `/api`).
 
-> **Note** : Les données sont chargées côté client (`server: false`) et viennent de l'API de production. `allowedOrigins()` dans `api/config.php` autorise `localhost:3000`, le développement local fonctionne donc avec les vraies données.
+Variables utiles (`.env` local ou export) : `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `ADMIN_HASH`, éventuellement `SMTP_*` et `PUSHBULLET_TOKEN`. Sans BDD locale, le front peut encore appeler l’API de production en changeant temporairement `apiBase`.
 
-## Déploiement sur Infomaniak
+## Déploiement sur Hébernet
 
-1. Générer les fichiers statiques :
+1. Build Node (SSR + API Nitro) :
 ```bash
-pnpm generate
+pnpm build
 ```
 
-2. Transférer par FTP à la racine du site, **dans cet ordre** :
-   - `annuaire-tsa-upload/2-site/` — le contenu de `.output/public/` sans le `.htaccess`
-   - `annuaire-tsa-upload/3-service-worker/` — `sw.js` et `workbox-*.js` en dernier,
-     pour qu'aucun visiteur ne reçoive un service worker plus récent que le site
-   - le `.htaccess`, à part, **uniquement s'il a changé**
-   - les fichiers de `api/` qui ont changé
+2. Déployer le contenu de `.output/` dans `app/` du site (`server/index.mjs` + `public/`).
 
-   Puis recharger la page deux fois : le premier rechargement installe le nouveau
-   service worker, le second sert la nouvelle version.
+3. Secrets dans `.env.hebernet` (lu au démarrage du process Node) : `DB_*`, `ADMIN_HASH`, `SMTP_*`, `PUSHBULLET_TOKEN`.  
+   **Important** : quotter les valeurs qui contiennent `$` (hash bcrypt) — `ADMIN_HASH='$2y$12$…'` — sinon bash les tronque au `source`.
 
-   `api/config.php` ne part **jamais** dans un dossier de déploiement : il contient le
-   mot de passe de la base, le hash administrateur et les identifiants SMTP. Quand il
-   doit changer, il est préparé à part et transféré seul.
+4. Nginx : tout le site (y compris `/api`) est proxifié vers le process Node (`hebernet-node-hb_annuaire_tsa`, port interne). MariaDB / phpMyAdmin inchangés.
 
-3. Renseigner les identifiants BDD dans `api/config.php`
+5. Redémarrer le programme supervisor du site, puis smoke test : `GET /api/praticiens`, `GET /api/auth` → 401, login admin.
 
-4. Générer un hash bcrypt pour le mot de passe admin :
-```bash
-php -r "echo password_hash('votre_mdp', PASSWORD_BCRYPT);"
-```
-
-5. Coller le hash dans `api/config.php` (`ADMIN_HASH`)
+Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (fichiers encore présents sous `public_html/api/`) et recharger Nginx.
 
 > Le sitemap est généré automatiquement à chaque build via `@nuxtjs/sitemap`. Il inclut toutes les pages statiques + les pages `/departement/XX` dynamiquement depuis l'API. Bing est notifié automatiquement via IndexNow.
 
-### Pièges de cache (PWA / hébergeur) — à connaître
+### Pièges de cache (PWA) — à connaître
 
-Ce site est une SSG multi-pages avec service worker. Quelques règles importantes apprises en production :
-
-- **Ne jamais mettre de cache long sur `sw.js`.** Le `.htaccess` force `no-cache` sur `sw.js` / `workbox-*.js`. Sinon le navigateur garde un ancien service worker qui sert un ancien front, et les mises à jour ne se propagent jamais.
-- **Pas de cache long sur le HTML** : le `.htaccess` force `no-cache` sur `*.html`, et Workbox ne précache plus les pages (`globPatterns` sans `html`). Sinon l'ancienne page reste servie jusqu'à rechargement forcé.
-- **`navigateFallback` doit rester `undefined`** dans la config PWA. Un fallback vers `/` casse les pages au rechargement (le SW sert l'accueil à la place de la vraie page).
-- `clientsClaim` + `skipWaiting` sont activés pour que le nouveau SW prenne le contrôle immédiatement.
+- **`navigateFallback` doit rester `undefined`** dans la config PWA. Un fallback vers `/` casse les pages au rechargement.
+- `clientsClaim` + `skipWaiting` : le nouveau SW prend le contrôle immédiatement.
+- Workbox ne précache pas le HTML (`globPatterns` sans `html`).
 - Après chaque déploiement : tester en navigation privée.
-- Sur le serveur, dans `api/config.php` : `Access-Control-Allow-Headers: Content-Type` uniquement (plus de `X-Admin-Token`).
 
 ## Accès admin
 
@@ -278,7 +261,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 
 ## Sécurité
 
-- Injection SQL impossible (PDO + requêtes préparées, `EMULATE_PREPARES` désactivé)
+- Injection SQL : requêtes préparées via `mysql2` (même sémantique que l’ancien PDO)
 - Vue échappe par défaut, **sauf les notes des fiches**, rendues en `v-html` : c'est
   `sanitizeHtml()` côté serveur qui protège là, en ne laissant passer qu'une liste
   de balises et le seul attribut `href` en `http(s)`
@@ -291,7 +274,8 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 - Validation stricte des entrées (longueur, type de praticien, URLs) — les mêmes
   contrôles côté public et côté administration
 - HTTPS forcé + en-têtes de sécurité (HSTS, X-Frame-Options, CSP…)
-- Authentification bcrypt + jetons de session de 256 bits
+- Authentification bcrypt (`bcryptjs`, hash `$2y$` PHP) + jetons de session de 256 bits
+- Cookie admin `tsa_admin` HttpOnly, `SameSite=Strict`, `Path=/` (partagé `/admin` et `/api`)
 - Session valable 2 heures à compter de la connexion (durée absolue, pas une inactivité)
 - Lien de désactivation du formulaire de contact confirmé par POST : les messageries
   préchargent les liens des courriels, un GET aurait coupé le formulaire sans clic
@@ -317,6 +301,7 @@ Ce site est une SSG multi-pages avec service worker. Quelques règles importante
 | V4.9 | Audit UX des 25 pages et sa mise en œuvre. Quatre bugs corrigés : département de la Corse et de l'outre-mer (`2A`/`2B` et `971`–`976` au lieu de `20`/`97`, avec corruption à chaque sauvegarde admin), quatre listes publiées vides faute de données au build, recherche de l'accueil aveugle au second lieu, variable fantôme laissée par le retrait de Tiptap. Moyen de recontacter l'auteur d'une contribution sur les quatre formulaires. Signalement par rubriques : une correction sans valeur de remplacement devient impossible à envoyer. Champ « réalise des bilans diagnostiques » à trois états, filtrable. Recherche remontée en tête d'accueil, filtres nommés avec compteurs, carte de résultat et panneau de filtres partagés entre l'accueil et les pages département, départements limitrophes. Administration : fin des rechargements complets, annulation à la place de la confirmation, onglet « Refusées », vues enregistrées sur l'état du fonds
 | V4.10 | Formulaire `/suggerer` en trois écrans (qui remplit, essentiel, compléments facultatifs), textes clarifiés famille/praticien. Page `/remerciements` remplace `/couts` (redirection 301). Mode lecture : OpenDyslexic limité au contenu (`main` + pied), pas au bandeau. Cache : HTML sans cache long (`.htaccess` + Workbox), marqueur `X-TSA-Config: 2026-08-23`. Cadre bénévole et pages À propos / données praticiens retouchés |
 | V4.11 | Stats réservées à l’admin (`/admin/stats`, 301 depuis `/stats`) : visites, volumes métier, exclusion d’IP (dont « ajouter mon IP »), journal des connexions admin + alerte Pushbullet sur échecs répétés. Hébergeur documenté Infomaniak (Suisse) |
+| V4.12 | Migration de l’API PHP vers Nitro (Node) : URLs propres `/api/*` sans `.php`, même process que le front, MariaDB/phpMyAdmin inchangés. Front `apiBase=/api`. Hébergement Hébernet (Nginx → Node). PHP conservé en archive pour rollback |
 
 ## Remerciements
 

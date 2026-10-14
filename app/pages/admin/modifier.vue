@@ -52,7 +52,7 @@ async function chargerFiche() {
     return
   }
   try {
-    const data = await adminFetch<Praticien>('admin_praticiens.php?id=' + praticienId)
+    const data = await adminFetch<Praticien>('admin-praticiens?id=' + praticienId)
     if (!data?.id) {
       erreur.value = 'Fiche introuvable.'
       loading.value = false
@@ -107,7 +107,7 @@ async function sauvegarder() {
     return
   }
   try {
-    await adminFetch('admin_praticiens.php?id=' + praticienId, {
+    await adminFetch('admin-praticiens?id=' + praticienId, {
       method: 'PATCH',
       body: JSON.stringify({
         nom: form.nom, type: form.type, ville: form.ville,

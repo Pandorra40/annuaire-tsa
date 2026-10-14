@@ -240,7 +240,7 @@ async function soumettre() {
 
   loading.value = true
   try {
-    await $fetch(`${config.public.apiBase}/signalements.php`, {
+    await $fetch(`${config.public.apiBase}/signalements`, {
       method: 'POST',
       body: {
         praticien_id: estAssociation.value ? null : id.value,

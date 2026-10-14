@@ -1,5 +1,5 @@
 /**
- * Auth admin : cookie HttpOnly (posé par auth.php) + fetch avec credentials.
+ * Auth admin : cookie HttpOnly (posé par /api/auth) + fetch avec credentials.
  */
 export function useAdminAuth() {
   async function adminFetch<T = unknown>(url: string, options: RequestInit = {}): Promise<T> {
@@ -18,8 +18,18 @@ export function useAdminAuth() {
     }
 
     if (!res.ok) {
-      const corps = await res.json().catch(() => ({})) as { error?: string }
-      throw new Error(corps.error ?? `Erreur ${res.status}`)
+      const corps = await res.json().catch(() => ({})) as {
+        error?: string | boolean
+        message?: string
+        statusMessage?: string
+        data?: { error?: string }
+      }
+      const msg = (typeof corps.data?.error === 'string' && corps.data.error)
+        || (typeof corps.error === 'string' && corps.error)
+        || corps.statusMessage
+        || corps.message
+        || `Erreur ${res.status}`
+      throw new Error(msg)
     }
 
     if (res.status === 204) return {} as T
@@ -28,7 +38,7 @@ export function useAdminAuth() {
 
   async function deconnexion() {
     try {
-      await adminFetch('auth.php', { method: 'DELETE' })
+      await adminFetch('auth', { method: 'DELETE' })
     } catch {
       // déconnexion locale malgré tout : le cookie sera effacé côté serveur si possible
     }

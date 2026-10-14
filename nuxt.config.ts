@@ -34,8 +34,22 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
+    // Privé — surchargé au runtime par les variables d'env (NUXT_* ou homonymes)
+    dbHost: process.env.DB_HOST || '127.0.0.1',
+    dbPort: process.env.DB_PORT || '3306',
+    dbName: process.env.DB_NAME || '',
+    dbUser: process.env.DB_USER || '',
+    dbPassword: process.env.DB_PASSWORD || process.env.DB_PASS || '',
+    adminHash: process.env.ADMIN_HASH || '$2y$12$OMYdC38gnFE2ijyksBLiZej.rqoFT3f.A1qDxdsXdrzEaaxvySD9q',
+    smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
+    smtpPort: process.env.SMTP_PORT || '587',
+    smtpUser: process.env.SMTP_USER || 'annuaire.tsa@gmail.com',
+    smtpPass: process.env.SMTP_PASS || '',
+    smtpFrom: process.env.SMTP_FROM || 'annuaire.tsa@gmail.com',
+    smtpFromName: process.env.SMTP_FROM_NAME || 'Annuaire TSA',
+    pushbulletToken: process.env.PUSHBULLET_TOKEN || 'o.dviKNrSIhnO4ZIaK9srITEUoqT8fDOPg',
     public: {
-      apiBase: 'https://www.annuaire-tsa.fr/api'
+      apiBase: '/api'
     }
   },
 
@@ -67,6 +81,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-15',
 
   nitro: {
+    errorHandler: '~~/server/error.ts',
     prerender: {
       crawlLinks: true,
       // L'API tourne sur un mutualisé : trop de requêtes simultanées la font
@@ -90,8 +105,8 @@ export default defineNuxtConfig({
 
       try {
         const [praticiens, associations] = await Promise.all([
-          ofetch<{ id: number, departement: string }[]>(`${base}/praticiens.php`),
-          ofetch<{ id: number }[]>(`${base}/associations.php`)
+          ofetch<{ id: number, departement: string }[]>(`${base}/praticiens`),
+          ofetch<{ id: number }[]>(`${base}/associations`)
         ])
 
         for (const p of praticiens) routes.push(`/praticien/${p.id}`)

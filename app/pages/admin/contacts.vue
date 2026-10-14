@@ -38,7 +38,7 @@ onUnmounted(() => {
 async function charger() {
   loading.value = true
   try {
-    fiches.value = await adminFetch<FicheContact[]>('admin_praticiens.php')
+    fiches.value = await adminFetch<FicheContact[]>('admin-praticiens')
     for (const f of fiches.value) brouillons[f.id] = f.contact_email ?? ''
   } catch (e) {
     loadError.value = 'Erreur de chargement : ' + ((e as Error).message ?? 'inconnue')
@@ -78,13 +78,13 @@ async function enregistrer(f: FicheContact, actif: boolean) {
 
   enregistrement.value = f.id
   try {
-    await adminFetch('admin_praticiens.php?id=' + f.id, {
+    await adminFetch('admin-praticiens?id=' + f.id, {
       method: 'PATCH',
       body: JSON.stringify({ contact: { email, actif } })
     })
     // Rechargement ciblé : la date de consentement est posée par le serveur au
     // premier accord, on ne peut pas la deviner ici.
-    const maj = await adminFetch<FicheContact>('admin_praticiens.php?id=' + f.id)
+    const maj = await adminFetch<FicheContact>('admin-praticiens?id=' + f.id)
     Object.assign(f, {
       contact_email: maj.contact_email,
       contact_actif: maj.contact_actif,

@@ -19,66 +19,66 @@ export function useApi() {
   const base = config.public.apiBase
 
   async function fetchPraticiens() {
-    return await $fetch<Praticien[]>(`${base}/praticiens.php`)
+    return await $fetch<Praticien[]>(`${base}/praticiens`)
   }
 
   async function fetchPraticien(id: number) {
-    return await $fetch<Praticien[]>(`${base}/praticiens.php?id=${id}`)
+    return await $fetch<Praticien[]>(`${base}/praticiens?id=${id}`)
   }
 
   async function fetchPraticiensDepartement(departement: string) {
-    return await $fetch<Praticien[]>(`${base}/praticiens.php?departement=${encodeURIComponent(departement)}`)
+    return await $fetch<Praticien[]>(`${base}/praticiens?departement=${encodeURIComponent(departement)}`)
   }
 
   async function confirmerFiche(id: number) {
-    return await $fetch(`${base}/praticiens.php?id=${id}`, { method: 'PATCH' })
+    return await $fetch(`${base}/praticiens?id=${id}`, { method: 'PATCH' })
   }
 
   async function fetchLivres() {
-    return await $fetch<Livre[]>(`${base}/livres.php`)
+    return await $fetch<Livre[]>(`${base}/livres`)
   }
 
   async function fetchVideos() {
-    return await $fetch<Video[]>(`${base}/videos.php`)
+    return await $fetch<Video[]>(`${base}/videos`)
   }
 
   // `Omit<…, 'id'>` sur les trois envois de suggestion : l'identifiant est
   // attribué par la base, un formulaire n'en a donc jamais. Le type complet
   // reste exigé partout où l'on relit une suggestion enregistrée, côté admin.
   async function suggererPraticien(payload: Omit<SuggestionPraticien, 'id'>) {
-    return await $fetch(`${base}/suggestions.php`, {
+    return await $fetch(`${base}/suggestions`, {
       method: 'POST',
       body: payload
     })
   }
 
   async function envoyerMessage(payload: MessageContact) {
-    return await $fetch(`${base}/contact.php`, {
+    return await $fetch(`${base}/contact`, {
       method: 'POST',
       body: payload
     })
   }
 
   async function suggererLivre(payload: Omit<SuggestionLivre, 'id'>) {
-    return await $fetch(`${base}/suggestions_livres.php`, {
+    return await $fetch(`${base}/suggestions-livres`, {
       method: 'POST',
       body: payload
     })
   }
 
   async function suggererAssociation(payload: Omit<SuggestionAssociation, 'id'>) {
-    return await $fetch(`${base}/suggestions_associations.php`, {
+    return await $fetch(`${base}/suggestions-associations`, {
       method: 'POST',
       body: payload
     })
   }
 
   async function fetchAssociations() {
-    return await $fetch<Association[]>(`${base}/associations.php`)
+    return await $fetch<Association[]>(`${base}/associations`)
   }
 
   async function fetchAssociation(id: number) {
-    return await $fetch<Association[]>(`${base}/associations.php?id=${id}`)
+    return await $fetch<Association[]>(`${base}/associations?id=${id}`)
   }
 
   return {

@@ -41,7 +41,7 @@ async function chargerFiche() {
     return
   }
   try {
-    const data = await adminFetch<Association>('admin_associations.php?id=' + associationId)
+    const data = await adminFetch<Association>('admin-associations?id=' + associationId)
     if (!data?.id) {
       erreur.value = 'Fiche introuvable.'
       loading.value = false
@@ -74,7 +74,7 @@ async function sauvegarder() {
   const siteWeb = normaliserUrl(form.site_web)
   if (siteWeb) form.site_web = siteWeb
   try {
-    await adminFetch('admin_associations.php?id=' + associationId, {
+    await adminFetch('admin-associations?id=' + associationId, {
       method: 'PATCH',
       body: JSON.stringify({
         nom: form.nom,

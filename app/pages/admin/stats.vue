@@ -63,7 +63,7 @@ async function chargerStats() {
   error.value = ''
   try {
     data.value = await adminFetch<StatsPayload>(
-      'stats.php?periode=' + encodeURIComponent(periode.value)
+      'stats?periode=' + encodeURIComponent(periode.value)
     )
   } catch (e) {
     error.value = 'Impossible de charger les statistiques : ' + ((e as Error).message ?? 'erreur')
@@ -77,7 +77,7 @@ async function chargerJournal() {
   journalError.value = ''
   try {
     const res = await adminFetch<{ client_ip: string, entries: LoginEntry[] }>(
-      'admin_login_log.php?limit=50'
+      'admin-login-log?limit=50'
     )
     journal.value = res.entries
     if (res.client_ip) clientIp.value = res.client_ip
@@ -90,7 +90,7 @@ async function chargerIps() {
   ipsError.value = ''
   try {
     const res = await adminFetch<{ client_ip: string, ips: IpExclude[] }>(
-      'admin_stats_exclude.php'
+      'admin-stats-exclude'
     )
     ips.value = res.ips
     if (res.client_ip) clientIp.value = res.client_ip
@@ -107,7 +107,7 @@ async function ajouterIp(opts: { useClient?: boolean } = {}) {
     const body = opts.useClient
       ? { use_client_ip: true, note: nouvelleNote.value.trim() || 'Admin — cette session' }
       : { ip: nouvelleIp.value.trim(), note: nouvelleNote.value.trim() || null }
-    await adminFetch('admin_stats_exclude.php', {
+    await adminFetch('admin-stats-exclude', {
       method: 'POST',
       body: JSON.stringify(body)
     })
@@ -125,7 +125,7 @@ async function supprimerIp(row: IpExclude) {
   if (!confirm(`Retirer ${row.ip} des exclusions ?`)) return
   ipBusy.value = true
   try {
-    await adminFetch('admin_stats_exclude.php?id=' + row.id, { method: 'DELETE' })
+    await adminFetch('admin-stats-exclude?id=' + row.id, { method: 'DELETE' })
     await chargerIps()
   } catch (e) {
     ipsError.value = (e as Error).message ?? 'Erreur'

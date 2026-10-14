@@ -15,7 +15,7 @@ export default defineNuxtPlugin(() => {
     if (path.startsWith('/admin') || path.startsWith('/stats') || path.startsWith('/api')) return
     dernierPath = path
 
-    const url = `${base}/stats_hit.php`
+    const url = `${base}/stats-hit`
     const body = JSON.stringify({ path })
     try {
       if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {

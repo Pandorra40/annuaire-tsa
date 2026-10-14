@@ -27,8 +27,8 @@ async function charger() {
   loading.value = true
   try {
     const [p, s] = await Promise.all([
-      adminFetch<Livre[]>('livres.php'),
-      adminFetch<SuggestionLivre[]>('suggestions_livres.php?statut=en_attente')
+      adminFetch<Livre[]>('livres'),
+      adminFetch<SuggestionLivre[]>('suggestions-livres?statut=en_attente')
     ])
     publies.value = p
     suggestions.value = s
@@ -53,7 +53,7 @@ async function ajouterLivre() {
     return
   }
   try {
-    await adminFetch('livres.php', {
+    await adminFetch('livres', {
       method: 'POST',
       body: JSON.stringify({
         titre: form.titre, auteur: form.auteur, type: form.type, categorie: form.categorie,
@@ -75,7 +75,7 @@ async function supprimer(id: number) {
   if (!confirm('Supprimer ce livre ? Cette action est irréversible.')) return
   enCours = true
   try {
-    await adminFetch('livres.php?id=' + id, { method: 'DELETE' })
+    await adminFetch('livres?id=' + id, { method: 'DELETE' })
     await charger()
   } catch (e) {
     alert('Erreur : ' + (e as Error).message)
@@ -88,7 +88,7 @@ async function validerSuggestion(id: number) {
   if (enCours) return
   enCours = true
   try {
-    await adminFetch('suggestions_livres.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'valide' }) })
+    await adminFetch('suggestions-livres?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'valide' }) })
     await charger()
   } catch (e) {
     alert('Erreur : ' + (e as Error).message)
@@ -101,7 +101,7 @@ async function refuserSuggestion(id: number) {
   if (enCours) return
   enCours = true
   try {
-    await adminFetch('suggestions_livres.php?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'refuse' }) })
+    await adminFetch('suggestions-livres?id=' + id, { method: 'PATCH', body: JSON.stringify({ statut: 'refuse' }) })
     await charger()
   } catch (e) {
     alert('Erreur : ' + (e as Error).message)

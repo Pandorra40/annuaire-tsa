@@ -5,8 +5,8 @@ export default defineEventHandler(async () => {
 
   try {
     const [praticiens, associations] = await Promise.all([
-      $fetch<{ id: number, departement: string }[]>(`${base}/praticiens.php`),
-      $fetch<{ id: number }[]>(`${base}/associations.php`)
+      $fetch<{ id: number, departement: string }[]>(`${base}/praticiens`),
+      $fetch<{ id: number }[]>(`${base}/associations`)
     ])
 
     const departements = [...new Set(praticiens.map(p => p.departement))].filter(Boolean)

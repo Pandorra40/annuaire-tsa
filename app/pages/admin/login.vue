@@ -15,7 +15,7 @@ const MAX = 5
 
 onMounted(async () => {
   try {
-    const res = await fetch('/api/auth.php', { credentials: 'include' })
+    const res = await fetch('/api/auth', { credentials: 'include' })
     if (res.ok) navigateTo('/admin')
   } catch {
     // pas de session : formulaire affiché
@@ -31,7 +31,7 @@ async function connexion() {
   loading.value = true
   erreur.value = ''
   try {
-    const res = await fetch('/api/auth.php', {
+    const res = await fetch('/api/auth', {
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },

@@ -34,7 +34,7 @@ onMounted(() => {
 async function charger() {
   loading.value = true
   try {
-    entrees.value = await adminFetch<Video[]>('videos.php')
+    entrees.value = await adminFetch<Video[]>('videos')
   } catch (e) {
     loadError.value = 'Erreur de chargement : ' + ((e as Error).message ?? 'inconnue')
   } finally {
@@ -58,7 +58,7 @@ async function ajouter() {
     return
   }
   try {
-    await adminFetch('videos.php', { method: 'POST', body: JSON.stringify({ ...form }) })
+    await adminFetch('videos', { method: 'POST', body: JSON.stringify({ ...form }) })
     notice.value = { msg: '✓ Entrée publiée.', type: 'success' }
     reinitialiser()
     await charger()
@@ -73,7 +73,7 @@ async function supprimer(id: number) {
   if (!confirm('Supprimer cette entrée ? Cette action est irréversible.')) return
   enCours = true
   try {
-    await adminFetch('videos.php?id=' + id, { method: 'DELETE' })
+    await adminFetch('videos?id=' + id, { method: 'DELETE' })
     await charger()
   } catch (e) {
     alert('Erreur : ' + (e as Error).message)

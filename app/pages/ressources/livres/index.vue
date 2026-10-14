@@ -81,7 +81,7 @@ interface DocBnf {
 const config = useRuntimeConfig()
 const { data: newReleases, status: newReleasesStatus } = await useAsyncData('newreleases', async () => {
   try {
-    const res = await $fetch<{ docs?: DocBnf[] }>(`${config.public.apiBase}/bnf-proxy.php`)
+    const res = await $fetch<{ docs?: DocBnf[] }>(`${config.public.apiBase}/bnf-proxy`)
     const docs = res.docs ?? []
     return docs
       // Le prédicat de type n'est pas décoratif : sans lui, TypeScript ignore
