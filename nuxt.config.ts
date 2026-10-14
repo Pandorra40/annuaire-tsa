@@ -40,14 +40,15 @@ export default defineNuxtConfig({
     dbName: process.env.DB_NAME || '',
     dbUser: process.env.DB_USER || '',
     dbPassword: process.env.DB_PASSWORD || process.env.DB_PASS || '',
-    adminHash: process.env.ADMIN_HASH || '$2y$12$OMYdC38gnFE2ijyksBLiZej.rqoFT3f.A1qDxdsXdrzEaaxvySD9q',
+    // Secrets : uniquement via env (prod = .env.hebernet). Jamais de fallback en dur.
+    adminHash: process.env.ADMIN_HASH || '',
     smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
     smtpPort: process.env.SMTP_PORT || '587',
     smtpUser: process.env.SMTP_USER || 'annuaire.tsa@gmail.com',
     smtpPass: process.env.SMTP_PASS || '',
     smtpFrom: process.env.SMTP_FROM || 'annuaire.tsa@gmail.com',
     smtpFromName: process.env.SMTP_FROM_NAME || 'Annuaire TSA',
-    pushbulletToken: process.env.PUSHBULLET_TOKEN || 'o.dviKNrSIhnO4ZIaK9srITEUoqT8fDOPg',
+    pushbulletToken: process.env.PUSHBULLET_TOKEN || '',
     public: {
       apiBase: '/api'
     }
