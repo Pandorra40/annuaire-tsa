@@ -12,6 +12,7 @@ export async function recordAdminLogin(event: H3Event, success: boolean): Promis
   try {
     const db = await getDb()
     await db.query('INSERT INTO admin_login_log (ip, success) VALUES (?, ?)', [ip, success ? 1 : 0])
+    await db.query('DELETE FROM admin_login_log WHERE created_at < NOW() - INTERVAL 12 MONTH')
   } catch (e) {
     tsaLog('admin_login_log', `insert=${e instanceof Error ? e.message : String(e)}`, event)
     return

@@ -280,8 +280,9 @@ useSeoMeta({
             <li>
               <strong>Le contenu des messages n'est conservé nulle part.</strong> Ni dans la
               base du site, ni dans la boîte de l'éditeur, qui n'en reçoit aucune copie et ne
-              les lit donc jamais. Seules la date, la fiche concernée et l'adresse de
-              l'expéditeur sont journalisées.
+              les lit donc jamais. Seules la date, la fiche concernée, l'adresse de
+              l'expéditeur et l'IP sont journalisées, puis effacées automatiquement au-delà
+              de 12 mois.
             </li>
             <li>
               Si vous receviez un message abusif, signalez-le : votre formulaire sera coupé
@@ -329,6 +330,22 @@ useSeoMeta({
             Une adresse électronique dont il apparaît qu'elle n'est plus valide est
             effacée sans délai.
           </p>
+          <ul class="text-gray-600 leading-relaxed space-y-2 list-disc pl-5 mt-3">
+            <li>
+              <strong>Journal du formulaire de contact</strong> (date, fiche, adresse de
+              l'expéditeur, IP — jamais le contenu du message) :
+              <strong>12 mois</strong>, puis purge automatique.
+            </li>
+            <li>
+              <strong>Suggestions et signalements</strong> vous concernant : le temps de
+              la modération, puis publication ou suppression.
+            </li>
+            <li>
+              Les autres durées du site (stats de visite, journal d'administration) sont
+              détaillées dans les
+              <NuxtLink to="/mentions" class="text-indigo-600 hover:underline">mentions légales</NuxtLink>.
+            </li>
+          </ul>
         </div>
 
         <!-- DROITS -->

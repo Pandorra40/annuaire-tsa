@@ -160,6 +160,59 @@ html.lecture * {
 html.lecture .hover\:-translate-y-1:hover,
 html.lecture .hover\:-translate-y-0\.5:hover { transform: none !important; }
 
+/* ── MODE CALME (faible stimulation) ──
+   Preset CSS : fond moins blanc, accent adouci, moins d'ombre / motion,
+   densités un peu aérées. Opt-in, comme Lecture / Contraste. */
+html.calme {
+  --calme-bg: #f3f1ec;
+  --calme-surface: #faf8f5;
+  --calme-text: #2c2a26;
+  --calme-muted: #6e6a63;
+  --calme-border: #e4dfd6;
+  --calme-accent: #3d5a4c;
+}
+html.calme body,
+html.calme .min-h-screen.bg-gray-50 {
+  background: var(--calme-bg) !important;
+  color: var(--calme-text) !important;
+}
+html.calme .bg-white { background: var(--calme-surface) !important; }
+html.calme .bg-gray-50 { background: var(--calme-bg) !important; }
+html.calme .text-gray-500,
+html.calme .text-gray-400,
+html.calme .text-gray-600 { color: var(--calme-muted) !important; }
+html.calme .border-gray-200,
+html.calme .border-gray-100 { border-color: var(--calme-border) !important; }
+html.calme .shadow-sm,
+html.calme .shadow { box-shadow: none !important; }
+html.calme * {
+  animation: none !important;
+  transition: none !important;
+}
+html.calme .hover\:-translate-y-1:hover,
+html.calme .hover\:-translate-y-0\.5:hover { transform: none !important; }
+html.calme section[style*="linear-gradient"] {
+  background: var(--calme-bg) !important;
+  background-image: none !important;
+}
+html.calme h1 span[style*="linear-gradient"] {
+  background: none !important;
+  color: var(--calme-accent) !important;
+  -webkit-text-fill-color: var(--calme-accent) !important;
+}
+html.calme [style*="radial-gradient"] { background-image: none !important; }
+html.calme .bg-indigo-50,
+html.calme .bg-emerald-50,
+html.calme .bg-amber-50 { background: transparent !important; }
+
+/* ── MODE FALC (présentation) ──
+   Le contenu alternatif est choisi en Vue ; ici seulement l'aération. */
+html.falc main {
+  line-height: 1.7;
+  font-size: 1.05em;
+}
+html.falc main p { margin-bottom: 0.85em; }
+
 /* ── NAVIGATION — lien actif souligné ──
    En CSS pur plutôt que dans exact-active-class de NuxtLink : voir le
    commentaire dans default.vue. */

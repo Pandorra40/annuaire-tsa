@@ -8,6 +8,7 @@ useSeoMeta({
 })
 
 const { suggererPraticien } = useApi()
+const falcMode = useFalcMode()
 
 const champ = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all'
 
@@ -244,13 +245,29 @@ async function soumettre() {
         </div>
         <p class="text-xs font-semibold uppercase tracking-wide text-indigo-700">Étape {{ etape }} sur 3 — {{ libelleEtape }}</p>
         <h1 id="etape-suggerer" class="mt-2 text-3xl sm:text-4xl font-black text-gray-900 tracking-tight scroll-mt-20">{{ titreEtape }}</h1>
-        <p v-if="etape === 1" class="mt-3 text-gray-500 text-lg max-w-2xl">
+        <p v-if="etape === 1 && !falcMode" class="mt-3 text-gray-500 text-lg max-w-2xl">
           <template v-if="estPraticien">Elle sera relue avant d’être publiée. Ce n’est pas un compte : vous ne pourrez pas la modifier ensuite.</template>
           <template v-else>Vous connaissez un praticien spécialisé TSA qui n’apparaît pas ? Nom, ville et spécialité suffisent.</template>
         </p>
-        <p v-else-if="etape === 3" class="mt-3 text-gray-500">
+        <div v-else-if="etape === 1 && falcMode" class="mt-3 text-gray-500 text-lg max-w-2xl space-y-2">
+          <template v-if="estPraticien">
+            <p>Votre fiche sera lue avant d’être publiée.</p>
+            <p>Ce n’est pas un compte.</p>
+            <p>Vous ne pourrez pas la modifier ensuite sur le site.</p>
+          </template>
+          <template v-else>
+            <p>Vous connaissez un professionnel spécialisé en autisme qui n’est pas sur le site ?</p>
+            <p>Le nom, la ville et la spécialité suffisent.</p>
+          </template>
+        </div>
+        <p v-else-if="etape === 3 && !falcMode" class="mt-3 text-gray-500">
           Tout est facultatif sur cet écran, sauf la case en bas. Vous pouvez envoyer sans rien remplir ici.
         </p>
+        <div v-else-if="etape === 3 && falcMode" class="mt-3 text-gray-500 space-y-2">
+          <p>Sur cet écran, presque tout est facultatif.</p>
+          <p>Seule la case en bas est obligatoire.</p>
+          <p>Vous pouvez envoyer même si vous ne remplissez rien d’autre ici.</p>
+        </div>
 
         <div class="mt-8 space-y-5">
           <div v-if="error" class="bg-red-50 border border-red-200 rounded-2xl p-4 text-sm text-red-700">
@@ -259,43 +276,54 @@ async function soumettre() {
 
           <template v-if="etape === 1">
             <section class="bg-gray-50 border border-gray-200 border-l-4 border-l-indigo-500 rounded-r-2xl p-5" aria-labelledby="regles-admission">
-              <h2 id="regles-admission" class="font-bold text-gray-900 mb-2">Une seule condition bloquante</h2>
-              <p class="text-sm text-gray-700 leading-relaxed">
-                L'annuaire ne référence que des praticiens inscrits au répertoire national
-                (RPPS ou ADELI) et dont l'activité est vérifiable. <strong>Nous faisons cette
-                vérification nous-même</strong> — vous n'avez rien à prouver, indiquez ce que
-                vous savez.
-              </p>
-              <details class="mt-3">
-                <summary class="text-sm font-semibold text-indigo-700 cursor-pointer hover:text-indigo-800">
-                  Voir les trois règles en détail
-                </summary>
-                <ol class="mt-4 space-y-4 text-sm text-gray-700">
-                  <li>
-                    <strong class="block text-gray-900 mb-1">1. L'identifiant professionnel — sans exception</strong>
-                    Délivré par l'Agence régionale de santé après contrôle du diplôme. C'est la seule
-                    barrière simple contre les charlatans, nombreux autour de l'autisme. Une fiche dont
-                    le numéro reste introuvable n'est pas publiée ; une fiche déjà en ligne dans ce cas
-                    est retirée.
-                  </li>
-                  <li>
-                    <strong class="block text-gray-900 mb-1">2. Une activité en cours, et un moyen de contact</strong>
-                    Inscription à l'annuaire national, page de prise de rendez-vous, site professionnel
-                    à jour ou référencement institutionnel. Un annuaire qui oriente des familles ne peut
-                    pas renvoyer vers un cabinet fermé. Une fiche qui n'offre aucun moyen de contact ne
-                    mène nulle part : elle est retirée, et republiée dès qu'un moyen existe.
-                  </li>
-                  <li>
-                    <strong class="block text-gray-900 mb-1">3. ADELI ou RPPS, les deux comptent</strong>
-                    Les psychologues basculent progressivement de l'ADELI vers le RPPS depuis juin 2024.
-                    Les deux numéros sont acceptés le temps de cette bascule.
-                  </li>
-                </ol>
-                <p class="text-sm text-gray-500 mt-4 pt-3 border-t border-gray-200">
-                  Une structure — cabinet, centre, institut — n'est pas une personne physique et n'a pas
-                  de RPPS : son SIRET ou son FINESS peut être indiqué, sans être exigé.
+              <template v-if="!falcMode">
+                <h2 id="regles-admission" class="font-bold text-gray-900 mb-2">Une seule condition bloquante</h2>
+                <p class="text-sm text-gray-700 leading-relaxed">
+                  L'annuaire ne référence que des praticiens inscrits au répertoire national
+                  (RPPS ou ADELI) et dont l'activité est vérifiable. <strong>Nous faisons cette
+                  vérification nous-même</strong> — vous n'avez rien à prouver, indiquez ce que
+                  vous savez.
                 </p>
-              </details>
+                <details class="mt-3">
+                  <summary class="text-sm font-semibold text-indigo-700 cursor-pointer hover:text-indigo-800">
+                    Voir les trois règles en détail
+                  </summary>
+                  <ol class="mt-4 space-y-4 text-sm text-gray-700">
+                    <li>
+                      <strong class="block text-gray-900 mb-1">1. L'identifiant professionnel — sans exception</strong>
+                      Délivré par l'Agence régionale de santé après contrôle du diplôme. C'est la seule
+                      barrière simple contre les charlatans, nombreux autour de l'autisme. Une fiche dont
+                      le numéro reste introuvable n'est pas publiée ; une fiche déjà en ligne dans ce cas
+                      est retirée.
+                    </li>
+                    <li>
+                      <strong class="block text-gray-900 mb-1">2. Une activité en cours, et un moyen de contact</strong>
+                      Inscription à l'annuaire national, page de prise de rendez-vous, site professionnel
+                      à jour ou référencement institutionnel. Un annuaire qui oriente des familles ne peut
+                      pas renvoyer vers un cabinet fermé. Une fiche qui n'offre aucun moyen de contact ne
+                      mène nulle part : elle est retirée, et republiée dès qu'un moyen existe.
+                    </li>
+                    <li>
+                      <strong class="block text-gray-900 mb-1">3. ADELI ou RPPS, les deux comptent</strong>
+                      Les psychologues basculent progressivement de l'ADELI vers le RPPS depuis juin 2024.
+                      Les deux numéros sont acceptés le temps de cette bascule.
+                    </li>
+                  </ol>
+                  <p class="text-sm text-gray-500 mt-4 pt-3 border-t border-gray-200">
+                    Une structure — cabinet, centre, institut — n'est pas une personne physique et n'a pas
+                    de RPPS : son SIRET ou son FINESS peut être indiqué, sans être exigé.
+                  </p>
+                </details>
+              </template>
+              <div v-else class="text-sm text-gray-700 leading-relaxed space-y-3">
+                <h2 id="regles-admission" class="font-bold text-gray-900">Règle importante</h2>
+                <p>Le professionnel doit avoir un numéro officiel (RPPS ou ADELI).</p>
+                <p>Nous vérifions ce numéro nous-mêmes.</p>
+                <p>Vous n’avez rien à prouver.</p>
+                <p>Écrivez seulement ce que vous savez.</p>
+                <p>Le professionnel doit aussi être joignable (téléphone ou site).</p>
+                <p>Pour un cabinet ou un centre, un numéro SIRET ou FINESS peut être indiqué. Ce n’est pas obligatoire.</p>
+              </div>
             </section>
 
             <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">

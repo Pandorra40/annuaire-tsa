@@ -16,12 +16,20 @@ const tailles = ['text-sm', 'text-md', 'text-lg', 'text-xl']
 const tailleIdx = ref(1)
 const lectureMode = ref(false)
 const contrasteMode = ref(false)
+const calmeMode = ref(false)
+const falcMode = useFalcMode()
+
+/** Pages qui ont une version FALC (le bouton ne sert à rien ailleurs). */
+const falcPages = ['/apropos', '/contact', '/suggerer']
+const falcDisponible = computed(() => falcPages.some(p => route.path === p || route.path.startsWith(p + '/')))
 
 onMounted(() => {
   try {
     tailleIdx.value = Number(localStorage.getItem('tailleIdx') ?? 1)
     lectureMode.value = localStorage.getItem('lecture') === '1'
     contrasteMode.value = localStorage.getItem('contraste') === '1'
+    calmeMode.value = localStorage.getItem('calme') === '1'
+    falcMode.value = localStorage.getItem('falc') === '1'
   } catch {
     // stockage indisponible (navigation privée) : les préférences retombent aux valeurs par défaut
   }
@@ -37,6 +45,8 @@ function applyAccess() {
   if (taille) html.classList.add(taille)
   html.classList.toggle('lecture', lectureMode.value)
   html.classList.toggle('contraste', contrasteMode.value)
+  html.classList.toggle('calme', calmeMode.value)
+  html.classList.toggle('falc', falcMode.value)
 }
 
 function agrandir() {
@@ -79,6 +89,26 @@ function toggleContraste() {
     localStorage.setItem('contraste', contrasteMode.value ? '1' : '0')
   } catch {
     // stockage indisponible : le mode reste appliqué pour cette session seulement
+  }
+  applyAccess()
+}
+
+function toggleCalme() {
+  calmeMode.value = !calmeMode.value
+  try {
+    localStorage.setItem('calme', calmeMode.value ? '1' : '0')
+  } catch {
+    // stockage indisponible
+  }
+  applyAccess()
+}
+
+function toggleFalc() {
+  falcMode.value = !falcMode.value
+  try {
+    localStorage.setItem('falc', falcMode.value ? '1' : '0')
+  } catch {
+    // stockage indisponible
   }
   applyAccess()
 }
@@ -163,6 +193,34 @@ function toggleContraste() {
           </button>
 
           <button type="button"
+            :class="['hidden sm:flex p-2 rounded-lg transition-colors', calmeMode ? 'bg-emerald-100 text-emerald-800' : 'text-gray-600 hover:bg-gray-100']"
+            aria-label="Mode calme, faible stimulation visuelle"
+            :aria-pressed="calmeMode"
+            @click="toggleCalme"
+          >
+            <!-- Feuille / calme — distinct du livre (lecture) et du contraste -->
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
+              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
+            </svg>
+          </button>
+
+          <button
+            v-if="falcDisponible"
+            type="button"
+            :class="['hidden sm:flex p-2 rounded-lg transition-colors', falcMode ? 'bg-sky-100 text-sky-800' : 'text-gray-600 hover:bg-gray-100']"
+            aria-label="Version facile à lire"
+            :aria-pressed="falcMode"
+            @click="toggleFalc"
+          >
+            <!-- Pouce + lignes : esprit FALC sans recopier le logo officiel ni le livre -->
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M7 10v12"/>
+              <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>
+            </svg>
+          </button>
+
+          <button type="button"
             class="xl:hidden p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors"
             :aria-label="mobileMenuOpen ? 'Fermer le menu' : 'Ouvrir le menu'"
             :aria-expanded="mobileMenuOpen"
@@ -202,9 +260,16 @@ function toggleContraste() {
               <button type="button" :disabled="tailleIdx === 0" class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-bold text-gray-700 disabled:opacity-40" @click="reduire">A-</button>
               <button type="button" :disabled="tailleIdx === 3" class="px-3 py-1.5 rounded-lg border border-gray-300 text-sm font-bold text-gray-700 disabled:opacity-40" @click="agrandir">A+</button>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex flex-wrap items-center gap-2 justify-end">
               <button type="button" :class="['px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors', lectureMode ? 'bg-amber-100 border-amber-300 text-amber-700' : 'border-gray-300 text-gray-700']" @click="toggleLecture">Lecture</button>
               <button type="button" :class="['px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors', contrasteMode ? 'bg-gray-900 border-gray-900 text-white' : 'border-gray-300 text-gray-700']" @click="toggleContraste">Contraste</button>
+              <button type="button" :class="['px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors', calmeMode ? 'bg-emerald-100 border-emerald-300 text-emerald-800' : 'border-gray-300 text-gray-700']" @click="toggleCalme">Calme</button>
+              <button
+                v-if="falcDisponible"
+                type="button"
+                :class="['px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors', falcMode ? 'bg-sky-100 border-sky-300 text-sky-800' : 'border-gray-300 text-gray-700']"
+                @click="toggleFalc"
+              >Facile à lire</button>
             </div>
           </div>
         </div>

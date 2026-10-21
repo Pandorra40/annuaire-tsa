@@ -65,17 +65,31 @@ useSeoMeta({
           <h2 class="font-bold text-gray-900 mb-2">Données personnelles</h2>
           <p class="text-sm text-gray-600 leading-relaxed">
             Aucune inscription requise. Aucun cookie publicitaire ni tracking.
-            Les suggestions et signalements peuvent contenir du texte libre : conservés le temps
-            de la modération, puis publiés ou supprimés.
             Pour toute demande (modification, suppression) :
             <a href="mailto:annuaire.tsa@gmail.com" class="text-indigo-600 hover:underline">annuaire.tsa@gmail.com</a>
-            <br><br>
-            <strong>Formulaire de contact d'une fiche :</strong> votre message est transmis
-            au praticien par courriel, avec votre adresse en « répondre à » pour qu'il vous
-            réponde directement. Son contenu n'est conservé nulle part : ni dans la base du
-            site, ni par son éditeur, qui n'en reçoit aucune copie. Seules la date, la fiche
-            concernée et votre adresse sont journalisées, pour pouvoir limiter les abus.
-            <br><br>
+          </p>
+          <ul class="text-sm text-gray-600 leading-relaxed space-y-2 list-disc pl-5 mt-3">
+            <li>
+              <strong>Suggestions et signalements :</strong> conservés le temps de la
+              modération, puis publiés (si validés) ou supprimés.
+            </li>
+            <li>
+              <strong>Formulaire de contact d'une fiche :</strong> le message est transmis
+              au praticien par courriel ; son contenu n'est stocké nulle part. Seules la
+              date, la fiche, l'adresse de l'expéditeur et l'IP sont journalisées pour
+              limiter les abus, puis <strong>effacées automatiquement au-delà de 12 mois</strong>.
+            </li>
+            <li>
+              <strong>Statistiques de visite :</strong> compteurs agrégés par jour et par
+              page, sans profil nominatif. Conservés <strong>24 mois</strong>, puis purgés.
+              Les IP volontairement exclues des stats le restent jusqu'à retrait manuel.
+            </li>
+            <li>
+              <strong>Connexions à l'administration :</strong> journal des tentatives
+              (réussies ou non) pour la sécurité, purgé au-delà de <strong>12 mois</strong>.
+            </li>
+          </ul>
+          <p class="text-sm text-gray-600 leading-relaxed mt-3">
             Vous êtes un praticien référencé ?
             <NuxtLink to="/donnees-praticiens" class="text-indigo-600 hover:underline">Information dédiée sur vos données →</NuxtLink>
           </p>

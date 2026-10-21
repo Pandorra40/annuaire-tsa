@@ -4,7 +4,9 @@ useSeoMeta({
   description: 'Présentation de l\'Annuaire TSA, projet collaboratif et gratuit de praticiens spécialisés dans les troubles du spectre autistique.'
 })
 
-const faq = [
+const falcMode = useFalcMode()
+
+const faqNormal = [
   {
     label: 'Qu\'est-ce que l\'Annuaire TSA ?',
     content: 'L\'Annuaire TSA est une ressource complète et gratuite pour les familles concernées par les troubles du spectre autistique. Il comprend un annuaire de praticiens spécialisés (psychiatres, psychologues, neuropsychologues, orthophonistes, ergothérapeutes, psychomotriciens), un annuaire de 290 associations TSA en France, et une sélection de livres sur le TSA. Chaque fiche praticien est vérifiée manuellement avant publication.'
@@ -30,17 +32,46 @@ const faq = [
     content: 'Oui. Le code source est publié sous licence AGPL-3.0 sur GitHub. Vous pouvez librement le télécharger, le modifier et l\'adapter — à condition de publier vos modifications sous la même licence.'
   }
 ]
+
+const faqFalc = [
+  {
+    label: 'Qu\'est-ce que l\'Annuaire TSA ?',
+    content: 'C\'est un site gratuit pour les familles. Vous y trouvez des professionnels qui connaissent l\'autisme, des associations, et des livres. Chaque fiche est relue avant d\'être publiée.'
+  },
+  {
+    label: 'Comment on vérifie les fiches ?',
+    content: 'Quand quelqu\'un propose un professionnel, une personne lit la proposition. Elle vérifie que le professionnel existe vraiment, avec son numéro officiel (RPPS). Ensuite la fiche peut être publiée. D\'autres personnes peuvent confirmer ou signaler une erreur.'
+  },
+  {
+    label: 'D\'où viennent les informations ?',
+    content: 'Les informations viennent surtout de sources déjà publiques, puis elles sont vérifiées à la main. Elles sont données à titre d\'indication. En cas de doute, contactez directement le professionnel.'
+  },
+  {
+    label: 'Est-ce que je peux faire confiance aux informations ?',
+    content: 'Les informations peuvent changer. Si plusieurs personnes signalent une fiche, une alerte apparaît. Avant de vous déplacer, contactez toujours le professionnel.'
+  },
+  {
+    label: 'Est-ce vraiment gratuit ?',
+    content: 'Oui. Pas de publicité. On ne vend pas vos données. Pas d\'abonnement. Pas besoin de créer un compte.'
+  },
+  {
+    label: 'Puis-je réutiliser ce projet ?',
+    content: 'Oui. Le code est libre (licence AGPL-3.0) sur GitHub. Vous pouvez le télécharger et le modifier. Vous devez publier vos changements sous la même licence.'
+  }
+]
+
+const faq = computed(() => falcMode.value ? faqFalc : faqNormal)
 </script>
 
 <template>
   <div>
-    <!-- EN-TÊTE -->
     <section class="relative overflow-hidden py-16" style="background: linear-gradient(160deg, #f8f4ff 0%, #f0f9ff 40%, #f0fdf4 70%, #fffbeb 100%)">
       <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #f87171, #fb923c, #fbbf24, #4ade80, #60a5fa, #a78bfa, #f472b6)" />
       <div class="absolute inset-0 pointer-events-none" style="background: radial-gradient(ellipse at 30% 50%, rgba(99,102,241,0.07) 0%, transparent 50%)" />
       <div class="relative max-w-3xl mx-auto px-6 text-center">
         <h1 class="text-4xl sm:text-5xl font-black text-gray-900 mb-3 tracking-tight">À propos</h1>
-        <p class="text-gray-500 text-lg max-w-2xl mx-auto">Tout ce que vous devez savoir sur le projet Annuaire TSA.</p>
+        <p v-if="!falcMode" class="text-gray-500 text-lg max-w-2xl mx-auto">Tout ce que vous devez savoir sur le projet Annuaire TSA.</p>
+        <p v-else class="text-gray-500 text-lg max-w-2xl mx-auto">Cette page explique ce qu’est l’Annuaire TSA.</p>
       </div>
     </section>
 
@@ -52,7 +83,7 @@ const faq = [
             <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shrink-0 text-xl">
               ❤️
             </div>
-            <div>
+            <div v-if="!falcMode">
               <h2 class="font-bold text-xl text-gray-900 mb-3">Un projet né d'un besoin réel</h2>
               <p class="text-gray-600 leading-relaxed">
                 Trouver un professionnel de santé spécialisé dans les troubles du spectre autistique (TSA) en France reste un parcours du combattant pour de nombreuses familles.
@@ -63,18 +94,26 @@ const faq = [
                 Au-delà de l'annuaire de praticiens, le site propose également un <strong>annuaire de 290 associations TSA</strong> en France, parce qu'une fois le diagnostic posé, les familles ont besoin de soutien, d'entraide et d'accompagnement. Une <strong>sélection de livres</strong> sur le TSA complète ces ressources.
               </p>
             </div>
+            <div v-else class="space-y-3 text-gray-600 leading-relaxed">
+              <h2 class="font-bold text-xl text-gray-900 mb-1">Pourquoi ce site existe</h2>
+              <p>Trouver un professionnel qui connaît l’autisme est difficile en France.</p>
+              <p>Ce site aide les familles à trouver ces professionnels.</p>
+              <p>Le site est gratuit.</p>
+              <p>Il n’y a pas de publicité.</p>
+              <p>Les familles peuvent aussi proposer des noms ou signaler une erreur.</p>
+              <p>Sur le site, vous trouvez aussi :</p>
+              <p>• une liste d’associations</p>
+              <p>• une sélection de livres</p>
+            </div>
           </div>
         </div>
 
-        <!-- Sorti de l'accordéon (8 août 2026) : replié en cinquième position, ce bloc
-             n'était jamais lu. Or c'est lui qui pose le cadre — un bénévole, pas un
-             service — et qui manquait aux praticiens écrivant comme à une équipe. -->
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
           <div class="flex items-start gap-4">
             <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shrink-0 text-xl">
               🧑‍💻
             </div>
-            <div>
+            <div v-if="!falcMode">
               <h2 class="font-bold text-xl text-gray-900 mb-3">Qui tient ce projet</h2>
               <p class="text-gray-600 leading-relaxed">
                 Une seule personne, bénévolement, sur son temps libre. Pas d'association,
@@ -94,6 +133,16 @@ const faq = [
                 orientations sont humains — le code a été généré par l'IA.
               </p>
             </div>
+            <div v-else class="space-y-3 text-gray-600 leading-relaxed">
+              <h2 class="font-bold text-xl text-gray-900 mb-1">Qui s’occupe du site</h2>
+              <p>Une seule personne s’occupe du site.</p>
+              <p>Elle le fait gratuitement, sur son temps libre.</p>
+              <p>Ce n’est pas une association.</p>
+              <p>Personne ne gagne d’argent avec ce site.</p>
+              <p>Chaque fiche est relue à la main avant d’être publiée.</p>
+              <p>Le code du site est public sur Internet (GitHub).</p>
+              <p>Tout le monde peut le lire.</p>
+            </div>
           </div>
         </div>
 
@@ -102,7 +151,7 @@ const faq = [
             <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0 text-xl">
               ✉️
             </div>
-            <div>
+            <div v-if="!falcMode">
               <h2 class="font-bold text-xl text-gray-900 mb-3">Écrire sans téléphoner</h2>
               <p class="text-gray-600 leading-relaxed">
                 Beaucoup de personnes autistes ne peuvent pas passer d'appel téléphonique.
@@ -125,6 +174,19 @@ const faq = [
                 <NuxtLink to="/donnees-praticiens" class="text-indigo-600 hover:underline">En savoir plus →</NuxtLink>
               </p>
             </div>
+            <div v-else class="space-y-3 text-gray-600 leading-relaxed">
+              <h2 class="font-bold text-xl text-gray-900 mb-1">Écrire sans téléphoner</h2>
+              <p>Beaucoup de personnes autistes ne peuvent pas téléphoner.</p>
+              <p>Sur certaines fiches, vous pouvez écrire un message.</p>
+              <p>Le professionnel reçoit votre message par e-mail.</p>
+              <p>Il vous répond directement.</p>
+              <p>Son adresse e-mail n’est jamais montrée sur le site.</p>
+              <p>Le contenu du message n’est pas gardé dans le site.</p>
+              <p>Le professionnel doit d’abord donner son accord écrit.</p>
+              <p>
+                <NuxtLink to="/donnees-praticiens" class="text-indigo-600 hover:underline">En savoir plus →</NuxtLink>
+              </p>
+            </div>
           </div>
         </div>
 
@@ -132,13 +194,18 @@ const faq = [
           <div class="p-6 pb-4 border-b border-gray-100">
             <h2 class="font-bold text-lg text-gray-900 flex items-center gap-3">
               <span class="w-9 h-9 rounded-xl bg-amber-100 flex items-center justify-center text-base">❓</span>
-              Questions fréquentes
+              {{ falcMode ? 'Questions' : 'Questions fréquentes' }}
             </h2>
           </div>
           <div class="p-2">
             <UAccordion :items="faq" />
           </div>
         </div>
+
+        <p v-if="falcMode" class="text-sm text-gray-500 text-center">
+          Cette version est plus simple à lire.
+          Vous pouvez revenir au texte habituel avec le bouton « Facile à lire » en haut du site.
+        </p>
 
       </div>
     </section>

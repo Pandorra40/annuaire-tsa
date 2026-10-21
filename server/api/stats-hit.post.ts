@@ -60,6 +60,7 @@ export default defineEventHandler(async (event) => {
        ON DUPLICATE KEY UPDATE hits = hits + 1`,
       [path]
     )
+    await db.query('DELETE FROM visites_jour WHERE jour < CURDATE() - INTERVAL 24 MONTH')
   } catch (e) {
     tsaLog('stats_hit', `db=${e instanceof Error ? e.message : String(e)}`)
   }
