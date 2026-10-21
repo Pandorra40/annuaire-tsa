@@ -17,21 +17,23 @@ export default defineNuxtPlugin(() => {
 
     const url = `${base}/stats-hit`
     const body = JSON.stringify({ path })
-    try {
-      if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
-        const blob = new Blob([body], { type: 'application/json' })
-        if (navigator.sendBeacon(url, blob)) return
-      }
-    } catch {
-      // fallback fetch
-    }
+    // fetch keepalive en priorité : Content-Type application/json fiable.
+    // sendBeacon en secours (certains navigateurs forcent text/plain).
     void fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body,
       keepalive: true,
       credentials: 'omit'
-    }).catch(() => {})
+    }).catch(() => {
+      try {
+        if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+          navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }))
+        }
+      } catch {
+        /* ignore */
+      }
+    })
   }
 
   // Première vue

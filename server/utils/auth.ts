@@ -4,6 +4,7 @@ import type { RowDataPacket } from 'mysql2'
 import { getDb } from '~~/server/utils/db'
 import { apiError } from '~~/server/utils/errors'
 import { tsaLog } from '~~/server/utils/request'
+import { hashSessionToken } from '~~/server/utils/sessionToken'
 
 export const ADMIN_COOKIE = 'tsa_admin'
 
@@ -48,7 +49,7 @@ export async function requireAdmin(event: H3Event): Promise<void> {
   const db = await getDb()
   const [rows] = await db.query<RowDataPacket[]>(
     'SELECT id FROM admin_sessions WHERE token = ? AND expires_at > NOW()',
-    [token]
+    [hashSessionToken(token)]
   )
   if (!rows[0]) {
     tsaLog('auth', 'Admin access with invalid or expired token', event)

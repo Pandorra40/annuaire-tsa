@@ -31,7 +31,9 @@ export function useApi() {
   }
 
   async function confirmerFiche(id: number) {
-    return await $fetch(`${base}/praticiens?id=${id}`, { method: 'PATCH' })
+    return await $fetch<{ ok: boolean, already?: boolean }>(`${base}/praticiens?id=${id}`, {
+      method: 'PATCH'
+    })
   }
 
   async function fetchLivres() {

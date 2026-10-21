@@ -1,12 +1,11 @@
 name: ci
 
-# Conservé pour compatibilité : délègue au workflow racine si le repo est cloné depuis annuaire-tsa-nuxt uniquement.
-# Le workflow principal est ../.github/workflows/ci.yml (monorepo TSA).
+# Repo GitHub = racine de ce projet Nuxt (pas un sous-dossier monorepo).
+# Ne pas filtrer sur annuaire-tsa-nuxt/** : le CI ne se lancerait jamais.
 
 on:
   push:
-    paths:
-      - 'annuaire-tsa-nuxt/**'
+  pull_request:
 
 jobs:
   ci:

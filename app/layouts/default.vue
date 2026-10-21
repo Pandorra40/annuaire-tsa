@@ -86,6 +86,12 @@ function toggleContraste() {
 
 <template>
   <div class="min-h-screen bg-gray-50 text-gray-900">
+    <a
+      href="#contenu"
+      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-gray-900 focus:shadow-lg focus:outline focus:outline-2 focus:outline-indigo-600"
+    >
+      Aller au contenu
+    </a>
 
     <!-- NAVBAR -->
     <header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm">
@@ -208,7 +214,7 @@ function toggleContraste() {
     <!-- <main> porte le mode lecture (OpenDyslexic sur le contenu, pas sur
          le bandeau). Sans ce repère, html.lecture * forçait la police de
          lecture jusque dans le chrome. -->
-    <main>
+    <main id="contenu" tabindex="-1">
       <slot />
     </main>
 

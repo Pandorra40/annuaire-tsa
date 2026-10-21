@@ -1,7 +1,8 @@
-import { getHeader, readBody, setResponseStatus } from 'h3'
+import { getHeader, readRawBody, setResponseStatus } from 'h3'
 import { getDb } from '~~/server/utils/db'
 import { clientIp, rateLimit, tsaLog } from '~~/server/utils/request'
 import { isBotUserAgent, normalizeVisitPath } from '~~/server/utils/statsBot'
+import { parseStatsHitBody } from '~~/server/utils/statsHitBody'
 
 export default defineEventHandler(async (event) => {
   const ua = getHeader(event, 'user-agent') ?? ''
@@ -18,16 +19,20 @@ export default defineEventHandler(async (event) => {
 
   await rateLimit(event, 'stats_hit', 120, 60)
 
-  let data: Record<string, unknown> = {}
+  let raw = ''
   try {
-    const raw = await readBody<Record<string, unknown> | string>(event)
-    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
-      data = raw
-    }
+    raw = (await readRawBody(event, 'utf8')) || ''
   } catch {
     /* corps vide */
   }
 
+  let formPath: string | null = null
+  const trimmed = raw.trim()
+  if (trimmed !== '' && !trimmed.startsWith('{') && trimmed.includes('path=')) {
+    formPath = new URLSearchParams(raw).get('path')
+  }
+
+  const data = parseStatsHitBody(raw, formPath)
   const path = normalizeVisitPath(String(data.path ?? ''))
   if (path === null) {
     setResponseStatus(event, 204)

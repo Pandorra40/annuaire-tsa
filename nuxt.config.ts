@@ -1,4 +1,5 @@
 import { ofetch } from 'ofetch'
+import { SECURITY_HEADERS } from './server/utils/securityHeaders'
 
 export default defineNuxtConfig({
   modules: [
@@ -55,6 +56,8 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
+    // Headers HTTP : .htaccess Apache n'est plus lu sous Nitro / Nginx Hébernet.
+    '/**': { headers: { ...SECURITY_HEADERS } },
     '/': { prerender: true },
     '/ressources/livres': { prerender: true },
     '/ressources/videos': { prerender: true },
