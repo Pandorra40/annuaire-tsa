@@ -16,7 +16,6 @@ const tailles = ['text-sm', 'text-md', 'text-lg', 'text-xl']
 const tailleIdx = ref(1)
 const lectureMode = ref(false)
 const contrasteMode = ref(false)
-const calmeMode = ref(false)
 const falcMode = useFalcMode()
 
 /** Pages qui ont une version FALC (le bouton ne sert à rien ailleurs). */
@@ -28,11 +27,12 @@ onMounted(() => {
     tailleIdx.value = Number(localStorage.getItem('tailleIdx') ?? 1)
     lectureMode.value = localStorage.getItem('lecture') === '1'
     contrasteMode.value = localStorage.getItem('contraste') === '1'
-    calmeMode.value = localStorage.getItem('calme') === '1'
     falcMode.value = localStorage.getItem('falc') === '1'
+    localStorage.removeItem('calme')
   } catch {
     // stockage indisponible (navigation privée) : les préférences retombent aux valeurs par défaut
   }
+  document.documentElement.classList.remove('calme')
   applyAccess()
 })
 
@@ -45,7 +45,6 @@ function applyAccess() {
   if (taille) html.classList.add(taille)
   html.classList.toggle('lecture', lectureMode.value)
   html.classList.toggle('contraste', contrasteMode.value)
-  html.classList.toggle('calme', calmeMode.value)
   html.classList.toggle('falc', falcMode.value)
 }
 
@@ -89,16 +88,6 @@ function toggleContraste() {
     localStorage.setItem('contraste', contrasteMode.value ? '1' : '0')
   } catch {
     // stockage indisponible : le mode reste appliqué pour cette session seulement
-  }
-  applyAccess()
-}
-
-function toggleCalme() {
-  calmeMode.value = !calmeMode.value
-  try {
-    localStorage.setItem('calme', calmeMode.value ? '1' : '0')
-  } catch {
-    // stockage indisponible
   }
   applyAccess()
 }
@@ -192,19 +181,6 @@ function toggleFalc() {
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a10 10 0 0 1 0 20z" fill="currentColor"/></svg>
           </button>
 
-          <button type="button"
-            :class="['hidden sm:flex p-2 rounded-lg transition-colors', calmeMode ? 'bg-emerald-100 text-emerald-800' : 'text-gray-600 hover:bg-gray-100']"
-            aria-label="Mode calme, faible stimulation visuelle"
-            :aria-pressed="calmeMode"
-            @click="toggleCalme"
-          >
-            <!-- Feuille / calme — distinct du livre (lecture) et du contraste -->
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/>
-              <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>
-            </svg>
-          </button>
-
           <button
             v-if="falcDisponible"
             type="button"
@@ -263,7 +239,6 @@ function toggleFalc() {
             <div class="flex flex-wrap items-center gap-2 justify-end">
               <button type="button" :class="['px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors', lectureMode ? 'bg-amber-100 border-amber-300 text-amber-700' : 'border-gray-300 text-gray-700']" @click="toggleLecture">Lecture</button>
               <button type="button" :class="['px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors', contrasteMode ? 'bg-gray-900 border-gray-900 text-white' : 'border-gray-300 text-gray-700']" @click="toggleContraste">Contraste</button>
-              <button type="button" :class="['px-3 py-1.5 rounded-lg text-sm font-medium border transition-colors', calmeMode ? 'bg-emerald-100 border-emerald-300 text-emerald-800' : 'border-gray-300 text-gray-700']" @click="toggleCalme">Calme</button>
               <button
                 v-if="falcDisponible"
                 type="button"

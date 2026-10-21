@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.13
+# Annuaire TSA — V4.13.1
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -98,7 +98,6 @@ L’ancienne API PHP (`api/*.php`) reste en archive locale pour rollback ; elle 
 - **A- / A+** — taille de police réglable (4 niveaux)
 - **Mode lecture** — police OpenDyslexic, espacement augmenté, animations réduites
 - **Contraste élevé** — noir pur sur blanc pur pour les malvoyants
-- **Mode calme** — stimulation visuelle réduite (fonds neutres, ombres et animations coupées)
 - **Facile à lire (FALC)** — textes alternatifs sur `/apropos`, `/contact` et `/suggerer` ; le bouton n’apparaît que sur ces pages
 - **Dark mode** — thème sombre selon les préférences système ou manuel
 - Disponible sur desktop (navbar) et mobile (menu hamburger)
@@ -304,7 +303,8 @@ Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (fichiers encor
 | V4.10 | Formulaire `/suggerer` en trois écrans (qui remplit, essentiel, compléments facultatifs), textes clarifiés famille/praticien. Page `/remerciements` remplace `/couts` (redirection 301). Mode lecture : OpenDyslexic limité au contenu (`main` + pied), pas au bandeau. Cache : HTML sans cache long (`.htaccess` + Workbox), marqueur `X-TSA-Config: 2026-08-23`. Cadre bénévole et pages À propos / données praticiens retouchés |
 | V4.11 | Stats réservées à l’admin (`/admin/stats`, 301 depuis `/stats`) : visites, volumes métier, exclusion d’IP (dont « ajouter mon IP »), journal des connexions admin + alerte Pushbullet sur échecs répétés. Hébergeur documenté Infomaniak (Suisse) |
 | V4.12 | Migration de l’API PHP vers Nitro (Node) : URLs propres `/api/*` sans `.php`, même process que le front, MariaDB/phpMyAdmin inchangés. Front `apiBase=/api`. Hébergement Hébernet (Nginx → Node). PHP conservé en archive pour rollback |
-| V4.13 | Mode calme et version Facile à lire (FALC) sur À propos, Contact et Suggérer (bouton limité à ces pages). Durées de conservation clarifiées (contact 12 mois, visites 24 mois, journal admin 12 mois) avec purges alignées |
+| V4.13 | Version Facile à lire (FALC) sur À propos, Contact et Suggérer (bouton limité à ces pages). Durées de conservation clarifiées (contact 12 mois, visites 24 mois, journal admin 12 mois) avec purges alignées |
+| V4.13.1 | Retrait du mode calme (bouton et preset CSS) |
 
 ## Remerciements
 
