@@ -34,7 +34,7 @@ export interface Brique {
 export const FRAIS_RECURRENTS: FraisRecurrent[] = [
   {
     libelle: 'VPS Infomaniak (porte d\'entrée)',
-    detail: 'Infomaniak Network SA — VPS en Suisse (NPMplus / Nginx + CrowdSec AppSec). L\'application et la base tournent en auto-hébergement sur le serveur de l\'éditeur (T330 / Hébernet).',
+    detail: 'Infomaniak Network SA — VPS en Suisse (façade publique). L\'application et la base tournent en auto-hébergement sur le serveur de l\'éditeur.',
     paye: 17.88,
     renouvellement: 47.88
   },

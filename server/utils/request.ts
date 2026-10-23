@@ -14,7 +14,7 @@ function isLoopback(ip: string): boolean {
 /**
  * Adresse du visiteur.
  *
- * Derrière le nginx Hébernet (proxy local → Node), REMOTE_ADDR vaut 127.0.0.1 :
+ * Derrière un reverse proxy local → Node, REMOTE_ADDR vaut 127.0.0.1 :
  * on lit alors X-Real-IP posé par nginx ($remote_addr). Les X-Forwarded-*
  * libres ne sont pas honores si le pair n'est pas loopback.
  */

@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.13.7
+# Annuaire TSA — V4.13.8
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -85,7 +85,7 @@ Les 46 centres ressources publics de France listés dans le site, avec le parcou
 | API | Nitro (Node) — routes `server/api/*`, URLs propres `/api/praticiens`, … |
 | Base de données | MariaDB (phpMyAdmin inchangé) |
 | Runtime serveur | `mysql2`, `bcryptjs`, `nodemailer` |
-| Hébergement | Infomaniak VPS (NPMplus / Nginx + CrowdSec AppSec, porte d’entrée) → auto-hébergement T330 / Hébernet (Node + MariaDB) |
+| Hébergement | Auto-hébergé (VPS Infomaniak en porte d’entrée publique + serveur de l’éditeur pour l’app et la base) |
 | API externe | data.bnf.fr / BnF — SPARQL (nouveautés livres) |
 | Typage | TypeScript |
 | SEO | Bing Webmaster Tools + @nuxtjs/sitemap + @nuxtjs/robots ; JSON-LD Schema.org (`WebSite` + fiches) ; IndexNow via script manuel `indexnow.mjs` |
@@ -229,51 +229,31 @@ Le site et l’API Nitro sont sur `http://localhost:3000` (`public.apiBase` = `/
 
 Variables utiles (`.env` local ou export) : `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `ADMIN_HASH`, éventuellement `SMTP_*` et `PUSHBULLET_TOKEN`. Sans BDD locale, le front peut encore appeler l’API de production en changeant temporairement `apiBase`.
 
-## Architecture d’hébergement
+## Hébergement
 
-Internet → **VPS Infomaniak** (façade publique) → **T330 / Hébernet** (auto-hébergement de l’éditeur : process Node Nuxt/Nitro + MariaDB).
+Le site est **auto-hébergé** : un VPS Infomaniak sert de porte d’entrée publique ;
+l’application (Node / Nitro) et MariaDB tournent sur le serveur de l’éditeur.
+Les détails d’exploitation (proxy, supervision, chemins serveur) restent hors dépôt.
 
-Hébernet n’est **pas** un prestataire d’hébergement commercial : c’est la stack d’auto-hébergement sur la machine de l’auteur.
+## Build
 
-### VPS Infomaniak (oct. 2026)
-
-Porte d’entrée partagée (Annuaire TSA, Matrix, Jellyfin, etc.) : le trafic suspect
-est filtré **avant** d’atteindre les services (blocages d’IP + WAF applicatif).
-
-- Reverse proxy : **NPMplus** ([ZoeyVid](https://github.com/ZoeyVid/NPMplus)) — migration depuis Nginx Proxy Manager (23 oct. 2026)
-- WAF : **CrowdSec AppSec** — fichiers sensibles, scans, etc. (ex. `/.env` → 403)
-- Console CrowdSec : engine `VPS-npmplus` ; alertes locales OK ; la console Community peut en masquer une partie jusqu’au reset de quota mensuel
-- Supervision : **Uptime Kuma v2** sur le VPS (disponibilité des sites, alertes Pushbullet) — accès via tunnel SSH port **3001**, non exposé sur Internet
-- Stack NPMplus : `/home/ubuntu/npmplus` ; UI admin port **81** (`https://<VPS>:81`)
-- Rollback proxy : `/home/ubuntu/npmplus/ROLLBACK.sh` ; backups : `/home/ubuntu/backups/`
-- Autres conteneurs VPS mis à jour le 23 oct. : Netbird, Portainer, WUD
-
-## Déploiement (T330 / Hébernet)
-
-1. Build Node (SSR + API Nitro) :
 ```bash
 pnpm build
 ```
 
-2. Déployer le contenu de `.output/` dans `app/` du site sur le T330 (`server/index.mjs` + `public/`).
+Le résultat est dans `.output/` (SSR + API Nitro). Le sitemap est généré à chaque
+build via `@nuxtjs/sitemap`. IndexNow n’est pas branché au module sitemap : le
+signalement à Bing se fait à la main avec `indexnow.mjs` à la racine du projet.
 
-3. Secrets dans `.env.hebernet` (lu au démarrage du process Node) : `DB_*`, `ADMIN_HASH`, `SMTP_*`, `PUSHBULLET_TOKEN`.  
-   **Important** : quotter les valeurs qui contiennent `$` (hash bcrypt) — `ADMIN_HASH='$2y$12$…'` — sinon bash les tronque au `source`.
-
-4. Sur le T330, Nginx local proxifie le site (y compris `/api`) vers le process Node (`hebernet-node-hb_annuaire_tsa`, port interne). MariaDB / phpMyAdmin inchangés. Le VPS Infomaniak (NPMplus + CrowdSec) ne fait que relayer et filtrer le trafic public vers cette machine.
-
-5. Redémarrer le programme supervisor du site, puis smoke test : `GET /api/praticiens`, `GET /api/auth` → 401, login admin.
-
-Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (archive serveur, hors dépôt) et recharger Nginx.
-
-> Le sitemap est généré automatiquement à chaque build via `@nuxtjs/sitemap` (sources `/api/__sitemap__/fiches` : fiches et départements). IndexNow n’est pas branché au module sitemap : le signalement à Bing se fait à la main avec `indexnow.mjs` à la racine du projet.
+Variables d’environnement côté serveur (jamais committer) : `DB_*`, `ADMIN_HASH`,
+éventuellement `SMTP_*` et `PUSHBULLET_TOKEN`. Quotter les valeurs contenant `$`
+(hash bcrypt), sinon le shell les tronque.
 
 ### Pièges de cache (PWA) — à connaître
 
 - **`navigateFallback` doit rester `undefined`** dans la config PWA. Un fallback vers `/` casse les pages au rechargement.
 - `clientsClaim` + `skipWaiting` : le nouveau SW prend le contrôle immédiatement.
 - Workbox ne précache pas le HTML (`globPatterns` sans `html`).
-- Après chaque déploiement : tester en navigation privée.
 
 ## Accès admin
 
@@ -325,15 +305,14 @@ Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (archive serveu
 | V4.9 | Audit UX des 25 pages et sa mise en œuvre. Quatre bugs corrigés : département de la Corse et de l'outre-mer (`2A`/`2B` et `971`–`976` au lieu de `20`/`97`, avec corruption à chaque sauvegarde admin), quatre listes publiées vides faute de données au build, recherche de l'accueil aveugle au second lieu, variable fantôme laissée par le retrait de Tiptap. Moyen de recontacter l'auteur d'une contribution sur les quatre formulaires. Signalement par rubriques : une correction sans valeur de remplacement devient impossible à envoyer. Champ « réalise des bilans diagnostiques » à trois états, filtrable. Recherche remontée en tête d'accueil, filtres nommés avec compteurs, carte de résultat et panneau de filtres partagés entre l'accueil et les pages département, départements limitrophes. Administration : fin des rechargements complets, annulation à la place de la confirmation, onglet « Refusées », vues enregistrées sur l'état du fonds
 | V4.10 | Formulaire `/suggerer` en trois écrans (qui remplit, essentiel, compléments facultatifs), textes clarifiés famille/praticien. Page `/remerciements` remplace `/couts` (redirection 301). Mode lecture : OpenDyslexic limité au contenu (`main` + pied), pas au bandeau. Cache : HTML sans cache long (`.htaccess` + Workbox), marqueur `X-TSA-Config: 2026-08-23`. Cadre bénévole et pages À propos / données praticiens retouchés |
 | V4.11 | Stats réservées à l’admin (`/admin/stats`, 301 depuis `/stats`) : visites, volumes métier, exclusion d’IP (dont « ajouter mon IP »), journal des connexions admin + alerte Pushbullet sur échecs répétés. Hébergeur documenté Infomaniak (Suisse) |
-| V4.12 | Migration de l’API PHP vers Nitro (Node) : URLs propres `/api/*` sans `.php`, même process que le front, MariaDB/phpMyAdmin inchangés. Front `apiBase=/api`. Hébergement Hébernet (Nginx → Node). PHP conservé en archive pour rollback |
+| V4.12 | Migration de l’API PHP vers Nitro (Node) : URLs propres `/api/*` sans `.php`, même process que le front, MariaDB/phpMyAdmin inchangés. Front `apiBase=/api`. PHP conservé en archive hors dépôt |
 | V4.13 | Version Facile à lire (FALC) sur À propos, Contact et Suggérer (bouton limité à ces pages). Durées de conservation clarifiées (contact 12 mois, visites 24 mois, journal admin 12 mois) avec purges alignées |
 | V4.13.1 | Retrait du mode calme (bouton et preset CSS) |
 | V4.13.2 | Compression gzip/brotli des assets `/_nuxt/` (Nitro `compressPublicAssets`) ; retrait des icônes TipTap orphelines |
 | V4.13.3 | Perf / a11y PageSpeed : preload fonts + cache long fonts/logo, CLS desktop corrigé, `aria-expanded` retiré de la recherche, contrastes filtres. JSON-LD Schema.org sur les fiches (`Physician`, `MedicalBusiness`, `ProfessionalService`, `NGO`) |
 | V4.13.4 | README aligné sur le code : retrait du dark mode documenté à tort, effectif CRA (46), IndexNow manuel, notes fiches sans `v-html`, archive PHP hors dépôt |
-| V4.13.5 | Clarification hébergement : Infomaniak = VPS / Nginx (porte d’entrée) ; Hébernet / T330 = auto-hébergement de l’app et de la base (pas un prestataire tiers). Mentions, données praticiens, finances, footer |
-| V4.13.6 | VPS Infomaniak : migration Nginx Proxy Manager → NPMplus (ZoeyVid), CrowdSec AppSec (WAF) sur le reverse proxy ; chemins stack / rollback / backups documentés |
-| V4.13.7 | Précisions VPS (23 oct.) : CrowdSec console `VPS-npmplus`, Uptime Kuma v2 (SSH :3001, alertes Pushbullet), maj Netbird / Portainer / WUD |
+| V4.13.5–7 | Mentions légales : Infomaniak (VPS d’entrée) + auto-hébergement de l’app et de la base |
+| V4.13.8 | README allégé (moins d’exposition infra) ; pages légales sans jargon d’outils ops |
 
 ## Remerciements
 

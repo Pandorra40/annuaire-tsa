@@ -313,12 +313,11 @@ useSeoMeta({
           <ul class="text-gray-600 leading-relaxed space-y-2 list-disc pl-5 mt-3">
             <li>
               <strong>Infomaniak Network SA</strong> — VPS en Suisse servant de
-              porte d’entrée (NPMplus / Nginx + CrowdSec AppSec), pas l’hébergeur de
-              l’application ni de la base.
+              porte d’entrée publique, pas l’hébergeur de l’application ni de la base.
             </li>
             <li>
               <strong>Auto-hébergement (éditeur)</strong> — application Nuxt/Node
-              et base MariaDB sur le serveur de l’éditeur (T330 / Hébernet).
+              et base MariaDB sur le serveur de l’éditeur.
             </li>
             <li><strong>Google</strong> — acheminement des courriels envoyés depuis l'adresse du projet.</li>
             <li><strong>Mailmeteor</strong> — outil de publipostage utilisé pour l'envoi d'information aux praticiens.</li>

@@ -41,7 +41,7 @@ export default defineNuxtConfig({
     dbName: process.env.DB_NAME || '',
     dbUser: process.env.DB_USER || '',
     dbPassword: process.env.DB_PASSWORD || process.env.DB_PASS || '',
-    // Secrets : uniquement via env (prod = .env.hebernet). Jamais de fallback en dur.
+    // Secrets : uniquement via env (prod). Jamais de fallback en dur.
     adminHash: process.env.ADMIN_HASH || '',
     smtpHost: process.env.SMTP_HOST || 'smtp.gmail.com',
     smtpPort: process.env.SMTP_PORT || '587',
@@ -56,7 +56,7 @@ export default defineNuxtConfig({
   },
 
   routeRules: {
-    // Headers HTTP : .htaccess Apache n'est plus lu sous Nitro / Nginx Hébernet.
+    // Headers HTTP : .htaccess Apache n'est plus lu sous Nitro / Nginx.
     '/**': { headers: { ...SECURITY_HEADERS } },
     // Assets hashés : Nitro pose déjà immutable ; on le force aussi ici pour
     // rester explicite derrière OpenResty. Pas de TTL long sur le HTML (/**).

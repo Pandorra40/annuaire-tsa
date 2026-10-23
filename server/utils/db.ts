@@ -7,7 +7,7 @@ export async function getDb(): Promise<Pool> {
   if (pool) return pool
 
   const config = useRuntimeConfig()
-  // Préférer les variables d'env Hébernet (DB_*) au runtimeConfig figé au build.
+  // Préférer les variables d'env runtime (DB_*) au runtimeConfig figé au build.
   pool = mysql.createPool({
     host: process.env.DB_HOST || String(config.dbHost || '127.0.0.1'),
     port: Number(process.env.DB_PORT || config.dbPort || 3306),
