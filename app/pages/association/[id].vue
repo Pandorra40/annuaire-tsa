@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Association } from '~/types/index'
+import { jsonLdAssociation } from '~/utils/schemaOrg'
 
 const route = useRoute()
 const router = useRouter()
@@ -49,6 +50,18 @@ const titre = computed(() => {
 useSeoMeta({
   title: titre,
   description: computed(() => association.value ? echapperMeta(`${association.value.nom} — Association TSA à ${association.value.ville} (${association.value.departement})`) : '')
+})
+
+// JSON-LD fiche association (complète le WebSite global d'app.vue).
+useHead({
+  script: computed(() => {
+    if (!association.value) return []
+    return [{
+      key: 'ld-association',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify(jsonLdAssociation(association.value))
+    }]
+  })
 })
 </script>
 

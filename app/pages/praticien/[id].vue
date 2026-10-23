@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Praticien } from '~/types/index'
 import { initiales, isNew } from '~/composables/usePraticien'
+import { jsonLdPraticien } from '~/utils/schemaOrg'
 
 const route = useRoute()
 const router = useRouter()
@@ -82,6 +83,19 @@ onMounted(async () => {
 useSeoMeta({
   title: computed(() => praticien.value ? `${praticien.value.nom} — Annuaire TSA` : 'Fiche praticien — Annuaire TSA'),
   description: computed(() => praticien.value ? echapperMeta(`${praticien.value.type} spécialisé TSA à ${praticien.value.ville}`) : '')
+})
+
+// JSON-LD fiche (complète le WebSite global d'app.vue, sans le dupliquer).
+// Uniquement des champs déjà affichés : pas d'aggregateRating ni d'horaires.
+useHead({
+  script: computed(() => {
+    if (!praticien.value) return []
+    return [{
+      key: 'ld-praticien',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify(jsonLdPraticien(praticien.value))
+    }]
+  })
 })
 
 const alreadyVoted = ref(false)
