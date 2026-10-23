@@ -1,8 +1,9 @@
-# Annuaire TSA — V4.13.8
+# Annuaire TSA — V4.13.9
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
-**Site :** [https://www.annuaire-tsa.fr](https://www.annuaire-tsa.fr/)
+**Site :** [https://www.annuaire-tsa.fr](https://www.annuaire-tsa.fr/)  
+**Licence :** [AGPL-3.0](LICENSE) · **Sécurité :** [SECURITY.md](SECURITY.md)
 
 En septembre 2026, le site a enregistré environ **3 800 visites** (statistiques d’hébergement, **hors robots** déjà isolés — Googlebot, bingbot, crawlers SEO, etc.).
 
@@ -41,7 +42,7 @@ Annuaire de 290 associations spécialisées dans les troubles du spectre autisti
 - Informations de contact : téléphone, email, site web
 - Services proposés, public concerné, description
 - Formulaire de suggestion public (`/associations/suggerer`) et modération dans `/admin/associations`
-- Données issues d'Autisme et TND Info Service (réutilisation information non commerciale avec source citée, selon leurs mentions légales)
+- Données issues d'Autisme et TND Info Service (réutilisation à titre d’information non commerciale, source citée, selon leurs mentions légales)
 
 ### 3. Ressources (`/ressources/`)
 Deux rubriques de même niveau, réunies sous une entrée de menu commune : le livre et
@@ -104,8 +105,10 @@ L’ancienne API PHP n’est plus dans ce dépôt ni servie en production ; un r
 
 ## Structure des fichiers
 
+Racine du dépôt GitHub (= projet Nuxt, pas un sous-dossier monorepo) :
+
 ```
-annuaire-tsa-nuxt/
+.
 ├── app/
 │   ├── app.vue                  # Point d'entrée avec NuxtLayout
 │   ├── app.config.ts            # Configuration Nuxt UI
@@ -218,16 +221,22 @@ désigne l'adresse publique de l'association elle-même.
 - `videos` — vidéos et chaînes recommandées. `type` distingue les deux : une vidéo
   porte un `youtube_id` de 11 caractères, une chaîne une `url` normalisée
 
+## Prérequis
+
+- **Node.js** 22 ou plus (CI en Node 22)
+- **pnpm** 10 (voir `packageManager` dans `package.json`)
+- **MariaDB** (ou MySQL compatible) pour l’API locale
+
 ## Développement local
 
 ```bash
+cp .env.example .env   # puis renseigner DB_* et ADMIN_HASH
 pnpm install
 pnpm dev
 ```
 
 Le site et l’API Nitro sont sur `http://localhost:3000` (`public.apiBase` = `/api`).
-
-Variables utiles (`.env` local ou export) : `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `ADMIN_HASH`, éventuellement `SMTP_*` et `PUSHBULLET_TOKEN`. Sans BDD locale, le front peut encore appeler l’API de production en changeant temporairement `apiBase`.
+Sans BDD locale, le front peut encore appeler l’API de production en changeant temporairement `apiBase`.
 
 ## Hébergement
 
@@ -255,15 +264,6 @@ Variables d’environnement côté serveur (jamais committer) : `DB_*`, `ADMIN_H
 - `clientsClaim` + `skipWaiting` : le nouveau SW prend le contrôle immédiatement.
 - Workbox ne précache pas le HTML (`globPatterns` sans `html`).
 
-## Accès admin
-
-- **Admin annuaire** : `https://www.annuaire-tsa.fr/admin/login`
-- **Statistiques** : `https://www.annuaire-tsa.fr/admin/stats` (réservé admin ; `/stats` redirige en 301)
-- **Admin livres** : `https://www.annuaire-tsa.fr/admin/livres`
-- **Admin vidéos** : `https://www.annuaire-tsa.fr/admin/videos`
-- **Admin associations** : `https://www.annuaire-tsa.fr/admin/associations`
-- **Formulaires de contact** : `https://www.annuaire-tsa.fr/admin/contacts`
-
 ## Sécurité
 
 - Injection SQL : requêtes préparées via `mysql2` (même sémantique que l’ancien PDO)
@@ -277,14 +277,20 @@ Variables d’environnement côté serveur (jamais committer) : `DB_*`, `ADMIN_H
 - Stats de visite agrégées sans stocker d’IP ; liste d’IP exclues éditable dans l’admin
 - Validation stricte des entrées (longueur, type de praticien, URLs) — les mêmes
   contrôles côté public et côté administration
-- HTTPS forcé + en-têtes de sécurité (HSTS, X-Frame-Options, CSP…)
+- HTTPS ; HSTS côté reverse proxy ; côté app : CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
 - Authentification bcrypt (`bcryptjs`, hash `$2y$` PHP) + jetons de session de 256 bits
 - Cookie admin `tsa_admin` HttpOnly, `SameSite=Strict`, `Path=/` (partagé `/admin` et `/api`)
 - Session valable 2 heures à compter de la connexion (durée absolue, pas une inactivité)
 - Lien de désactivation du formulaire de contact confirmé par POST : les messageries
   préchargent les liens des courriels, un GET aurait coupé le formulaire sans clic
 - Piège à robots et délai minimum de saisie sur le formulaire de contact
-- Politique de signalement des failles : voir `SECURITY.md`
+- Signalement des failles : [SECURITY.md](SECURITY.md)
+
+## Contribuer
+
+- Bugs et idées : ouvrir une [issue](https://github.com/Pandorra40/annuaire-tsa/issues) (pas de faille de sécu en public — voir [SECURITY.md](SECURITY.md))
+- Correctifs : fork + branche + pull request ; avant d’ouvrir la PR, `pnpm lint`, `pnpm typecheck` et `pnpm test`
+- Le projet est tenu par une seule personne : les retours utilisateurs du site comptent autant que le code
 
 ## Historique des versions
 
@@ -295,14 +301,14 @@ Variables d’environnement côté serveur (jamais committer) : `DB_*`, `ADMIN_H
 | V3 | Ajout du site Livres TSA intégré |
 | V4 | Réécriture complète en Nuxt 4 + Vue 3, admin moderne, sécurité renforcée |
 | V4.1 | PWA, accessibilité (OpenDyslexic, contraste, taille police), pages département, pagination, partage fiche |
-| V4.2 | Ajout page Associations TSA (290 associations, source AIS Apache 2.0), schema.org WebSite, corrections SEO |
+| V4.2 | Ajout page Associations TSA (290 associations, source Autisme et TND Info Service), schema.org WebSite, corrections SEO |
 | V4.3 | Base praticiens enrichie (ADELI + sources Tamis-Autisme), nouveautés livres via data.bnf.fr, affichage ADELI, refonte fiche praticien (partage Facebook, aération des notes), pagination/filtres dans l'URL, corrections de navigation et de cache PWA |
 | V4.4 | Page Centres Ressources Autisme (47 centres, parcours de diagnostic en trois niveaux), formulaire de contact par praticien (SMTP, consentement explicite, lien de désactivation autonome), page `/donnees-praticiens` d'information RGPD, admin `/admin/contacts`, champ « détails » obligatoire sur les signalements, mentions légales complétées d'un responsable du traitement, page `/couts` de transparence sur les frais |
 | V4.5 | Campagne d'information des praticiens au titre de l'article 14 du RGPD (219 praticiens contactés), cadre de bonne conduite affiché avant les liens de contact, disparition du « nous » éditorial (le projet est tenu par une seule personne), type de praticien « Structure », rapprochement des fiches avec l'annuaire santé et bascule ADELI → RPPS, correctif de `sanitizeHtml` qui privait les liens des notes de leur `href` |
+| V4.6 | Rubrique `/ressources` réunissant les livres et une nouvelle section vidéos (façade au clic, chaînes en liens sortants, catégories par position d'énonciation), admin dédiée, redirections 301 depuis `/livres` |
 | V4.7 | Critère d'admission écrit et appliqué : identifiant vérifié obligatoire pour les praticiens, SIRET ou FINESS facultatif pour les structures, énoncé sur `/suggerer` et `/donnees-praticiens`. Formulaire public de suggestion d'associations et écran de modération. Purge du journal de contact à douze mois |
-| V4.6 | Rubrique `/ressources` réunissant les livres et une nouvelle section vidéos (façade au clic, chaînes en liens sortants, catégories par position d'énonciation), `api/videos.php`, admin dédiée, redirections 301 depuis `/livres` |
 | V4.8 | Note en sept rubriques nommées remplaçant le champ HTML unique (retrait de Tiptap, formulaire public et admin identiques), second lieu optionnel pour les praticiens à deux cabinets (`/departement/XX` retrouve la fiche depuis les deux départements) |
-| V4.9 | Audit UX des 25 pages et sa mise en œuvre. Quatre bugs corrigés : département de la Corse et de l'outre-mer (`2A`/`2B` et `971`–`976` au lieu de `20`/`97`, avec corruption à chaque sauvegarde admin), quatre listes publiées vides faute de données au build, recherche de l'accueil aveugle au second lieu, variable fantôme laissée par le retrait de Tiptap. Moyen de recontacter l'auteur d'une contribution sur les quatre formulaires. Signalement par rubriques : une correction sans valeur de remplacement devient impossible à envoyer. Champ « réalise des bilans diagnostiques » à trois états, filtrable. Recherche remontée en tête d'accueil, filtres nommés avec compteurs, carte de résultat et panneau de filtres partagés entre l'accueil et les pages département, départements limitrophes. Administration : fin des rechargements complets, annulation à la place de la confirmation, onglet « Refusées », vues enregistrées sur l'état du fonds
+| V4.9 | Audit UX des 25 pages et sa mise en œuvre. Quatre bugs corrigés : département de la Corse et de l'outre-mer (`2A`/`2B` et `971`–`976` au lieu de `20`/`97`, avec corruption à chaque sauvegarde admin), quatre listes publiées vides faute de données au build, recherche de l'accueil aveugle au second lieu, variable fantôme laissée par le retrait de Tiptap. Moyen de recontacter l'auteur d'une contribution sur les quatre formulaires. Signalement par rubriques : une correction sans valeur de remplacement devient impossible à envoyer. Champ « réalise des bilans diagnostiques » à trois états, filtrable. Recherche remontée en tête d'accueil, filtres nommés avec compteurs, carte de résultat et panneau de filtres partagés entre l'accueil et les pages département, départements limitrophes. Administration : fin des rechargements complets, annulation à la place de la confirmation, onglet « Refusées », vues enregistrées sur l'état du fonds |
 | V4.10 | Formulaire `/suggerer` en trois écrans (qui remplit, essentiel, compléments facultatifs), textes clarifiés famille/praticien. Page `/remerciements` remplace `/couts` (redirection 301). Mode lecture : OpenDyslexic limité au contenu (`main` + pied), pas au bandeau. Cache : HTML sans cache long (`.htaccess` + Workbox), marqueur `X-TSA-Config: 2026-08-23`. Cadre bénévole et pages À propos / données praticiens retouchés |
 | V4.11 | Stats réservées à l’admin (`/admin/stats`, 301 depuis `/stats`) : visites, volumes métier, exclusion d’IP (dont « ajouter mon IP »), journal des connexions admin + alerte Pushbullet sur échecs répétés. Hébergeur documenté Infomaniak (Suisse) |
 | V4.12 | Migration de l’API PHP vers Nitro (Node) : URLs propres `/api/*` sans `.php`, même process que le front, MariaDB/phpMyAdmin inchangés. Front `apiBase=/api`. PHP conservé en archive hors dépôt |
@@ -313,6 +319,7 @@ Variables d’environnement côté serveur (jamais committer) : `DB_*`, `ADMIN_H
 | V4.13.4 | README aligné sur le code : retrait du dark mode documenté à tort, effectif CRA (46), IndexNow manuel, notes fiches sans `v-html`, archive PHP hors dépôt |
 | V4.13.5–7 | Mentions légales : Infomaniak (VPS d’entrée) + auto-hébergement de l’app et de la base |
 | V4.13.8 | README allégé (moins d’exposition infra) ; pages légales sans jargon d’outils ops |
+| V4.13.9 | Correctifs README (historique, licence AGPL, contrib, prérequis, `.env.example`) ; retrait des URL d’admin listées |
 
 ## Remerciements
 
@@ -326,9 +333,12 @@ ce qui cloche ou ce qui manque une fois le site utilisé pour de vrai.
 
 ## Vibe coding
 
-Ce projet a été entièrement vibecodé avec [Claude Code](https://claude.ai/code) (IA d'Anthropic) ; il continue aujourd'hui grâce à [Cursor](https://cursor.com) (Crock et Composer). La vision, les choix fonctionnels et les orientations sont humains — le code a été généré par l'IA.
+Ce projet a été entièrement vibecodé avec [Claude Code](https://claude.ai/code) (IA d'Anthropic) ; il continue aujourd'hui grâce à [Cursor](https://cursor.com) (Grok et Composer). La vision, les choix fonctionnels et les orientations sont humains — le code a été généré par l'IA.
 
 ## Licence
 
-Projet open source — RGPD
+Ce projet est sous licence [**GNU Affero General Public License v3.0** (AGPL-3.0)](LICENSE).
+
+Traitement des données : conforme au RGPD (voir les pages légales du site).
+
 Fait avec ♥ pour les familles concernées par les TSA
