@@ -78,13 +78,13 @@
      (gray-50…900), seules les valeurs changent. Comme le mode contraste et
      le mode lecture ciblent ces classes par leur nom, pas par leur couleur,
      ils continuent de fonctionner à l'identique après cette retteinte.
-     Contrastes vérifiés sur fond blanc : gray-500 ≥ 5:1, gray-600 ≥ 7:1
-     (l'existant, #6b7280, tenait 4,84:1 — pas de régression). */
+     Contrastes vérifiés sur fond blanc : gray-400 ≥ 4,5:1 (PSI), gray-500 ≥ 5:1,
+     gray-600 ≥ 7:1 (l'ancien gray-400 #9D98BE passait sous le seuil AA). */
   --color-gray-50: #F7F5FC;
   --color-gray-100: #EEEBFA;
   --color-gray-200: #E2DEF2;
   --color-gray-300: #C7C0DE;
-  --color-gray-400: #9D98BE;
+  --color-gray-400: #7A759C;
   --color-gray-500: #6E6A94;
   --color-gray-600: #57527A;
   --color-gray-700: #423D63;

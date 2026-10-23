@@ -38,14 +38,13 @@ function choisir(sug: SuggestionRecherche) {
 
 <template>
   <div class="relative">
-    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-base pointer-events-none" aria-hidden="true">🔍</span>
+    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 text-base pointer-events-none" aria-hidden="true">🔍</span>
     <input
       v-model="model"
       type="search"
       :aria-label="ariaLabel ?? 'Rechercher'"
       :placeholder="placeholder"
-      :aria-expanded="listeVisible && suggestions.length > 0"
-      :aria-controls="idListe"
+      :aria-controls="listeVisible && suggestions.length ? idListe : undefined"
       autocomplete="off"
       class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
       @focus="onFocus"

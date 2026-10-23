@@ -58,6 +58,28 @@ export default defineNuxtConfig({
   routeRules: {
     // Headers HTTP : .htaccess Apache n'est plus lu sous Nitro / Nginx Hébernet.
     '/**': { headers: { ...SECURITY_HEADERS } },
+    // Assets hashés : Nitro pose déjà immutable ; on le force aussi ici pour
+    // rester explicite derrière OpenResty. Pas de TTL long sur le HTML (/**).
+    '/_nuxt/**': {
+      headers: {
+        ...SECURITY_HEADERS,
+        'Cache-Control': 'public, max-age=31536000, immutable'
+      }
+    },
+    // Fonts woff2 + logo : fichiers versionnés par chemin fixe — un an, comme
+    // l'ancien ExpiresByType Apache (devenu muet sous Nitro).
+    '/fonts/**': {
+      headers: {
+        ...SECURITY_HEADERS,
+        'Cache-Control': 'public, max-age=31536000, immutable'
+      }
+    },
+    '/logo-tsa.svg': {
+      headers: {
+        ...SECURITY_HEADERS,
+        'Cache-Control': 'public, max-age=31536000, immutable'
+      }
+    },
     '/': { prerender: true },
     '/ressources/livres': { prerender: true },
     '/ressources/videos': { prerender: true },

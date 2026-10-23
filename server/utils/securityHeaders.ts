@@ -18,5 +18,5 @@ export const SECURITY_HEADERS: Record<string, string> = {
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
   'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), bluetooth=()',
-  'X-TSA-Config': '2026-10-21-nitro'
+  'X-TSA-Config': '2026-10-23-psi'
 }
