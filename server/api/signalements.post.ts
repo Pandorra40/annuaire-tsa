@@ -1,3 +1,4 @@
+import type { RowDataPacket } from 'mysql2'
 import { getDb } from '~~/server/utils/db'
 import { apiError } from '~~/server/utils/errors'
 import { rateLimit } from '~~/server/utils/request'
@@ -38,15 +39,15 @@ export default defineEventHandler(async (event) => {
 
   let entiteNom: string
   if (praticienId) {
-    const [rows] = await db.query<Array<{ nom: string }>>('SELECT nom FROM praticiens WHERE id = ?', [
+    const [rows] = await db.query<RowDataPacket[]>('SELECT nom FROM praticiens WHERE id = ?', [
       praticienId
     ])
-    entiteNom = rows[0]?.nom ?? `ID ${praticienId}`
+    entiteNom = String(rows[0]?.nom ?? `ID ${praticienId}`)
   } else {
-    const [rows] = await db.query<Array<{ nom: string }>>('SELECT nom FROM associations WHERE id = ?', [
+    const [rows] = await db.query<RowDataPacket[]>('SELECT nom FROM associations WHERE id = ?', [
       associationId
     ])
-    entiteNom = rows[0]?.nom ?? `ID ${associationId}`
+    entiteNom = String(rows[0]?.nom ?? `ID ${associationId}`)
   }
 
   await db.execute(

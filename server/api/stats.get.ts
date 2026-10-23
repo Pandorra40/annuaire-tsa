@@ -1,4 +1,5 @@
 import { getQuery } from 'h3'
+import type { RowDataPacket } from 'mysql2'
 import { getDb } from '~~/server/utils/db'
 import { requireAdmin } from '~~/server/utils/auth'
 import { apiError } from '~~/server/utils/errors'
@@ -14,14 +15,11 @@ const PERIODES: Record<string, number> = {
 
 async function countSafe(db: Pool, sql: string): Promise<number> {
   try {
-    const [rows] = await db.query<Array<{ c: number }>>(sql)
-    const row = rows[0] as unknown as { 'COUNT(*)': number } | undefined
-    const val = row && ('COUNT(*)' in row ? row['COUNT(*)'] : (row as { c: number }).c)
-    if (typeof val === 'number') return val
-    const [r2] = await db.query<Array<Record<string, number>>>(sql)
-    const first = r2[0]
+    const [rows] = await db.query<RowDataPacket[]>(sql)
+    const first = rows[0]
     if (!first) return 0
     const key = Object.keys(first)[0]
+    if (!key) return 0
     return Number(first[key] ?? 0)
   } catch {
     return 0
@@ -33,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
   let key = String(getQuery(event).periode ?? '7j')
   if (!(key in PERIODES)) key = '7j'
-  const jours = PERIODES[key]
+  const jours = PERIODES[key] ?? 7
 
   let db: Pool
   try {
@@ -53,18 +51,18 @@ export default defineEventHandler(async (event) => {
   let topPages: Array<{ path: string, hits: number }> = []
 
   try {
-    const [pRows] = await db.query<Array<{ s: number }>>(
+    const [pRows] = await db.query<RowDataPacket[]>(
       'SELECT COALESCE(SUM(hits), 0) AS s FROM visites_jour WHERE jour >= ?',
       [since]
     )
-    visitesPeriode = Number((pRows[0] as { s: number })?.s ?? 0)
+    visitesPeriode = Number(pRows[0]?.s ?? 0)
 
-    const [tRows] = await db.query<Array<{ s: number }>>(
+    const [tRows] = await db.query<RowDataPacket[]>(
       'SELECT COALESCE(SUM(hits), 0) AS s FROM visites_jour WHERE jour = CURDATE()'
     )
-    visitesAujourdhui = Number((tRows[0] as { s: number })?.s ?? 0)
+    visitesAujourdhui = Number(tRows[0]?.s ?? 0)
 
-    const [dayRows] = await db.query<Array<{ jour: string, hits: number }>>(
+    const [dayRows] = await db.query<RowDataPacket[]>(
       `SELECT jour, SUM(hits) AS hits
        FROM visites_jour
        WHERE jour >= ?
@@ -86,7 +84,7 @@ export default defineEventHandler(async (event) => {
       cursor.setDate(cursor.getDate() + 1)
     }
 
-    const [topRows] = await db.query<Array<{ path: string, hits: number }>>(
+    const [topRows] = await db.query<RowDataPacket[]>(
       `SELECT path, SUM(hits) AS hits
        FROM visites_jour
        WHERE jour >= ?
@@ -95,7 +93,7 @@ export default defineEventHandler(async (event) => {
        LIMIT 15`,
       [since]
     )
-    topPages = topRows.map(r => ({ path: r.path, hits: Number(r.hits) }))
+    topPages = topRows.map(r => ({ path: String(r.path), hits: Number(r.hits) }))
   } catch (e) {
     tsaLog('stats', `visites=${e instanceof Error ? e.message : String(e)}`)
   }

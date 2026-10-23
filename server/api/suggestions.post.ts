@@ -58,35 +58,36 @@ export default defineEventHandler(async (event) => {
   await rateLimit(event, 'suggestion', 5, 3600)
 
   const db = await getDb()
+  const params: Array<string | number | null> = [
+    nom,
+    type,
+    ville,
+    ville2,
+    dept,
+    departement2,
+    adresse,
+    adresse2,
+    data.telephone != null ? String(data.telephone) : null,
+    site_web,
+    data.teleconsultation ? 1 : 0,
+    data.delai != null ? String(data.delai) : null,
+    agesToString((data.ages as string[]) ?? []),
+    valeurs.types_intervention ?? null,
+    valeurs.bilans ?? null,
+    valeurs.formations ?? null,
+    valeurs.experience ?? null,
+    valeurs.modalites ?? null,
+    valeurs.tarifs ?? null,
+    valeurs.autres_infos ?? null,
+    adeli,
+    faitBilans,
+    contactAuteur,
+    data.source != null ? String(data.source) : 'communaute'
+  ]
   await db.execute(
     `INSERT INTO suggestions (nom, type, ville, ville2, departement, departement2, adresse, adresse2, telephone, site_web, teleconsultation, delai, ages, types_intervention, bilans, formations, experience, modalites, tarifs, autres_infos, adeli, fait_bilans, contact_auteur, statut, source)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "en_attente", ?)`,
-    [
-      nom,
-      type,
-      ville,
-      ville2,
-      dept,
-      departement2,
-      adresse,
-      adresse2,
-      data.telephone ?? null,
-      site_web,
-      data.teleconsultation ? 1 : 0,
-      data.delai ?? null,
-      agesToString((data.ages as string[]) ?? []),
-      valeurs.types_intervention,
-      valeurs.bilans,
-      valeurs.formations,
-      valeurs.experience,
-      valeurs.modalites,
-      valeurs.tarifs,
-      valeurs.autres_infos,
-      adeli,
-      faitBilans,
-      contactAuteur,
-      data.source ?? 'communaute'
-    ]
+    params
   )
 
   const joignable = contactAuteur ? `réponse possible : ${contactAuteur}` : 'sans moyen de réponse'

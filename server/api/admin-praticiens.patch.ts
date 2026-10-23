@@ -66,8 +66,9 @@ export default defineEventHandler(async (event) => {
 
   let ville2 = data.ville2 != null ? String(data.ville2).replace(/<[^>]*>/g, '').trim() : null
   let adresse2 = data.adresse2 != null ? String(data.adresse2).replace(/<[^>]*>/g, '').trim() : null
-  let departement2
-    = data.departement2 != null ? String(data.departement2).replace(/<[^>]*>/g, '').trim() : null
+  let departement2 = data.departement2 != null
+    ? String(data.departement2).replace(/<[^>]*>/g, '').trim()
+    : null
   if (ville2 === '') ville2 = null
   if (adresse2 === '') adresse2 = null
   if (departement2 === '') departement2 = null
@@ -76,6 +77,31 @@ export default defineEventHandler(async (event) => {
   const ancienDepartement2 = await departement2De(db, id)
   const faitBilans = parseFaitBilans(data.fait_bilans)
 
+  const params: Array<string | number | null> = [
+    nom,
+    type,
+    ville,
+    ville2,
+    dept,
+    departement2,
+    data.adresse != null ? String(data.adresse) : null,
+    adresse2,
+    data.telephone != null ? String(data.telephone) : null,
+    siteWeb,
+    data.teleconsultation ? 1 : 0,
+    data.delai != null ? String(data.delai) : null,
+    agesToString((data.ages as string[]) ?? []),
+    valeurs.types_intervention ?? null,
+    valeurs.bilans ?? null,
+    valeurs.formations ?? null,
+    valeurs.experience ?? null,
+    valeurs.modalites ?? null,
+    valeurs.tarifs ?? null,
+    valeurs.autres_infos ?? null,
+    adeli,
+    faitBilans,
+    id
+  ]
   await db.execute(
     `UPDATE praticiens SET
         nom=?, type=?, ville=?, ville2=?, departement=?, departement2=?, adresse=?, adresse2=?,
@@ -83,31 +109,7 @@ export default defineEventHandler(async (event) => {
         ages=?, types_intervention=?, bilans=?, formations=?, experience=?, modalites=?, tarifs=?, autres_infos=?,
         adeli=?, fait_bilans=?
      WHERE id=?`,
-    [
-      nom,
-      type,
-      ville,
-      ville2,
-      dept,
-      departement2,
-      data.adresse ?? null,
-      adresse2,
-      data.telephone ?? null,
-      siteWeb,
-      data.teleconsultation ? 1 : 0,
-      data.delai ?? null,
-      agesToString((data.ages as string[]) ?? []),
-      valeurs.types_intervention,
-      valeurs.bilans,
-      valeurs.formations,
-      valeurs.experience,
-      valeurs.modalites,
-      valeurs.tarifs,
-      valeurs.autres_infos,
-      adeli,
-      faitBilans,
-      id
-    ]
+    params
   )
 
   invaliderPraticien(id, [ancienDepartement, dept, ancienDepartement2, departement2])

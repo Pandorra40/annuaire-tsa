@@ -66,7 +66,7 @@ export function sanitizeHtml(html?: string | null): string | null {
       const t = tag.toLowerCase()
       if (t === 'a') {
         const href = attrs.match(/\bhref\s*=\s*(["'])(https?:\/\/[^"']+)\1/i)
-        if (href) {
+        if (href?.[2]) {
           const safe = href[2]
             .replace(/&/g, '&amp;')
             .replace(/"/g, '&quot;')

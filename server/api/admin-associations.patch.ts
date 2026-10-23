@@ -1,4 +1,5 @@
 import { getQuery } from 'h3'
+import type { RowDataPacket } from 'mysql2'
 import { getDb } from '~~/server/utils/db'
 import { requireAdmin } from '~~/server/utils/auth'
 import { apiError } from '~~/server/utils/errors'
@@ -59,7 +60,7 @@ export default defineEventHandler(async (event) => {
   if (telephone) validateLength(telephone, 50, 'téléphone')
 
   const db = await getDb()
-  const [exists] = await db.query<Array<{ id: number }>>('SELECT id FROM associations WHERE id = ?', [id])
+  const [exists] = await db.query<RowDataPacket[]>('SELECT id FROM associations WHERE id = ?', [id])
   if (!exists[0]) apiError(404, 'Introuvable')
 
   try {

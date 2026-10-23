@@ -1,4 +1,5 @@
 import { getHeader, readRawBody, setResponseStatus } from 'h3'
+import type { RowDataPacket } from 'mysql2'
 import { getDb } from '~~/server/utils/db'
 import { clientIp, rateLimit, tsaLog } from '~~/server/utils/request'
 import { isBotUserAgent, normalizeVisitPath } from '~~/server/utils/statsBot'
@@ -43,7 +44,7 @@ export default defineEventHandler(async (event) => {
     const db = await getDb()
 
     try {
-      const [rows] = await db.query<Array<{ 1: number }>>(
+      const [rows] = await db.query<RowDataPacket[]>(
         'SELECT 1 FROM stats_ip_exclude WHERE ip = ? LIMIT 1',
         [clientIp(event)]
       )
