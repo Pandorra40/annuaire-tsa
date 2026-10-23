@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.13.2
+# Annuaire TSA — V4.13.3
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -88,7 +88,7 @@ Les 47 centres ressources publics de France, avec le parcours de diagnostic expl
 | Hébergement | Hébernet (Node + Nginx + MariaDB) ; données en Suisse |
 | API externe | data.bnf.fr / BnF — SPARQL (nouveautés livres) |
 | Typage | TypeScript |
-| SEO | Bing Webmaster Tools + IndexNow + @nuxtjs/sitemap |
+| SEO | Bing Webmaster Tools + IndexNow + @nuxtjs/sitemap ; JSON-LD Schema.org (`WebSite` + fiches) |
 | PWA | @vite-pwa/nuxt — installable sur mobile |
 
 L’ancienne API PHP (`api/*.php`) reste en archive locale pour rollback ; elle n’est plus servie en production.
@@ -306,6 +306,7 @@ Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (fichiers encor
 | V4.13 | Version Facile à lire (FALC) sur À propos, Contact et Suggérer (bouton limité à ces pages). Durées de conservation clarifiées (contact 12 mois, visites 24 mois, journal admin 12 mois) avec purges alignées |
 | V4.13.1 | Retrait du mode calme (bouton et preset CSS) |
 | V4.13.2 | Compression gzip/brotli des assets `/_nuxt/` (Nitro `compressPublicAssets`) ; retrait des icônes TipTap orphelines |
+| V4.13.3 | Perf / a11y PageSpeed : preload fonts + cache long fonts/logo, CLS desktop corrigé, `aria-expanded` retiré de la recherche, contrastes filtres. JSON-LD Schema.org sur les fiches (`Physician`, `MedicalBusiness`, `ProfessionalService`, `NGO`) |
 
 ## Remerciements
 
