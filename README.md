@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.13.5
+# Annuaire TSA — V4.13.6
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -85,7 +85,7 @@ Les 46 centres ressources publics de France listés dans le site, avec le parcou
 | API | Nitro (Node) — routes `server/api/*`, URLs propres `/api/praticiens`, … |
 | Base de données | MariaDB (phpMyAdmin inchangé) |
 | Runtime serveur | `mysql2`, `bcryptjs`, `nodemailer` |
-| Hébergement | Infomaniak VPS (Nginx, porte d’entrée) → auto-hébergement T330 / Hébernet (Node + MariaDB) |
+| Hébergement | Infomaniak VPS (NPMplus / Nginx + CrowdSec AppSec, porte d’entrée) → auto-hébergement T330 / Hébernet (Node + MariaDB) |
 | API externe | data.bnf.fr / BnF — SPARQL (nouveautés livres) |
 | Typage | TypeScript |
 | SEO | Bing Webmaster Tools + @nuxtjs/sitemap + @nuxtjs/robots ; JSON-LD Schema.org (`WebSite` + fiches) ; IndexNow via script manuel `indexnow.mjs` |
@@ -231,9 +231,18 @@ Variables utiles (`.env` local ou export) : `DB_HOST`, `DB_NAME`, `DB_USER`, `DB
 
 ## Architecture d’hébergement
 
-Internet → **VPS Infomaniak** (Nginx reverse proxy, façade publique) → **T330 / Hébernet** (auto-hébergement de l’éditeur : process Node Nuxt/Nitro + MariaDB).
+Internet → **VPS Infomaniak** (façade publique) → **T330 / Hébernet** (auto-hébergement de l’éditeur : process Node Nuxt/Nitro + MariaDB).
 
 Hébernet n’est **pas** un prestataire d’hébergement commercial : c’est la stack d’auto-hébergement sur la machine de l’auteur.
+
+### VPS Infomaniak (oct. 2026)
+
+- Reverse proxy : **NPMplus** ([ZoeyVid](https://github.com/ZoeyVid/NPMplus)) — migration depuis Nginx Proxy Manager
+- WAF : **CrowdSec AppSec** activé sur le reverse proxy (ex. `/.env` → 403)
+- Stack sur le VPS : `/home/ubuntu/npmplus`
+- UI admin NPMplus : port **81** sur le VPS (`https://<VPS>:81`)
+- Rollback proxy : `/home/ubuntu/npmplus/ROLLBACK.sh`
+- Backups VPS : `/home/ubuntu/backups/`
 
 ## Déploiement (T330 / Hébernet)
 
@@ -247,7 +256,7 @@ pnpm build
 3. Secrets dans `.env.hebernet` (lu au démarrage du process Node) : `DB_*`, `ADMIN_HASH`, `SMTP_*`, `PUSHBULLET_TOKEN`.  
    **Important** : quotter les valeurs qui contiennent `$` (hash bcrypt) — `ADMIN_HASH='$2y$12$…'` — sinon bash les tronque au `source`.
 
-4. Sur le T330, Nginx local proxifie le site (y compris `/api`) vers le process Node (`hebernet-node-hb_annuaire_tsa`, port interne). MariaDB / phpMyAdmin inchangés. Le VPS Infomaniak ne fait que relayer le trafic public vers cette machine.
+4. Sur le T330, Nginx local proxifie le site (y compris `/api`) vers le process Node (`hebernet-node-hb_annuaire_tsa`, port interne). MariaDB / phpMyAdmin inchangés. Le VPS Infomaniak (NPMplus + CrowdSec) ne fait que relayer et filtrer le trafic public vers cette machine.
 
 5. Redémarrer le programme supervisor du site, puis smoke test : `GET /api/praticiens`, `GET /api/auth` → 401, login admin.
 
@@ -319,6 +328,7 @@ Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (archive serveu
 | V4.13.3 | Perf / a11y PageSpeed : preload fonts + cache long fonts/logo, CLS desktop corrigé, `aria-expanded` retiré de la recherche, contrastes filtres. JSON-LD Schema.org sur les fiches (`Physician`, `MedicalBusiness`, `ProfessionalService`, `NGO`) |
 | V4.13.4 | README aligné sur le code : retrait du dark mode documenté à tort, effectif CRA (46), IndexNow manuel, notes fiches sans `v-html`, archive PHP hors dépôt |
 | V4.13.5 | Clarification hébergement : Infomaniak = VPS / Nginx (porte d’entrée) ; Hébernet / T330 = auto-hébergement de l’app et de la base (pas un prestataire tiers). Mentions, données praticiens, finances, footer |
+| V4.13.6 | VPS Infomaniak : migration Nginx Proxy Manager → NPMplus (ZoeyVid), CrowdSec AppSec (WAF) sur le reverse proxy ; chemins stack / rollback / backups documentés |
 
 ## Remerciements
 

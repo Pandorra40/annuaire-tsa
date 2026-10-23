@@ -35,7 +35,8 @@ useSeoMeta({
             <strong>Porte d’entrée (VPS)</strong> — <strong>Infomaniak Network SA</strong><br>
             Rue Eugène-Marziano 25, 1227 Les Acacias (GE), Suisse<br>
             IDE/TVA : CHE-103.167.648<br>
-            Nginx reverse proxy (façade publique du site).<br><br>
+            Reverse proxy NPMplus (Nginx) avec WAF CrowdSec AppSec
+            (façade publique du site).<br><br>
             <strong>Application et base de données</strong> — auto-hébergées
             par l’éditeur sur son serveur (<strong>T330 / Hébernet</strong>),
             qui n’est pas un prestataire d’hébergement tiers.

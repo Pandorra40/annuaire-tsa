@@ -313,7 +313,7 @@ useSeoMeta({
           <ul class="text-gray-600 leading-relaxed space-y-2 list-disc pl-5 mt-3">
             <li>
               <strong>Infomaniak Network SA</strong> — VPS en Suisse servant de
-              porte d’entrée (Nginx reverse proxy), pas l’hébergeur de
+              porte d’entrée (NPMplus / Nginx + CrowdSec AppSec), pas l’hébergeur de
               l’application ni de la base.
             </li>
             <li>
