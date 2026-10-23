@@ -194,7 +194,7 @@ function scrollTop() {
               :class="servicesActifs.includes(s) ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
               @click="basculerService(s)"
             >
-              {{ s }} <span class="tabular-nums opacity-80">{{ compteService(s) }}</span>
+              {{ s }} <span class="tabular-nums">{{ compteService(s) }}</span>
             </button>
           </div>
         </div>

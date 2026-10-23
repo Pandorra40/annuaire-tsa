@@ -134,7 +134,7 @@ const CLASSE_INACTIVE = 'bg-white text-gray-600 border-gray-200 hover:border-gra
         <span class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Métier</span>
         <div class="flex flex-wrap gap-2">
           <button type="button" :class="[CLASSE_PASTILLE, type === 'tous' ? CLASSE_ACTIVE : CLASSE_INACTIVE]" :aria-pressed="type === 'tous'" @click="type = 'tous'">
-            Tous <span class="tabular-nums opacity-80">{{ comptesType.total }}</span>
+            Tous <span class="tabular-nums">{{ comptesType.total }}</span>
           </button>
           <button
             v-for="t in TYPES_PRATICIENS"
@@ -146,7 +146,7 @@ const CLASSE_INACTIVE = 'bg-white text-gray-600 border-gray-200 hover:border-gra
             :disabled="comptesType.parType[t] === 0 && type !== t"
             @click="type = type === t ? 'tous' : t"
           >
-            {{ t }} <span class="tabular-nums opacity-80">{{ comptesType.parType[t] }}</span>
+            {{ t }} <span class="tabular-nums">{{ comptesType.parType[t] }}</span>
           </button>
         </div>
       </div>
@@ -155,7 +155,7 @@ const CLASSE_INACTIVE = 'bg-white text-gray-600 border-gray-200 hover:border-gra
         <span class="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Public reçu</span>
         <div class="flex flex-wrap gap-2">
           <button type="button" :class="[CLASSE_PASTILLE, age === 'tous' ? CLASSE_ACTIVE : CLASSE_INACTIVE]" :aria-pressed="age === 'tous'" @click="age = 'tous'">
-            Tous âges <span class="tabular-nums opacity-80">{{ comptesAge.total }}</span>
+            Tous âges <span class="tabular-nums">{{ comptesAge.total }}</span>
           </button>
           <button
             v-for="a in AGES_OPTIONS"
@@ -166,7 +166,7 @@ const CLASSE_INACTIVE = 'bg-white text-gray-600 border-gray-200 hover:border-gra
             :disabled="comptesAge.parAge[a] === 0 && age !== a"
             @click="age = age === a ? 'tous' : a"
           >
-            {{ a }} <span class="tabular-nums opacity-80">{{ comptesAge.parAge[a] }}</span>
+            {{ a }} <span class="tabular-nums">{{ comptesAge.parAge[a] }}</span>
           </button>
         </div>
       </div>
@@ -181,7 +181,7 @@ const CLASSE_INACTIVE = 'bg-white text-gray-600 border-gray-200 hover:border-gra
             :disabled="compteBilans === 0 && bilans !== 'oui'"
             @click="bilans = bilans === 'oui' ? 'tous' : 'oui'"
           >
-            Réalise des bilans <span class="tabular-nums opacity-80">{{ compteBilans }}</span>
+            Réalise des bilans <span class="tabular-nums">{{ compteBilans }}</span>
           </button>
           <button
             type="button"
@@ -190,7 +190,7 @@ const CLASSE_INACTIVE = 'bg-white text-gray-600 border-gray-200 hover:border-gra
             :disabled="compteTele === 0 && tele !== 'oui'"
             @click="tele = tele === 'oui' ? 'tous' : 'oui'"
           >
-            Téléconsultation <span class="tabular-nums opacity-80">{{ compteTele }}</span>
+            Téléconsultation <span class="tabular-nums">{{ compteTele }}</span>
           </button>
         </div>
       </div>
