@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.13.3
+# Annuaire TSA — V4.13.4
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -69,9 +69,9 @@ professionnels, personnes concernées, familles et proches — et non par thème
   refuse le reste. Le `?si=…` des liens de partage, marqueur de provenance, est retiré
 
 ### 4. Centres Ressources Autisme (`/cra/`)
-Les 47 centres ressources publics de France, avec le parcours de diagnostic expliqué.
+Les 46 centres ressources publics de France listés dans le site, avec le parcours de diagnostic expliqué.
 
-- 28 Centres Ressources Autisme régionaux, 16 centres IntimAgir, 2 centres spécialisés et le GNCRA
+- 27 Centres Ressources Autisme (régionaux et antennes), 16 centres IntimAgir, 2 centres spécialisés et le GNCRA
 - Recherche par nom, région, ville ou département, filtrable par catégorie
 - Regroupement par région, coordonnées complètes (adresse, téléphone, email, site)
 - Le parcours de repérage et de diagnostic en trois niveaux, selon la Stratégie nationale pour l'autisme
@@ -85,23 +85,22 @@ Les 47 centres ressources publics de France, avec le parcours de diagnostic expl
 | API | Nitro (Node) — routes `server/api/*`, URLs propres `/api/praticiens`, … |
 | Base de données | MariaDB (phpMyAdmin inchangé) |
 | Runtime serveur | `mysql2`, `bcryptjs`, `nodemailer` |
-| Hébergement | Hébernet (Node + Nginx + MariaDB) ; données en Suisse |
+| Hébergement | Hébernet (Node + Nginx + MariaDB) |
 | API externe | data.bnf.fr / BnF — SPARQL (nouveautés livres) |
 | Typage | TypeScript |
-| SEO | Bing Webmaster Tools + IndexNow + @nuxtjs/sitemap ; JSON-LD Schema.org (`WebSite` + fiches) |
+| SEO | Bing Webmaster Tools + @nuxtjs/sitemap + @nuxtjs/robots ; JSON-LD Schema.org (`WebSite` + fiches) ; IndexNow via script manuel `indexnow.mjs` |
 | PWA | @vite-pwa/nuxt — installable sur mobile |
 
-L’ancienne API PHP (`api/*.php`) reste en archive locale pour rollback ; elle n’est plus servie en production.
+L’ancienne API PHP n’est plus dans ce dépôt ni servie en production ; un rollback éventuel repose sur une archive hors dépôt (serveur), pas sur le code Nuxt actuel.
 
 ## Accessibilité
 
 - **A- / A+** — taille de police réglable (4 niveaux)
-- **Mode lecture** — police OpenDyslexic, espacement augmenté, animations réduites
+- **Mode lecture** — police OpenDyslexic sur le contenu (`main` + pied de page, pas le bandeau), interligne augmenté, animations et transitions coupées
 - **Contraste élevé** — noir pur sur blanc pur pour les malvoyants
 - **Facile à lire (FALC)** — textes alternatifs sur `/apropos`, `/contact` et `/suggerer` ; le bouton n’apparaît que sur ces pages
-- **Dark mode** — thème sombre selon les préférences système ou manuel
-- Disponible sur desktop (navbar) et mobile (menu hamburger)
-- `prefers-reduced-motion` respecté automatiquement
+- Réglages disponibles sur desktop (navbar) et mobile (menu hamburger)
+- `prefers-reduced-motion` respecté automatiquement (CSS)
 
 ## Structure des fichiers
 
@@ -117,17 +116,22 @@ annuaire-tsa-nuxt/
 │   │   └── admin.vue            # Layout admin isolé
 │   ├── components/
 │   │   ├── CadreBenevole.vue    # Cadre de bonne conduite, sous les liens mailto
+│   │   ├── CartePraticien.vue / FiltresPraticiens.vue
+│   │   ├── ChampRechercheOrama.vue / ChampContactAuteur.vue
 │   │   ├── RessourcesOnglets.vue # Onglets Livres / Vidéos
 │   │   └── VideoFacade.vue      # Lecteur YouTube chargé au clic, jamais avant
 │   ├── composables/
-│   │   └── useApi.ts            # Appels API centralisés
+│   │   ├── useApi.ts            # Appels API centralisés
+│   │   ├── useFalcMode.ts       # État partagé du mode FALC
+│   │   └── useOramaRecherche.ts # Recherche client (Orama)
 │   ├── data/
 │   │   ├── cra.ts               # Centres Ressources Autisme (données statiques, hors BDD)
 │   │   └── finances.ts          # Coûts du site (données statiques, hors BDD)
 │   ├── types/
 │   │   └── index.ts             # Types TypeScript
 │   ├── utils/
-│   │   └── meta.ts              # Échappe les esperluettes des balises meta (unhead ne le fait pas)
+│   │   ├── meta.ts              # Échappe les esperluettes des balises meta (unhead ne le fait pas)
+│   │   └── schemaOrg.ts         # JSON-LD fiches praticien / association
 │   └── pages/
 │       ├── index.vue            # Page d'accueil annuaire
 │       ├── praticien/[id].vue   # Fiche détaillée praticien
@@ -159,6 +163,7 @@ annuaire-tsa-nuxt/
 │           ├── livres.vue       # Admin livres TSA
 │           ├── videos.vue       # Admin vidéos et chaînes
 │           ├── associations.vue # Modération des suggestions d'associations
+│           ├── modifier-association.vue # Modifier une fiche association
 │           └── stats.vue        # Stats, IP exclues, journal login admin
 
 server/                          # API Nitro (même process Node que le front)
@@ -185,7 +190,7 @@ server/                          # API Nitro (même process Node que le front)
   lieu optionnel (`ville2`, `adresse2`, `departement2`) permet à un praticien avec
   deux cabinets d'apparaître sur les deux pages département. L'ancienne colonne
   `notes` (HTML libre, Tiptap) reste en base sans être lue par le code, en filet de
-  sécurité — voir `api/migrations/2026-08-21_notes_structurees_backfill.php`.
+  sécurité (migration de backfill hors dépôt Nuxt).
   `fait_bilans` (`TINYINT` nullable) dit si le praticien réalise des bilans
   diagnostiques : **`NULL` veut dire « on ne sait pas », jamais « non »** — une
   fiche sans information reste visible partout, seulement absente du filtre. Le
@@ -240,9 +245,9 @@ pnpm build
 
 5. Redémarrer le programme supervisor du site, puis smoke test : `GET /api/praticiens`, `GET /api/auth` → 401, login admin.
 
-Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (fichiers encore présents sous `public_html/api/`) et recharger Nginx.
+Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (archive serveur, hors dépôt) et recharger Nginx.
 
-> Le sitemap est généré automatiquement à chaque build via `@nuxtjs/sitemap`. Il inclut toutes les pages statiques + les pages `/departement/XX` dynamiquement depuis l'API. Bing est notifié automatiquement via IndexNow.
+> Le sitemap est généré automatiquement à chaque build via `@nuxtjs/sitemap` (sources `/api/__sitemap__/fiches` : fiches et départements). IndexNow n’est pas branché au module sitemap : le signalement à Bing se fait à la main avec `indexnow.mjs` à la racine du projet.
 
 ### Pièges de cache (PWA) — à connaître
 
@@ -263,9 +268,8 @@ Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (fichiers encor
 ## Sécurité
 
 - Injection SQL : requêtes préparées via `mysql2` (même sémantique que l’ancien PDO)
-- Vue échappe par défaut, **sauf les notes des fiches**, rendues en `v-html` : c'est
-  `sanitizeHtml()` côté serveur qui protège là, en ne laissant passer qu'une liste
-  de balises et le seul attribut `href` en `http(s)`
+- Contenu des fiches : les sept rubriques sont du texte simple (échappé par Vue) — plus
+  de `v-html` sur ce bloc depuis le retrait de Tiptap
 - Limitation de débit par IP : signalements et suggestions 5/heure, formulaire de
   contact 10/heure et 40/jour, connexion admin 10 par quart d'heure, proxy BnF 12/heure
   sur les seules requêtes qui sortent réellement vers data.bnf.fr
@@ -307,6 +311,7 @@ Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (fichiers encor
 | V4.13.1 | Retrait du mode calme (bouton et preset CSS) |
 | V4.13.2 | Compression gzip/brotli des assets `/_nuxt/` (Nitro `compressPublicAssets`) ; retrait des icônes TipTap orphelines |
 | V4.13.3 | Perf / a11y PageSpeed : preload fonts + cache long fonts/logo, CLS desktop corrigé, `aria-expanded` retiré de la recherche, contrastes filtres. JSON-LD Schema.org sur les fiches (`Physician`, `MedicalBusiness`, `ProfessionalService`, `NGO`) |
+| V4.13.4 | README aligné sur le code : retrait du dark mode documenté à tort, effectif CRA (46), IndexNow manuel, notes fiches sans `v-html`, archive PHP hors dépôt |
 
 ## Remerciements
 
@@ -324,5 +329,5 @@ Ce projet a été entièrement vibecodé avec [Claude Code](https://claude.ai/co
 
 ## Licence
 
-Projet open source — données hébergées en Suisse — RGPD
+Projet open source — RGPD
 Fait avec ♥ pour les familles concernées par les TSA
