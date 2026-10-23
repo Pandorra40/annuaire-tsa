@@ -28,7 +28,7 @@ export function isValidPraticienType(type: string): boolean {
 }
 
 export function normaliserIdentifiant(valeur: string | null | undefined, type: string): string | null {
-  const brut = String(valeur ?? '').trim().replace(/[\s.\-]/g, '')
+  const brut = String(valeur ?? '').trim().replace(/[\s.-]/g, '')
   if (brut === '') return null
 
   const attendu = type === 'Structure'
@@ -61,7 +61,7 @@ export function sanitizeHtml(html?: string | null): string | null {
     return full
   })
   cleaned = cleaned.replace(
-    /<([a-z][a-z0-9]*)((?:\s+[a-z][a-z0-9\-]*(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)+)\s*\/?>/gi,
+    /<([a-z][a-z0-9]*)((?:\s+[a-z][a-z0-9-]*(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)+)\s*\/?>/gi,
     (_m, tag: string, attrs: string) => {
       const t = tag.toLowerCase()
       if (t === 'a') {

@@ -1,7 +1,7 @@
 import { validateLength } from '~~/server/utils/validators'
 
 const RUBRIQUES = {
-  types_intervention: { max: 1500, nom: "types d'intervention" },
+  types_intervention: { max: 1500, nom: 'types d\'intervention' },
   bilans: { max: 1000, nom: 'bilans' },
   formations: { max: 1000, nom: 'formations complémentaires' },
   experience: { max: 1500, nom: 'expérience' },

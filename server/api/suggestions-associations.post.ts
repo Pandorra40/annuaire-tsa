@@ -44,10 +44,10 @@ export default defineEventHandler(async (event) => {
 
   const strip = (v: unknown) =>
     v != null ? String(v).replace(/<[^>]*>/g, '').trim() : null
-  let services = strip(data.services)
-  let description = strip(data.description)
-  let adresse = strip(data.adresse)
-  let agePublic = strip(data.age_public)
+  const services = strip(data.services)
+  const description = strip(data.description)
+  const adresse = strip(data.adresse)
+  const agePublic = strip(data.age_public)
   let telephone = strip(data.telephone)
   if (telephone === '') telephone = null
 

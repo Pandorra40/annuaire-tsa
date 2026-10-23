@@ -20,8 +20,8 @@ export default defineEventHandler(async (event) => {
   validateLength(titre, 200, 'titre')
   validateLength(auteur, 100, 'auteur')
 
-  const desc =
-    data.description != null ? String(data.description).replace(/<[^>]*>/g, '').trim() : null
+  const desc
+    = data.description != null ? String(data.description).replace(/<[^>]*>/g, '').trim() : null
   if (desc) validateLength(desc, 500, 'description')
 
   const lien = validateUrl(data.lien as string | null | undefined, 'lien')

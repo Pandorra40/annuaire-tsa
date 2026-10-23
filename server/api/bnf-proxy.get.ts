@@ -8,8 +8,8 @@ import { rateLimit } from '~~/server/utils/request'
 const cacheFile = join(tmpdir(), 'bnf_livres_cache.json')
 const cacheTTL = 86400
 
-const MOTS_ANGLAIS =
-  /\b(the|and|disorder|developmental|trajectories|children|politics|handbook|spectrum disorders|understanding|with|from|toward|guide to)\b/i
+const MOTS_ANGLAIS
+  = /\b(the|and|disorder|developmental|trajectories|children|politics|handbook|spectrum disorders|understanding|with|from|toward|guide to)\b/i
 const MOTS_PSYCHANALYSE = /\b(psychanaly|lacan|freud|dolto|bettelheim|inconscient|signifiant)/i
 
 function emitJson(event: Parameters<typeof setResponseStatus>[0], body: string, code = 200, publicCache = false) {
@@ -38,9 +38,9 @@ export default defineEventHandler(async (event) => {
   }
 
   if (
-    !forceRefresh &&
-    existsSync(cacheFile) &&
-    Date.now() - statSync(cacheFile).mtimeMs < cacheTTL * 1000
+    !forceRefresh
+    && existsSync(cacheFile)
+    && Date.now() - statSync(cacheFile).mtimeMs < cacheTTL * 1000
   ) {
     return emitJson(event, readFileSync(cacheFile, 'utf8'), 200, true)
   }

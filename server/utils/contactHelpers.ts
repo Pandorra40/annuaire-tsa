@@ -98,8 +98,8 @@ export function pageDesactivation(event: H3Event, etat: 'confirmer' | 'fait' | '
 
   if (etat === 'confirmer') {
     titre = 'Couper le formulaire de contact'
-    texte =
-      'Vous êtes sur le point de désactiver le formulaire de contact de votre fiche. Les visiteurs ne pourront plus vous écrire depuis le site, et votre fiche restera en ligne.<br><br>Rien n\'est fait tant que vous n\'avez pas confirmé ci-dessous.'
+    texte
+      = 'Vous êtes sur le point de désactiver le formulaire de contact de votre fiche. Les visiteurs ne pourront plus vous écrire depuis le site, et votre fiche restera en ligne.<br><br>Rien n\'est fait tant que vous n\'avez pas confirmé ci-dessous.'
     const jeton = token.replace(/"/g, '&quot;')
     formulaire = `<form method="post" action="/api/contact">
           <input type="hidden" name="desactiver" value="${jeton}">
@@ -107,12 +107,12 @@ export function pageDesactivation(event: H3Event, etat: 'confirmer' | 'fait' | '
         </form>`
   } else if (etat === 'fait') {
     titre = 'Formulaire désactivé'
-    texte =
-      'Le formulaire de contact de votre fiche est désormais coupé. Les visiteurs ne peuvent plus vous écrire depuis le site, et votre fiche reste en ligne.<br><br>Pour le réactiver, ou pour toute autre demande concernant vos données, écrivez à <a href="mailto:annuaire.tsa@gmail.com">annuaire.tsa@gmail.com</a>.'
+    texte
+      = 'Le formulaire de contact de votre fiche est désormais coupé. Les visiteurs ne peuvent plus vous écrire depuis le site, et votre fiche reste en ligne.<br><br>Pour le réactiver, ou pour toute autre demande concernant vos données, écrivez à <a href="mailto:annuaire.tsa@gmail.com">annuaire.tsa@gmail.com</a>.'
   } else {
     titre = 'Lien invalide'
-    texte =
-      'Ce lien est incomplet ou a été tronqué par votre messagerie. Écrivez à <a href="mailto:annuaire.tsa@gmail.com">annuaire.tsa@gmail.com</a> et le formulaire sera coupé manuellement.'
+    texte
+      = 'Ce lien est incomplet ou a été tronqué par votre messagerie. Écrivez à <a href="mailto:annuaire.tsa@gmail.com">annuaire.tsa@gmail.com</a> et le formulaire sera coupé manuellement.'
   }
 
   setResponseStatus(event, etat === 'invalide' ? 400 : 200)
@@ -124,7 +124,7 @@ export function pageDesactivation(event: H3Event, etat: 'confirmer' | 'fait' | '
   setResponseHeader(
     event,
     'Content-Security-Policy',
-    "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'"
+    'default-src \'none\'; style-src \'unsafe-inline\'; form-action \'self\'; frame-ancestors \'none\''
   )
 
   event.node.res.end(`<!doctype html>

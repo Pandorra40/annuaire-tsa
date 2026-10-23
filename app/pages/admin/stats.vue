@@ -134,7 +134,9 @@ async function supprimerIp(row: IpExclude) {
   }
 }
 
-watch(periode, () => { void chargerStats() })
+watch(periode, () => {
+  void chargerStats()
+})
 
 onMounted(() => {
   void chargerStats()
@@ -144,7 +146,9 @@ onMounted(() => {
 
 let timer: ReturnType<typeof setInterval> | undefined
 onMounted(() => {
-  timer = setInterval(() => { void chargerStats() }, 60_000)
+  timer = setInterval(() => {
+    void chargerStats()
+  }, 60_000)
 })
 onUnmounted(() => {
   if (timer) clearInterval(timer)

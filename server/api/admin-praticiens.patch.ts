@@ -66,8 +66,8 @@ export default defineEventHandler(async (event) => {
 
   let ville2 = data.ville2 != null ? String(data.ville2).replace(/<[^>]*>/g, '').trim() : null
   let adresse2 = data.adresse2 != null ? String(data.adresse2).replace(/<[^>]*>/g, '').trim() : null
-  let departement2 =
-    data.departement2 != null ? String(data.departement2).replace(/<[^>]*>/g, '').trim() : null
+  let departement2
+    = data.departement2 != null ? String(data.departement2).replace(/<[^>]*>/g, '').trim() : null
   if (ville2 === '') ville2 = null
   if (adresse2 === '') adresse2 = null
   if (departement2 === '') departement2 = null

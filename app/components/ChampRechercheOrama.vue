@@ -21,7 +21,9 @@ function onFocus() {
 
 function onBlur() {
   // Laisse le clic sur une suggestion se terminer avant de fermer.
-  setTimeout(() => { listeVisible.value = false }, 150)
+  setTimeout(() => {
+    listeVisible.value = false
+  }, 150)
 }
 
 function onInput() {

@@ -17,8 +17,8 @@ export default defineEventHandler(async (event) => {
 
   const estRetrait = motif === MOTIF_RETRAIT || motif === MOTIF_RETRAIT_ASSOCIATION
 
-  const detail =
-    data.detail != null ? String(data.detail).replace(/<[^>]*>/g, '').trim() : null
+  const detail
+    = data.detail != null ? String(data.detail).replace(/<[^>]*>/g, '').trim() : null
   if (detail) validateLength(detail, 2000, 'détails')
 
   if (!estRetrait && (!detail || [...detail].length < 10)) {

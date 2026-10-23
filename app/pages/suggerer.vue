@@ -114,7 +114,9 @@ function continuer() {
 }
 
 function viderErreursChamps() {
-  for (const k of Object.keys(erreursChamps)) delete erreursChamps[k]
+  for (const k of Object.keys(erreursChamps)) {
+    Reflect.deleteProperty(erreursChamps, k)
+  }
 }
 
 function idChamp(field: string): string {
@@ -142,7 +144,7 @@ async function soumettre() {
 
   // Même règle que l'API : optionnel, mais une saisie incomplète bloque
   // clairement sur le champ plutôt qu'un refus opaque en bas de page.
-  const adeliBrut = form.adeli.replace(/[\s.\-]/g, '').trim()
+  const adeliBrut = form.adeli.replace(/[\s.-]/g, '').trim()
   if (adeliBrut) {
     const ok = form.type === 'Structure'
       ? /^\d{14}$|^\d{9}$/.test(adeliBrut)

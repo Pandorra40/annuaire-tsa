@@ -39,8 +39,8 @@ export async function enregistrerContact(
     return
   }
 
-  const consentement =
-    ligne.consentement || (actif ? new Date().toISOString().slice(0, 19).replace('T', ' ') : null)
+  const consentement
+    = ligne.consentement || (actif ? new Date().toISOString().slice(0, 19).replace('T', ' ') : null)
 
   await db.query(
     'UPDATE praticiens_contact SET email = ?, actif = ?, consentement = ? WHERE praticien_id = ?',

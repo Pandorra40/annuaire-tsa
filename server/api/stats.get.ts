@@ -101,16 +101,16 @@ export default defineEventHandler(async (event) => {
   }
 
   const metier = {
-    praticiens_publies: await countSafe(db, "SELECT COUNT(*) FROM praticiens WHERE statut = 'publie'"),
-    associations_publiees: await countSafe(db, "SELECT COUNT(*) FROM associations WHERE statut = 'publie'"),
-    suggestions_praticiens: await countSafe(db, "SELECT COUNT(*) FROM suggestions WHERE statut = 'en_attente'"),
+    praticiens_publies: await countSafe(db, 'SELECT COUNT(*) FROM praticiens WHERE statut = \'publie\''),
+    associations_publiees: await countSafe(db, 'SELECT COUNT(*) FROM associations WHERE statut = \'publie\''),
+    suggestions_praticiens: await countSafe(db, 'SELECT COUNT(*) FROM suggestions WHERE statut = \'en_attente\''),
     suggestions_associations: await countSafe(
       db,
-      "SELECT COUNT(*) FROM suggestions_associations WHERE statut = 'en_attente'"
+      'SELECT COUNT(*) FROM suggestions_associations WHERE statut = \'en_attente\''
     ),
-    suggestions_livres: await countSafe(db, "SELECT COUNT(*) FROM suggestions_livres WHERE statut = 'en_attente'"),
-    signalements_ouverts: await countSafe(db, "SELECT COUNT(*) FROM signalements WHERE statut = 'ouvert'"),
-    livres: await countSafe(db, "SELECT COUNT(*) FROM livres WHERE statut = 'publie'"),
+    suggestions_livres: await countSafe(db, 'SELECT COUNT(*) FROM suggestions_livres WHERE statut = \'en_attente\''),
+    signalements_ouverts: await countSafe(db, 'SELECT COUNT(*) FROM signalements WHERE statut = \'ouvert\''),
+    livres: await countSafe(db, 'SELECT COUNT(*) FROM livres WHERE statut = \'publie\''),
     videos: await countSafe(db, 'SELECT COUNT(*) FROM videos')
   }
 

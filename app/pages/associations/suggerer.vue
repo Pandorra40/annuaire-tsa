@@ -41,7 +41,9 @@ function classeChamp(field: string) {
 
 async function soumettre() {
   error.value = ''
-  for (const k of Object.keys(erreursChamps)) delete erreursChamps[k]
+  for (const k of Object.keys(erreursChamps)) {
+    Reflect.deleteProperty(erreursChamps, k)
+  }
   if (form.hp) return
   if (!form.nom || !form.ville || !form.departement) {
     error.value = 'Merci de renseigner au minimum le nom, la ville et le département.'

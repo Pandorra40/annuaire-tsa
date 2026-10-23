@@ -3,6 +3,10 @@ import withNuxt from './.nuxt/eslint.config.mjs'
 
 export default withNuxt(
   {
+    name: 'annuaire-tsa/ignorer-vendor',
+    ignores: ['vendor/**']
+  },
+  {
     name: 'annuaire-tsa/mise-en-forme-des-gabarits',
     rules: {
       // Ces règles viennent du préréglage de @nuxt/eslint et décrivent une façon

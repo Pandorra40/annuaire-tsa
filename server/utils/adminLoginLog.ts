@@ -20,7 +20,7 @@ export async function recordAdminLogin(event: H3Event, success: boolean): Promis
 
   if (success) return
 
-  let n = 0
+  let n: number
   try {
     const db = await getDb()
     const [rows] = await db.query<RowDataPacket[]>(
