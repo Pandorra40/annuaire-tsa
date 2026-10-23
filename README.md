@@ -333,9 +333,9 @@ Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (archive serveu
 ## Remerciements
 
 Ce projet avance aussi grâce à ceux qui prennent le temps de tester, de signaler ce qui
-ne fonctionne pas, ou de corriger leur fiche. Ici, écrire le code n'est pas le plus
-difficile : c'est de savoir ce qui cloche, et personne ne le voit mieux que ceux qui
-utilisent le site.
+ne fonctionne pas, ou de corriger leur fiche. Le code est produit par des LLM (voir
+ci-dessous) ; ce que seul un utilisateur du site peut vraiment apporter, c’est de dire
+ce qui cloche ou ce qui manque une fois le site utilisé pour de vrai.
 
 - [@1000i100](https://github.com/1000i100) pour avoir signalé que la recherche de
   praticiens ne répondait plus, testée sur deux navigateurs ([#1](https://github.com/Pandorra40/annuaire-tsa/issues/1))
