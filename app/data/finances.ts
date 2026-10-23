@@ -33,14 +33,14 @@ export interface Brique {
 /** Ce qui revient chaque année tant que le site existe. */
 export const FRAIS_RECURRENTS: FraisRecurrent[] = [
   {
-    libelle: 'Hébergement mutualisé',
-    detail: 'Infomaniak Network SA — serveur en Suisse, base MySQL, certificat inclus.',
+    libelle: 'VPS Infomaniak (porte d\'entrée)',
+    detail: 'Infomaniak Network SA — VPS en Suisse (Nginx reverse proxy). L\'application et la base tournent en auto-hébergement sur le serveur de l\'éditeur (T330 / Hébernet).',
     paye: 17.88,
     renouvellement: 47.88
   },
   {
     libelle: 'Nom de domaine annuaire-tsa.fr',
-    detail: 'Offert la première année avec l\'hébergement.',
+    detail: 'Offert la première année avec le VPS Infomaniak.',
     paye: 0,
     renouvellement: 6.99
   }

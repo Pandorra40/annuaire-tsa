@@ -307,11 +307,19 @@ useSeoMeta({
           </p>
           <p class="text-gray-600 leading-relaxed mt-3">
             Elles ne sont ni vendues, ni cédées, ni transmises à des fins commerciales.
-            Interviennent seulement les prestataires techniques nécessaires au
-            fonctionnement du service :
+            Interviennent seulement les prestataires et moyens techniques
+            nécessaires au fonctionnement du service :
           </p>
           <ul class="text-gray-600 leading-relaxed space-y-2 list-disc pl-5 mt-3">
-            <li><strong>Infomaniak Network SA</strong> — hébergement du site et de la base, en Suisse.</li>
+            <li>
+              <strong>Infomaniak Network SA</strong> — VPS en Suisse servant de
+              porte d’entrée (Nginx reverse proxy), pas l’hébergeur de
+              l’application ni de la base.
+            </li>
+            <li>
+              <strong>Auto-hébergement (éditeur)</strong> — application Nuxt/Node
+              et base MariaDB sur le serveur de l’éditeur (T330 / Hébernet).
+            </li>
             <li><strong>Google</strong> — acheminement des courriels envoyés depuis l'adresse du projet.</li>
             <li><strong>Mailmeteor</strong> — outil de publipostage utilisé pour l'envoi d'information aux praticiens.</li>
           </ul>

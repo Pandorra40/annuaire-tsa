@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.13.4
+# Annuaire TSA — V4.13.5
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -85,7 +85,7 @@ Les 46 centres ressources publics de France listés dans le site, avec le parcou
 | API | Nitro (Node) — routes `server/api/*`, URLs propres `/api/praticiens`, … |
 | Base de données | MariaDB (phpMyAdmin inchangé) |
 | Runtime serveur | `mysql2`, `bcryptjs`, `nodemailer` |
-| Hébergement | Hébernet (Node + Nginx + MariaDB) |
+| Hébergement | Infomaniak VPS (Nginx, porte d’entrée) → auto-hébergement T330 / Hébernet (Node + MariaDB) |
 | API externe | data.bnf.fr / BnF — SPARQL (nouveautés livres) |
 | Typage | TypeScript |
 | SEO | Bing Webmaster Tools + @nuxtjs/sitemap + @nuxtjs/robots ; JSON-LD Schema.org (`WebSite` + fiches) ; IndexNow via script manuel `indexnow.mjs` |
@@ -229,19 +229,25 @@ Le site et l’API Nitro sont sur `http://localhost:3000` (`public.apiBase` = `/
 
 Variables utiles (`.env` local ou export) : `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `ADMIN_HASH`, éventuellement `SMTP_*` et `PUSHBULLET_TOKEN`. Sans BDD locale, le front peut encore appeler l’API de production en changeant temporairement `apiBase`.
 
-## Déploiement sur Hébernet
+## Architecture d’hébergement
+
+Internet → **VPS Infomaniak** (Nginx reverse proxy, façade publique) → **T330 / Hébernet** (auto-hébergement de l’éditeur : process Node Nuxt/Nitro + MariaDB).
+
+Hébernet n’est **pas** un prestataire d’hébergement commercial : c’est la stack d’auto-hébergement sur la machine de l’auteur.
+
+## Déploiement (T330 / Hébernet)
 
 1. Build Node (SSR + API Nitro) :
 ```bash
 pnpm build
 ```
 
-2. Déployer le contenu de `.output/` dans `app/` du site (`server/index.mjs` + `public/`).
+2. Déployer le contenu de `.output/` dans `app/` du site sur le T330 (`server/index.mjs` + `public/`).
 
 3. Secrets dans `.env.hebernet` (lu au démarrage du process Node) : `DB_*`, `ADMIN_HASH`, `SMTP_*`, `PUSHBULLET_TOKEN`.  
    **Important** : quotter les valeurs qui contiennent `$` (hash bcrypt) — `ADMIN_HASH='$2y$12$…'` — sinon bash les tronque au `source`.
 
-4. Nginx : tout le site (y compris `/api`) est proxifié vers le process Node (`hebernet-node-hb_annuaire_tsa`, port interne). MariaDB / phpMyAdmin inchangés.
+4. Sur le T330, Nginx local proxifie le site (y compris `/api`) vers le process Node (`hebernet-node-hb_annuaire_tsa`, port interne). MariaDB / phpMyAdmin inchangés. Le VPS Infomaniak ne fait que relayer le trafic public vers cette machine.
 
 5. Redémarrer le programme supervisor du site, puis smoke test : `GET /api/praticiens`, `GET /api/auth` → 401, login admin.
 
@@ -312,6 +318,7 @@ Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (archive serveu
 | V4.13.2 | Compression gzip/brotli des assets `/_nuxt/` (Nitro `compressPublicAssets`) ; retrait des icônes TipTap orphelines |
 | V4.13.3 | Perf / a11y PageSpeed : preload fonts + cache long fonts/logo, CLS desktop corrigé, `aria-expanded` retiré de la recherche, contrastes filtres. JSON-LD Schema.org sur les fiches (`Physician`, `MedicalBusiness`, `ProfessionalService`, `NGO`) |
 | V4.13.4 | README aligné sur le code : retrait du dark mode documenté à tort, effectif CRA (46), IndexNow manuel, notes fiches sans `v-html`, archive PHP hors dépôt |
+| V4.13.5 | Clarification hébergement : Infomaniak = VPS / Nginx (porte d’entrée) ; Hébernet / T330 = auto-hébergement de l’app et de la base (pas un prestataire tiers). Mentions, données praticiens, finances, footer |
 
 ## Remerciements
 

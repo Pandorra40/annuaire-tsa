@@ -25,8 +25,9 @@ useSeoMeta({
 
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 sm:p-8">
           <p class="text-gray-600 leading-relaxed">
-            L'hébergement et le nom de domaine sont payés par l'éditeur,
-            une cinquantaine d'euros par an, sans demande de don.
+            Le VPS d’entrée (Infomaniak) et le nom de domaine sont payés par
+            l’éditeur, une cinquantaine d’euros par an, sans demande de don.
+            L’application tourne en auto-hébergement sur son serveur.
           </p>
         </div>
 

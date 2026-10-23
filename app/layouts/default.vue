@@ -263,7 +263,7 @@ function toggleFalc() {
       <div class="max-w-6xl mx-auto px-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <p class="font-black text-gray-900 mb-1">Annuaire TSA</p>
-          <p class="text-sm text-gray-500">Projet open source · Données hébergées en Suisse · RGPD</p>
+          <p class="text-sm text-gray-500">Projet open source · Auto-hébergé · RGPD</p>
           <p class="text-sm text-gray-500">Fait avec ♥ pour les familles concernées par les TSA</p>
         </div>
         <div class="flex flex-wrap items-center gap-5 text-sm">

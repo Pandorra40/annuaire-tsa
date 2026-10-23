@@ -31,10 +31,14 @@ useSeoMeta({
           <div class="w-9 h-9 rounded-xl bg-emerald-100 flex items-center justify-center mb-4 text-base">🖥️</div>
           <h2 class="font-bold text-gray-900 mb-2">Hébergement</h2>
           <p class="text-sm text-gray-600 leading-relaxed">
-            Hébergé par <strong>Infomaniak Network SA</strong><br>
+            Architecture en deux niveaux :<br><br>
+            <strong>Porte d’entrée (VPS)</strong> — <strong>Infomaniak Network SA</strong><br>
             Rue Eugène-Marziano 25, 1227 Les Acacias (GE), Suisse<br>
             IDE/TVA : CHE-103.167.648<br>
-            Données stockées en Suisse
+            Nginx reverse proxy (façade publique du site).<br><br>
+            <strong>Application et base de données</strong> — auto-hébergées
+            par l’éditeur sur son serveur (<strong>T330 / Hébernet</strong>),
+            qui n’est pas un prestataire d’hébergement tiers.
           </p>
         </div>
 
