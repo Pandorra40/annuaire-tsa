@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.13.6
+# Annuaire TSA — V4.13.7
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -237,12 +237,16 @@ Hébernet n’est **pas** un prestataire d’hébergement commercial : c’est l
 
 ### VPS Infomaniak (oct. 2026)
 
-- Reverse proxy : **NPMplus** ([ZoeyVid](https://github.com/ZoeyVid/NPMplus)) — migration depuis Nginx Proxy Manager
-- WAF : **CrowdSec AppSec** activé sur le reverse proxy (ex. `/.env` → 403)
-- Stack sur le VPS : `/home/ubuntu/npmplus`
-- UI admin NPMplus : port **81** sur le VPS (`https://<VPS>:81`)
-- Rollback proxy : `/home/ubuntu/npmplus/ROLLBACK.sh`
-- Backups VPS : `/home/ubuntu/backups/`
+Porte d’entrée partagée (Annuaire TSA, Matrix, Jellyfin, etc.) : le trafic suspect
+est filtré **avant** d’atteindre les services (blocages d’IP + WAF applicatif).
+
+- Reverse proxy : **NPMplus** ([ZoeyVid](https://github.com/ZoeyVid/NPMplus)) — migration depuis Nginx Proxy Manager (23 oct. 2026)
+- WAF : **CrowdSec AppSec** — fichiers sensibles, scans, etc. (ex. `/.env` → 403)
+- Console CrowdSec : engine `VPS-npmplus` ; alertes locales OK ; la console Community peut en masquer une partie jusqu’au reset de quota mensuel
+- Supervision : **Uptime Kuma v2** sur le VPS (disponibilité des sites, alertes Pushbullet) — accès via tunnel SSH port **3001**, non exposé sur Internet
+- Stack NPMplus : `/home/ubuntu/npmplus` ; UI admin port **81** (`https://<VPS>:81`)
+- Rollback proxy : `/home/ubuntu/npmplus/ROLLBACK.sh` ; backups : `/home/ubuntu/backups/`
+- Autres conteneurs VPS mis à jour le 23 oct. : Netbird, Portainer, WUD
 
 ## Déploiement (T330 / Hébernet)
 
@@ -329,6 +333,7 @@ Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (archive serveu
 | V4.13.4 | README aligné sur le code : retrait du dark mode documenté à tort, effectif CRA (46), IndexNow manuel, notes fiches sans `v-html`, archive PHP hors dépôt |
 | V4.13.5 | Clarification hébergement : Infomaniak = VPS / Nginx (porte d’entrée) ; Hébernet / T330 = auto-hébergement de l’app et de la base (pas un prestataire tiers). Mentions, données praticiens, finances, footer |
 | V4.13.6 | VPS Infomaniak : migration Nginx Proxy Manager → NPMplus (ZoeyVid), CrowdSec AppSec (WAF) sur le reverse proxy ; chemins stack / rollback / backups documentés |
+| V4.13.7 | Précisions VPS (23 oct.) : CrowdSec console `VPS-npmplus`, Uptime Kuma v2 (SSH :3001, alertes Pushbullet), maj Netbird / Portainer / WUD |
 
 ## Remerciements
 
