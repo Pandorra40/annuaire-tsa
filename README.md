@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.13.1
+# Annuaire TSA — V4.13.2
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -305,6 +305,7 @@ Rollback : restaurer la conf Nginx qui pointait `/api/` vers PHP (fichiers encor
 | V4.12 | Migration de l’API PHP vers Nitro (Node) : URLs propres `/api/*` sans `.php`, même process que le front, MariaDB/phpMyAdmin inchangés. Front `apiBase=/api`. Hébergement Hébernet (Nginx → Node). PHP conservé en archive pour rollback |
 | V4.13 | Version Facile à lire (FALC) sur À propos, Contact et Suggérer (bouton limité à ces pages). Durées de conservation clarifiées (contact 12 mois, visites 24 mois, journal admin 12 mois) avec purges alignées |
 | V4.13.1 | Retrait du mode calme (bouton et preset CSS) |
+| V4.13.2 | Compression gzip/brotli des assets `/_nuxt/` (Nitro `compressPublicAssets`) ; retrait des icônes TipTap orphelines |
 
 ## Remerciements
 

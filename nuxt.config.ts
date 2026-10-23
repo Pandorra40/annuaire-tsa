@@ -86,6 +86,12 @@ export default defineNuxtConfig({
 
   nitro: {
     errorHandler: '~~/server/error.ts',
+    // Pré-compresse JS/CSS/HTML public (.gz / .br) : OpenResty proxifie vers
+    // Node sans gzip sur les assets /_nuxt/ — sans ça Yellow Lab voit ~600 Ko inutiles.
+    compressPublicAssets: {
+      gzip: true,
+      brotli: true
+    },
     prerender: {
       crawlLinks: true,
       // L'API tourne sur un mutualisé : trop de requêtes simultanées la font
@@ -174,15 +180,6 @@ export default defineNuxtConfig({
         'lucide:flag',
         'lucide:link',
         'lucide:search',
-        'lucide:bold',
-        'lucide:italic',
-        'lucide:underline',
-        'lucide:align-left',
-        'lucide:align-center',
-        'lucide:align-right',
-        'lucide:align-justify',
-        'lucide:list',
-        'lucide:quote',
         'simple-icons:facebook'
       ],
       scan: true,
