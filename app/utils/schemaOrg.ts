@@ -13,7 +13,7 @@ function adressePostale(
   if (!adresse && !ville && !departement) return undefined
   const postal: JsonLd = {
     '@type': 'PostalAddress',
-    addressCountry: 'FR'
+    'addressCountry': 'FR'
   }
   if (adresse) postal.streetAddress = adresse
   if (ville) postal.addressLocality = ville
@@ -42,9 +42,9 @@ export function jsonLdPraticien(p: Praticien): JsonLd {
     '@context': 'https://schema.org',
     '@type': typeSchemaPraticien(p.type),
     '@id': ficheUrl,
-    name: p.nom,
-    url: ficheUrl,
-    description: `${p.type} spécialisé TSA à ${p.ville}`
+    'name': p.nom,
+    'url': ficheUrl,
+    'description': `${p.type} spécialisé TSA à ${p.ville}`
   }
 
   // jobTitle pour une personne / professionnel ; medicalSpecialty pour un médecin.
@@ -77,8 +77,8 @@ export function jsonLdAssociation(a: Association): JsonLd {
     '@context': 'https://schema.org',
     '@type': 'NGO',
     '@id': ficheUrl,
-    name: a.nom,
-    url: ficheUrl
+    'name': a.nom,
+    'url': ficheUrl
   }
 
   if (a.description) schema.description = a.description

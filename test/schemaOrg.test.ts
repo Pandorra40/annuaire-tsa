@@ -27,10 +27,10 @@ describe('jsonLdPraticien', () => {
     expect(ld.sameAs).toEqual(['https://doctolib.fr/dupont'])
     expect(ld.address).toMatchObject({
       '@type': 'PostalAddress',
-      streetAddress: '1 rue Exemple',
-      addressLocality: 'Toulouse',
-      addressRegion: '31',
-      addressCountry: 'FR'
+      'streetAddress': '1 rue Exemple',
+      'addressLocality': 'Toulouse',
+      'addressRegion': '31',
+      'addressCountry': 'FR'
     })
     expect(ld).not.toHaveProperty('aggregateRating')
   })

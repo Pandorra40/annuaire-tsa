@@ -22,8 +22,8 @@
     "@vite-pwa/nuxt": "^1.1.1",
     "bcryptjs": "^3.0.3",
     "mysql2": "^3.24.6",
-    "nodemailer": "^10.1.1",
-    "nuxt": "^4.6.1",
+    "nodemailer": "^10.2.1",
+    "nuxt": "^4.6.2",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
