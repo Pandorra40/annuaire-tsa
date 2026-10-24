@@ -109,6 +109,7 @@ Racine du dépôt GitHub (= projet Nuxt, pas un sous-dossier monorepo) :
 │   │   ├── CadreBenevole.vue    # Cadre de bonne conduite, sous les liens mailto
 │   │   ├── CartePraticien.vue / FiltresPraticiens.vue
 │   │   ├── ChampRechercheOrama.vue / ChampContactAuteur.vue
+│   │   ├── ContactAuteurAdmin.vue # Recontact auteur (écran admin)
 │   │   ├── RessourcesOnglets.vue # Onglets Livres / Vidéos
 │   │   └── VideoFacade.vue      # Lecteur YouTube chargé au clic, jamais avant
 │   ├── composables/
@@ -146,6 +147,7 @@ Racine du dépôt GitHub (= projet Nuxt, pas un sous-dossier monorepo) :
 │       ├── mentions.vue
 │       ├── donnees-praticiens.vue # Information RGPD dédiée aux praticiens
 │       ├── remerciements.vue    # Gratuité du site et remerciements (remplace /couts)
+│       ├── stats.vue            # Redirige vers /admin/stats
 │       └── admin/
 │           ├── login.vue        # Connexion admin
 │           ├── index.vue        # Dashboard admin praticiens
