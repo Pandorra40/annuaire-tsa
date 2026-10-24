@@ -267,6 +267,6 @@ Ce projet a été entièrement vibecodé avec [Claude Code](https://claude.ai/co
 
 Ce projet est sous licence [**GNU Affero General Public License v3.0** (AGPL-3.0)](LICENSE).
 
-Traitement des données : conforme au RGPD (voir les pages légales du site).
+Traitement des données : voir les pages légales du site (mentions, données praticiens).
 
 Fait avec ♥ pour les familles concernées par les TSA
