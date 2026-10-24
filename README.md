@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.13.10
+# Annuaire TSA — V4.13.11
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -69,11 +69,11 @@ Chaînes et vidéos choisies une par une, sans pastille « pour qui » : une res
 
 | Composant | Technologie |
 |---|---|
-| Frontend | Nuxt 4 + Vue 3 + Nuxt UI + Tailwind CSS |
+| Frontend | Nuxt ≥4.6.2 + Vue 3 + Nuxt UI + Tailwind CSS |
 | Recherche | Orama (index et recherche côté navigateur) |
 | API | Nitro (Node) — routes `server/api/*`, URLs propres `/api/praticiens`, … |
 | Base de données | MariaDB (+ phpMyAdmin) |
-| Serveur | Accès BDD (`mysql2`), auth admin (`bcryptjs`), envoi des mails (`nodemailer`) |
+| Serveur | Accès BDD (`mysql2`), auth admin (`bcryptjs`), envoi des mails (`nodemailer` ≥10.2) |
 | Hébergement | Auto-hébergé (VPS Infomaniak en porte d’entrée publique + serveur de l’éditeur pour l’app et la base) |
 | API externe | data.bnf.fr / BnF — SPARQL (nouveautés livres) |
 | Typage | TypeScript |
@@ -247,6 +247,7 @@ Jalons visibles sur le site (le détail fichier par fichier reste dans les commi
 | V4.12 | API passée sous Nitro (Node) : mêmes URLs `/api/*`, front et API dans le même process |
 | V4.13 | FALC (À propos, Contact, Suggérer) ; durées de conservation RGPD clarifiées |
 | V4.13.x | Retouches : retrait du mode calme, perf / accessibilité, JSON-LD sur les fiches, vidéos sans catégories d’audience (libellé Description) |
+| V4.13.11 | Correctifs sécu (Nuxt ≥4.6.2, nodemailer ≥10.2) ; mode maintenance activable (page publique 503) |
 | — | Mentions légales : VPS Infomaniak en porte d’entrée, application auto-hébergée |
 
 ## Remerciements
