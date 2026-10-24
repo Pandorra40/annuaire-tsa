@@ -147,7 +147,7 @@ Racine du dépôt GitHub (= projet Nuxt, pas un sous-dossier monorepo) :
 │       ├── mentions.vue
 │       ├── donnees-praticiens.vue # Information RGPD dédiée aux praticiens
 │       ├── remerciements.vue    # Gratuité du site et remerciements (remplace /couts)
-│       ├── stats.vue            # Redirige vers /admin/stats
+│       ├── stats.vue            # Ancienne URL publique des stats (redirige vers l’admin)
 │       └── admin/
 │           ├── login.vue        # Connexion admin
 │           ├── index.vue        # Dashboard admin praticiens
