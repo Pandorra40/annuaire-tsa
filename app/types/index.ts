@@ -75,17 +75,6 @@ export interface Livre {
   type: string
 }
 
-// Les catégories classent les ressources par position d'énonciation — depuis un
-// savoir clinique, depuis un vécu, depuis l'entourage — et non par thème : c'est la
-// première question que se pose une famille devant une vidéo sur l'autisme.
-// Jamais le mot « amateur » : une personne autiste qui documente son parcours n'en
-// est pas une.
-export const CATEGORIES_VIDEOS = [
-  { id: 'professionnels', label: 'Professionnels' },
-  { id: 'concernees', label: 'Personnes concernées' },
-  { id: 'familles', label: 'Familles et proches' }
-] as const
-
 export interface Video {
   id: number
   // 'video' : lue sur place après clic. 'chaine' : simple lien sortant, parce que
@@ -95,7 +84,8 @@ export interface Video {
   chaine: string
   youtube_id?: string | null
   url?: string | null
-  categorie: string
+  // Legacy en base (NOT NULL) ; plus saisie ni affichage — nouvelles entrées : ''.
+  categorie?: string
   duree?: string | null
   pourquoi: string
   created_at?: string

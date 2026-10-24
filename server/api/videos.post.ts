@@ -2,7 +2,7 @@ import { getDb } from '~~/server/utils/db'
 import { requireAdmin } from '~~/server/utils/auth'
 import { apiError } from '~~/server/utils/errors'
 import { validateLength } from '~~/server/utils/validators'
-import { VIDEO_CATEGORIES, idVideoYoutube, urlChaineYoutube } from '~~/server/utils/youtube'
+import { idVideoYoutube, urlChaineYoutube } from '~~/server/utils/youtube'
 
 export default defineEventHandler(async (event) => {
   await requireAdmin(event)
@@ -12,15 +12,13 @@ export default defineEventHandler(async (event) => {
   const adresse = String(data.adresse ?? '').trim()
   const titre = String(data.titre ?? '').trim()
   const chaine = String(data.chaine ?? '').trim()
-  const cat = String(data.categorie ?? '').trim()
   const pourquoi = String(data.pourquoi ?? '').trim()
   const duree = String(data.duree ?? '').trim()
+  // Colonne encore NOT NULL en base : valeur neutre, plus de saisie/validation catégorie.
+  const cat = ''
 
-  if (!adresse || !titre || !chaine || !cat || !pourquoi) {
-    apiError(400, 'Adresse, titre, chaîne, catégorie et description sont obligatoires.')
-  }
-  if (!VIDEO_CATEGORIES.includes(cat as (typeof VIDEO_CATEGORIES)[number])) {
-    apiError(400, 'Catégorie inconnue.')
+  if (!adresse || !titre || !chaine || !pourquoi) {
+    apiError(400, 'Adresse, titre, chaîne et description sont obligatoires.')
   }
 
   validateLength(titre, 255, 'titre')

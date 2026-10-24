@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { CATEGORIES_VIDEOS } from '~/types/index'
 import type { Video } from '~/types'
 
 definePageMeta({ layout: 'admin', middleware: 'admin' })
@@ -14,7 +13,7 @@ const loadError = ref('')
 const notice = ref({ msg: '', type: '' })
 
 const form = reactive({
-  adresse: '', titre: '', chaine: '', categorie: '', duree: '', pourquoi: ''
+  adresse: '', titre: '', chaine: '', duree: '', pourquoi: ''
 })
 
 // Reconnaissance côté navigateur, uniquement pour guider la saisie : le serveur
@@ -48,13 +47,13 @@ const entreesFiltrees = computed(() => {
 })
 
 function reinitialiser() {
-  Object.assign(form, { adresse: '', titre: '', chaine: '', categorie: '', duree: '', pourquoi: '' })
+  Object.assign(form, { adresse: '', titre: '', chaine: '', duree: '', pourquoi: '' })
 }
 
 async function ajouter() {
   notice.value = { msg: '', type: '' }
-  if (!form.adresse || !form.titre || !form.chaine || !form.categorie || !form.pourquoi) {
-    notice.value = { msg: 'Adresse, titre, chaîne, catégorie et description sont obligatoires.', type: 'error' }
+  if (!form.adresse || !form.titre || !form.chaine || !form.pourquoi) {
+    notice.value = { msg: 'Adresse, titre, chaîne et description sont obligatoires.', type: 'error' }
     return
   }
   try {
@@ -146,12 +145,6 @@ async function supprimer(id: number) {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <UFormField label="Titre *"><UInput v-model="form.titre" placeholder="Titre de la vidéo ou de la chaîne" /></UFormField>
               <UFormField label="Chaîne / auteur *"><UInput v-model="form.chaine" placeholder="Nom de la chaîne" /></UFormField>
-              <UFormField label="Catégorie *">
-                <select v-model="form.categorie" aria-label="Catégorie" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm bg-white text-gray-900">
-                  <option value="">— Choisir —</option>
-                  <option v-for="c in CATEGORIES_VIDEOS" :key="c.id" :value="c.id">{{ c.label }}</option>
-                </select>
-              </UFormField>
               <UFormField label="Durée" help="Vidéos uniquement, saisie libre : « 14 min »."><UInput v-model="form.duree" placeholder="14 min" :disabled="natureSaisie === 'chaine'" /></UFormField>
             </div>
 

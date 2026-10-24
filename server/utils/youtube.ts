@@ -1,5 +1,3 @@
-export const VIDEO_CATEGORIES = ['professionnels', 'concernees', 'familles'] as const
-
 /** Identifiant vidéo YouTube (11 caractères), ou null. */
 export function idVideoYoutube(url: string): string | null {
   let u: URL
