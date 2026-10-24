@@ -40,6 +40,22 @@ export function clearAdminCookie(event: H3Event): void {
   })
 }
 
+/** Session admin valide ? (sans lever d’erreur — utile au mode maintenance.) */
+export async function isAdminSession(event: H3Event): Promise<boolean> {
+  const token = readAdminToken(event)
+  if (!token) return false
+  try {
+    const db = await getDb()
+    const [rows] = await db.query<RowDataPacket[]>(
+      'SELECT id FROM admin_sessions WHERE token = ? AND expires_at > NOW()',
+      [hashSessionToken(token)]
+    )
+    return Boolean(rows[0])
+  } catch {
+    return false
+  }
+}
+
 export async function requireAdmin(event: H3Event): Promise<void> {
   const token = readAdminToken(event)
   if (!token) {

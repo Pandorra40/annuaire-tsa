@@ -16,9 +16,15 @@ const loading = ref(true)
 const loadError = ref('')
 const SEUIL = 3
 
+const maintenanceActif = ref(false)
+const maintenanceMessage = ref('')
+const maintenanceSaving = ref(false)
+const maintenanceErreur = ref('')
+const maintenanceOk = ref('')
+
 onMounted(async () => {
   activeTab.value = sessionStorage.getItem('admin_tab') || 'attente'
-  await charger()
+  await Promise.all([charger(), chargerMaintenance()])
 })
 
 async function charger() {
@@ -38,6 +44,41 @@ async function charger() {
     loadError.value = 'Erreur de chargement : ' + ((e as Error).message ?? 'inconnue')
   } finally {
     loading.value = false
+  }
+}
+
+async function chargerMaintenance() {
+  try {
+    const etat = await $fetch<{ actif: boolean, message: string }>('/api/maintenance')
+    maintenanceActif.value = etat.actif
+    maintenanceMessage.value = etat.message
+  } catch {
+    // non bloquant : le panneau praticiens reste utilisable
+  }
+}
+
+async function enregistrerMaintenance() {
+  if (maintenanceSaving.value) return
+  maintenanceSaving.value = true
+  maintenanceErreur.value = ''
+  maintenanceOk.value = ''
+  try {
+    const etat = await adminFetch<{ actif: boolean, message: string }>('admin-maintenance', {
+      method: 'PUT',
+      body: JSON.stringify({
+        actif: maintenanceActif.value,
+        message: maintenanceMessage.value
+      })
+    })
+    maintenanceActif.value = etat.actif
+    maintenanceMessage.value = etat.message
+    maintenanceOk.value = etat.actif
+      ? 'Mode maintenance activé — les visiteurs voient la page dédiée.'
+      : 'Mode maintenance désactivé — le site public est de nouveau accessible.'
+  } catch (e) {
+    maintenanceErreur.value = (e as Error).message
+  } finally {
+    maintenanceSaving.value = false
   }
 }
 
@@ -317,6 +358,67 @@ function ignorerSignalement(id: number) {
     </header>
 
     <div class="max-w-6xl mx-auto px-4 py-6">
+
+      <!-- MODE MAINTENANCE -->
+      <section
+        class="mb-6 rounded-xl border px-4 py-4"
+        :class="maintenanceActif ? 'border-amber-300 bg-amber-50' : 'border-gray-200 bg-white'"
+        aria-labelledby="titre-maintenance"
+      >
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div class="min-w-0">
+            <h2 id="titre-maintenance" class="font-bold text-gray-900">
+              Mode maintenance
+            </h2>
+            <p class="text-sm text-gray-600 mt-1">
+              Affiche une page d’information aux visiteurs pendant une mise à jour risquée.
+              L’administration reste accessible pour tout désactiver ensuite.
+            </p>
+          </div>
+          <label class="inline-flex items-center gap-2 shrink-0 cursor-pointer select-none">
+            <input
+              v-model="maintenanceActif"
+              type="checkbox"
+              class="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+            >
+            <span class="text-sm font-medium text-gray-800">
+              {{ maintenanceActif ? 'Activé' : 'Désactivé' }}
+            </span>
+          </label>
+        </div>
+        <label class="block mt-3">
+          <span class="text-xs font-medium text-gray-600">Message affiché aux visiteurs</span>
+          <textarea
+            v-model="maintenanceMessage"
+            rows="2"
+            maxlength="500"
+            class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:ring-amber-500"
+            placeholder="Ex. Mise à jour de sécurité en cours, retour prévu d’ici quelques minutes."
+          />
+        </label>
+        <div class="mt-3 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            class="px-3 py-1.5 text-sm font-medium rounded-lg transition-colors disabled:opacity-50"
+            :class="maintenanceActif
+              ? 'bg-amber-600 text-white hover:bg-amber-700'
+              : 'bg-gray-900 text-white hover:bg-gray-700'"
+            :disabled="maintenanceSaving"
+            @click="enregistrerMaintenance"
+          >
+            {{ maintenanceSaving ? 'Enregistrement…' : 'Enregistrer' }}
+          </button>
+          <NuxtLink
+            to="/maintenance"
+            class="text-sm text-gray-600 hover:text-gray-900 underline-offset-2 hover:underline"
+            target="_blank"
+          >
+            Aperçu de la page
+          </NuxtLink>
+          <p v-if="maintenanceOk" class="text-sm text-emerald-700">{{ maintenanceOk }}</p>
+          <p v-if="maintenanceErreur" class="text-sm text-red-700">{{ maintenanceErreur }}</p>
+        </div>
+      </section>
 
       <!-- STATS -->
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-6">

@@ -47,6 +47,7 @@ Variables d’environnement **serveur** (jamais committer) : `DB_*`, `ADMIN_HASH
 Les tables de contribution `suggestions`, `signalements`, `suggestions_associations`, `suggestions_livres` ont une colonne `contact_auteur` (réponse à l’auteur, facultative, distincte des e-mails publics ; dans `suggestions_associations`, `email` = adresse publique de l’asso).
 
 - `admin_sessions` — sessions administrateur
+- `site_settings` — réglages clé/valeur (créée au besoin). Clés `maintenance_actif` (`0`/`1`) et `maintenance_message` : mode maintenance activable depuis l’admin (page `/maintenance`, HTTP 503 + `Retry-After`). L’admin reste joignable.
 - `praticiens_contact` — e-mail, consentement, jeton de désactivation du formulaire (séparé de `praticiens` : le public ne voit que `contact_actif`)
 - `contact_journal` — métadonnées des messages (date, fiche, IP, expéditeur), **jamais le contenu**, purge au-delà de 12 mois
 
