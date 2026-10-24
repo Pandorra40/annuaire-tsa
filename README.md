@@ -295,33 +295,29 @@ Variables d’environnement côté serveur (jamais committer) : `DB_*`, `ADMIN_H
 
 ## Historique des versions
 
+Jalons visibles sur le site (le détail fichier par fichier reste dans les commits).
+
 | Version | Contenu |
 |---|---|
 | V1 | Annuaire TSA — version initiale HTML |
-| V2 | Refonte design, ajout signalements et confirmations communautaires |
-| V3 | Ajout du site Livres TSA intégré |
-| V4 | Réécriture complète en Nuxt 4 + Vue 3, admin moderne, sécurité renforcée |
+| V2 | Refonte design, signalements et confirmations communautaires |
+| V3 | Site Livres TSA intégré |
+| V4 | Réécriture Nuxt 4 + Vue 3, admin et sécurité renforcée |
 | V4.1 | PWA, accessibilité (OpenDyslexic, contraste, taille police), pages département, pagination, partage fiche |
-| V4.2 | Ajout page Associations TSA (290 associations, source Autisme et TND Info Service), schema.org WebSite, corrections SEO |
-| V4.3 | Base praticiens enrichie (ADELI + sources Tamis-Autisme), nouveautés livres via data.bnf.fr, affichage ADELI, refonte fiche praticien (partage Facebook, aération des notes), pagination/filtres dans l'URL, corrections de navigation et de cache PWA |
-| V4.4 | Page Centres Ressources Autisme (47 centres, parcours de diagnostic en trois niveaux), formulaire de contact par praticien (SMTP, consentement explicite, lien de désactivation autonome), page `/donnees-praticiens` d'information RGPD, admin `/admin/contacts`, champ « détails » obligatoire sur les signalements, mentions légales complétées d'un responsable du traitement, page `/couts` de transparence sur les frais |
-| V4.5 | Campagne d'information des praticiens au titre de l'article 14 du RGPD (219 praticiens contactés), cadre de bonne conduite affiché avant les liens de contact, disparition du « nous » éditorial (le projet est tenu par une seule personne), type de praticien « Structure », rapprochement des fiches avec l'annuaire santé et bascule ADELI → RPPS, correctif de `sanitizeHtml` qui privait les liens des notes de leur `href` |
-| V4.6 | Rubrique `/ressources` réunissant les livres et une nouvelle section vidéos (façade au clic, chaînes en liens sortants, catégories par position d'énonciation), admin dédiée, redirections 301 depuis `/livres` |
-| V4.7 | Critère d'admission écrit et appliqué : identifiant vérifié obligatoire pour les praticiens, SIRET ou FINESS facultatif pour les structures, énoncé sur `/suggerer` et `/donnees-praticiens`. Formulaire public de suggestion d'associations et écran de modération. Purge du journal de contact à douze mois |
-| V4.8 | Note en sept rubriques nommées remplaçant le champ HTML unique (retrait de Tiptap, formulaire public et admin identiques), second lieu optionnel pour les praticiens à deux cabinets (`/departement/XX` retrouve la fiche depuis les deux départements) |
-| V4.9 | Audit UX des 25 pages et sa mise en œuvre. Quatre bugs corrigés : département de la Corse et de l'outre-mer (`2A`/`2B` et `971`–`976` au lieu de `20`/`97`, avec corruption à chaque sauvegarde admin), quatre listes publiées vides faute de données au build, recherche de l'accueil aveugle au second lieu, variable fantôme laissée par le retrait de Tiptap. Moyen de recontacter l'auteur d'une contribution sur les quatre formulaires. Signalement par rubriques : une correction sans valeur de remplacement devient impossible à envoyer. Champ « réalise des bilans diagnostiques » à trois états, filtrable. Recherche remontée en tête d'accueil, filtres nommés avec compteurs, carte de résultat et panneau de filtres partagés entre l'accueil et les pages département, départements limitrophes. Administration : fin des rechargements complets, annulation à la place de la confirmation, onglet « Refusées », vues enregistrées sur l'état du fonds |
-| V4.10 | Formulaire `/suggerer` en trois écrans (qui remplit, essentiel, compléments facultatifs), textes clarifiés famille/praticien. Page `/remerciements` remplace `/couts` (redirection 301). Mode lecture : OpenDyslexic limité au contenu (`main` + pied), pas au bandeau. Cache : HTML sans cache long (`.htaccess` + Workbox), marqueur `X-TSA-Config: 2026-08-23`. Cadre bénévole et pages À propos / données praticiens retouchés |
-| V4.11 | Stats réservées à l’admin (`/admin/stats`, 301 depuis `/stats`) : visites, volumes métier, exclusion d’IP (dont « ajouter mon IP »), journal des connexions admin + alerte Pushbullet sur échecs répétés. Hébergeur documenté Infomaniak (Suisse) |
-| V4.12 | Migration de l’API PHP vers Nitro (Node) : URLs propres `/api/*` sans `.php`, même process que le front, MariaDB/phpMyAdmin inchangés. Front `apiBase=/api`. PHP conservé en archive hors dépôt |
-| V4.13 | Version Facile à lire (FALC) sur À propos, Contact et Suggérer (bouton limité à ces pages). Durées de conservation clarifiées (contact 12 mois, visites 24 mois, journal admin 12 mois) avec purges alignées |
-| V4.13.1 | Retrait du mode calme (bouton et preset CSS) |
-| V4.13.2 | Compression gzip/brotli des assets `/_nuxt/` (Nitro `compressPublicAssets`) ; retrait des icônes TipTap orphelines |
-| V4.13.3 | Perf / a11y PageSpeed : preload fonts + cache long fonts/logo, CLS desktop corrigé, `aria-expanded` retiré de la recherche, contrastes filtres. JSON-LD Schema.org sur les fiches (`Physician`, `MedicalBusiness`, `ProfessionalService`, `NGO`) |
-| V4.13.4 | README aligné sur le code : retrait du dark mode documenté à tort, effectif CRA (46), IndexNow manuel, notes fiches sans `v-html`, archive PHP hors dépôt |
-| V4.13.5–7 | Mentions légales : Infomaniak (VPS d’entrée) + auto-hébergement de l’app et de la base |
-| V4.13.8 | README allégé (moins d’exposition infra) ; pages légales sans jargon d’outils ops |
-| V4.13.9 | Correctifs README (historique, licence AGPL, contrib, prérequis, `.env.example`) ; retrait des URL d’admin listées |
-| V4.13.10 | Vidéos : retrait des catégories d’audience (public + admin) ; libellé « Description » à la place de « Pourquoi ici » |
+| V4.2 | Annuaire associations TSA, schema.org WebSite, corrections SEO |
+| V4.3 | Base praticiens enrichie, nouveautés livres via data.bnf.fr, refonte fiche, filtres dans l’URL |
+| V4.4 | Centres Ressources Autisme, contact par praticien, page données praticiens (RGPD), transparence des coûts |
+| V4.5 | Information RGPD des praticiens, cadre de bonne conduite, type « Structure », bascule ADELI → RPPS |
+| V4.6 | Rubrique `/ressources` (livres + vidéos, façade YouTube au clic) |
+| V4.7 | Critère d’admission (identifiant vérifié), suggestion d’associations |
+| V4.8 | Note en sept rubriques, second lieu optionnel sur les fiches |
+| V4.9 | Audit UX : correctif Corse / outre-mer, recherche et filtres refondus, bilans filtrables, signalement par rubriques |
+| V4.10 | Formulaire `/suggerer` en trois écrans, page `/remerciements`, mode lecture recentré sur le contenu |
+| V4.11 | Statistiques réservées à l’admin (visites, volumes, journal de connexion) |
+| V4.12 | API passée sous Nitro (Node) : mêmes URLs `/api/*`, front et API dans le même process |
+| V4.13 | FALC (À propos, Contact, Suggérer) ; durées de conservation RGPD clarifiées |
+| V4.13.x | Retouches : retrait du mode calme, perf / accessibilité, JSON-LD sur les fiches, vidéos sans catégories d’audience (libellé Description) |
+| — | Mentions légales : VPS Infomaniak en porte d’entrée, application auto-hébergée |
 
 ## Remerciements
 
