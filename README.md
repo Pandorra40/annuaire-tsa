@@ -70,9 +70,10 @@ Chaînes et vidéos choisies une par une, sans pastille « pour qui » : une res
 | Composant | Technologie |
 |---|---|
 | Frontend | Nuxt 4 + Vue 3 + Nuxt UI + Tailwind CSS |
+| Recherche | Orama (index et recherche côté navigateur) |
 | API | Nitro (Node) — routes `server/api/*`, URLs propres `/api/praticiens`, … |
-| Base de données | MariaDB (phpMyAdmin inchangé) |
-| Runtime serveur | `mysql2`, `bcryptjs`, `nodemailer` |
+| Base de données | MariaDB (+ phpMyAdmin) |
+| Serveur | Accès BDD (`mysql2`), auth admin (`bcryptjs`), envoi des mails (`nodemailer`) |
 | Hébergement | Auto-hébergé (VPS Infomaniak en porte d’entrée publique + serveur de l’éditeur pour l’app et la base) |
 | API externe | data.bnf.fr / BnF — SPARQL (nouveautés livres) |
 | Typage | TypeScript |
