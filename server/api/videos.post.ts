@@ -17,7 +17,7 @@ export default defineEventHandler(async (event) => {
   const duree = String(data.duree ?? '').trim()
 
   if (!adresse || !titre || !chaine || !cat || !pourquoi) {
-    apiError(400, 'Adresse, titre, chaîne, catégorie et « pourquoi ici » sont obligatoires.')
+    apiError(400, 'Adresse, titre, chaîne, catégorie et description sont obligatoires.')
   }
   if (!VIDEO_CATEGORIES.includes(cat as (typeof VIDEO_CATEGORIES)[number])) {
     apiError(400, 'Catégorie inconnue.')
@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
 
   validateLength(titre, 255, 'titre')
   validateLength(chaine, 255, 'chaîne')
-  validateLength(pourquoi, 600, '« pourquoi ici »')
+  validateLength(pourquoi, 600, 'description')
   validateLength(duree, 16, 'durée')
 
   const idVideo = idVideoYoutube(adresse)

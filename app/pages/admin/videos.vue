@@ -54,7 +54,7 @@ function reinitialiser() {
 async function ajouter() {
   notice.value = { msg: '', type: '' }
   if (!form.adresse || !form.titre || !form.chaine || !form.categorie || !form.pourquoi) {
-    notice.value = { msg: 'Adresse, titre, chaîne, catégorie et « pourquoi ici » sont obligatoires.', type: 'error' }
+    notice.value = { msg: 'Adresse, titre, chaîne, catégorie et description sont obligatoires.', type: 'error' }
     return
   }
   try {
@@ -155,7 +155,7 @@ async function supprimer(id: number) {
               <UFormField label="Durée" help="Vidéos uniquement, saisie libre : « 14 min »."><UInput v-model="form.duree" placeholder="14 min" :disabled="natureSaisie === 'chaine'" /></UFormField>
             </div>
 
-            <UFormField label="Pourquoi ici * " help="La phrase qui dit ce que cette ressource apporte. C'est elle qui distingue la rubrique d'une liste de liens.">
+            <UFormField label="Description *" help="La phrase qui dit ce que cette ressource apporte. C'est elle qui distingue la rubrique d'une liste de liens.">
               <UTextarea v-model="form.pourquoi" placeholder="Explique le bilan sans jargon, utile avant un premier rendez-vous." />
             </UFormField>
 

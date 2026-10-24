@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CATEGORIES_VIDEOS, type Video } from '~/types/index'
+import type { Video } from '~/types/index'
 import {
   docVideo,
   idVideo,
@@ -35,7 +35,6 @@ onMounted(async () => {
 const videos = computed<Video[]>(() => fraiches.value ?? prerendues.value ?? [])
 
 const search = ref('')
-const activeCat = ref('')
 
 const { correspond, suggestions } = useOramaRecherche(search, {
   schema: SCHEMA_VIDEO,
@@ -46,11 +45,7 @@ const { correspond, suggestions } = useOramaRecherche(search, {
   toSuggestions: suggestionsVideo
 })
 
-const filtrees = computed(() => {
-  return videos.value.filter((v: Video) => {
-    return correspond(v) && (!activeCat.value || v.categorie === activeCat.value)
-  })
-})
+const filtrees = computed(() => videos.value.filter((v: Video) => correspond(v)))
 
 const chaines = computed(() => filtrees.value.filter(v => v.type === 'chaine'))
 const clips = computed(() => filtrees.value.filter(v => v.type === 'video'))
@@ -58,15 +53,6 @@ const clips = computed(() => filtrees.value.filter(v => v.type === 'video'))
 const chargement = computed(() =>
   (status.value === 'pending' || status.value === 'idle') && !videos.value.length
 )
-
-const COULEURS: Record<string, string> = {
-  professionnels: 'bg-indigo-50 text-indigo-700',
-  concernees: 'bg-emerald-50 text-emerald-700',
-  familles: 'bg-orange-50 text-orange-700'
-}
-function libelle(id: string) {
-  return CATEGORIES_VIDEOS.find(c => c.id === id)?.label ?? id
-}
 
 // Initiales de la chaîne, à la place d'un avatar distant : héberger des images
 // supposerait un dossier accessible en écriture, et les charger depuis Google
@@ -111,27 +97,16 @@ function degrade(nom: string) {
       </div>
     </section>
 
-    <!-- RECHERCHE + FILTRES -->
+    <!-- RECHERCHE -->
     <section class="bg-gray-50 py-10">
       <div class="max-w-5xl mx-auto px-6">
         <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-5">
-          <div class="mb-4">
-            <ChampRechercheOrama
-              v-model="search"
-              :suggestions="suggestions"
-              placeholder="Une vidéo, une chaîne, un sujet…"
-              aria-label="Rechercher une vidéo, une chaîne ou un sujet"
-            />
-          </div>
-          <div class="flex flex-wrap gap-2">
-            <button type="button" class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
-              :class="activeCat === '' ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
-              @click="activeCat = ''">Tout</button>
-            <button type="button" v-for="c in CATEGORIES_VIDEOS" :key="c.id"
-              class="px-3 py-1.5 rounded-full text-xs font-medium border transition-colors"
-              :class="activeCat === c.id ? 'bg-gray-900 text-white border-gray-900' : 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'"
-              @click="activeCat = c.id">{{ c.label }}</button>
-          </div>
+          <ChampRechercheOrama
+            v-model="search"
+            :suggestions="suggestions"
+            placeholder="Une vidéo, une chaîne, un sujet…"
+            aria-label="Rechercher une vidéo, une chaîne ou un sujet"
+          />
         </div>
       </div>
     </section>
@@ -156,7 +131,7 @@ function degrade(nom: string) {
           </div>
 
           <div v-if="chaines.length === 0" class="text-center py-12 text-gray-500">
-            Aucune chaîne pour ce filtre.
+            Aucune chaîne pour cette recherche.
           </div>
 
           <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -171,9 +146,8 @@ function degrade(nom: string) {
                   <p class="text-sm text-gray-500 truncate">{{ c.chaine }}</p>
                 </div>
               </div>
-              <span class="self-start px-2.5 py-0.5 rounded-full text-xs font-semibold mb-3" :class="COULEURS[c.categorie]">{{ libelle(c.categorie) }}</span>
               <p class="text-sm text-gray-600 leading-relaxed border-l-3 border-violet-200 pl-3" style="border-left-width:3px">
-                <span class="font-semibold text-gray-900">Pourquoi ici :</span> {{ c.pourquoi }}
+                <span class="font-semibold text-gray-900">Description :</span> {{ c.pourquoi }}
               </p>
               <a v-if="c.url" :href="c.url" target="_blank" rel="noopener"
                 class="mt-4 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border-2 border-gray-200 text-indigo-700 text-sm font-semibold hover:bg-indigo-50 hover:border-indigo-200 transition-colors">
@@ -197,7 +171,7 @@ function degrade(nom: string) {
           </div>
 
           <div v-if="clips.length === 0" class="text-center py-12 text-gray-500">
-            Aucune vidéo pour ce filtre.
+            Aucune vidéo pour cette recherche.
           </div>
 
           <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -205,11 +179,10 @@ function degrade(nom: string) {
               class="bg-white rounded-2xl border border-gray-200 overflow-hidden flex flex-col hover:shadow-md transition-all duration-200">
               <VideoFacade v-if="v.youtube_id" :youtube-id="v.youtube_id" :titre="v.titre" :duree="v.duree" />
               <div class="p-5 flex flex-col flex-1">
-                <span class="self-start px-2.5 py-0.5 rounded-full text-xs font-semibold mb-2" :class="COULEURS[v.categorie]">{{ libelle(v.categorie) }}</span>
                 <h3 class="font-bold text-gray-900 leading-snug">{{ v.titre }}</h3>
                 <p class="text-sm text-gray-500 mt-1 mb-3">{{ v.chaine }}</p>
                 <p class="text-sm text-gray-600 leading-relaxed border-l-3 border-violet-200 pl-3" style="border-left-width:3px">
-                  <span class="font-semibold text-gray-900">Pourquoi ici :</span> {{ v.pourquoi }}
+                  <span class="font-semibold text-gray-900">Description :</span> {{ v.pourquoi }}
                 </p>
                 <p class="text-xs text-gray-400 mt-auto pt-3">Le lecteur ne se charge qu'à votre demande.</p>
               </div>
