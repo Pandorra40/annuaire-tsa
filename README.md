@@ -58,7 +58,7 @@ Chaînes et vidéos choisies une par une, sans pastille « pour qui » : une res
 - Seules les adresses YouTube de vidéo ou de chaîne sont acceptées
 
 ### 4. Centres Ressources Autisme (`/cra/`)
-**47** entrées publiques : 28 CRA (régionaux et antennes), 16 centres IntimAgir, 2 centres spécialisés et le GNCRA, avec le parcours de diagnostic expliqué.
+**46** entrées publiques : 27 CRA (régionaux et antennes), 16 centres IntimAgir, 2 centres spécialisés et le GNCRA, avec le parcours de diagnostic expliqué.
 
 - Recherche par nom, région, ville ou département ; filtre par type de centre
 - Regroupement par région et coordonnées (adresse, téléphone, e-mail, site)
