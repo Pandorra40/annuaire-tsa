@@ -1,4 +1,4 @@
-# Annuaire TSA — V4.13.9
+# Annuaire TSA — V4.13.10
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -56,16 +56,17 @@ Sélection collaborative de livres sur le TSA.
 - Formulaire de suggestion de livres sans inscription
 
 #### Vidéos TSA (`/ressources/videos/`)
-Chaînes YouTube et vidéos choisies une par une, classées par position d'énonciation —
-professionnels, personnes concernées, familles et proches — et non par thème.
+Chaînes YouTube et vidéos choisies une par une — sans catégories d’audience
+(professionnels, personnes concernées, etc.) : une ressource peut s’adresser à
+tout le monde.
 
 - **Façade au clic** : le lecteur `youtube-nocookie` n'est créé qu'après un clic
   explicite. Avant, aucune requête ne part vers Google, et les vignettes sont des
   dégradés dessinés localement — `img-src` de la CSP reste inchangé
 - **Les chaînes ne sont pas intégrées mais liées** : recommander une chaîne n'est pas
   recommander sa dernière vidéo. Carte sobre et lien sortant, sans lecteur
-- Chaque entrée porte une ligne « Pourquoi ici », obligatoire : c'est elle qui
-  distingue la rubrique d'une liste de liens
+- Chaque entrée porte une **description** obligatoire : c'est elle qui distingue
+  la rubrique d'une liste de liens
 - L'administrateur colle une adresse, le serveur reconnaît une vidéo ou une chaîne et
   refuse le reste. Le `?si=…` des liens de partage, marqueur de provenance, est retiré
 
@@ -320,6 +321,7 @@ Variables d’environnement côté serveur (jamais committer) : `DB_*`, `ADMIN_H
 | V4.13.5–7 | Mentions légales : Infomaniak (VPS d’entrée) + auto-hébergement de l’app et de la base |
 | V4.13.8 | README allégé (moins d’exposition infra) ; pages légales sans jargon d’outils ops |
 | V4.13.9 | Correctifs README (historique, licence AGPL, contrib, prérequis, `.env.example`) ; retrait des URL d’admin listées |
+| V4.13.10 | Vidéos : retrait des catégories d’audience (public + admin) ; libellé « Description » à la place de « Pourquoi ici » |
 
 ## Remerciements
 
