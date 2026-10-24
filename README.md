@@ -174,48 +174,10 @@ server/                          # API Nitro (même process Node que le front)
 └── error.ts                     # Réponses `{ "error": "…" }` alignées sur l’ancienne API
 ```
 
-## Base de données
-
-### Tables annuaire
-- `praticiens` — fiches praticiens publiées. Le contenu descriptif tient en sept
-  colonnes texte simple (`types_intervention`, `bilans`, `formations`, `experience`,
-  `modalites`, `tarifs`, `autres_infos`) plutôt qu'un champ HTML unique ; un second
-  lieu optionnel (`ville2`, `adresse2`, `departement2`) permet à un praticien avec
-  deux cabinets d'apparaître sur les deux pages département. L'ancienne colonne
-  `notes` (HTML libre, Tiptap) reste en base sans être lue par le code, en filet de
-  sécurité (migration de backfill hors dépôt Nuxt).
-  `fait_bilans` (`TINYINT` nullable) dit si le praticien réalise des bilans
-  diagnostiques : **`NULL` veut dire « on ne sait pas », jamais « non »** — une
-  fiche sans information reste visible partout, seulement absente du filtre. Le
-  `0` est une affirmation, que seule l'administration peut poser
-- `suggestions` — suggestions de praticiens en attente de validation, même structure
-- `signalements` — signalements d'erreurs sur les fiches. `detail` porte le relevé
-  structuré produit par `/signaler` (rubrique, valeur actuelle, valeur corrigée)
-Les quatre tables de contribution — `suggestions`, `signalements`,
-`suggestions_associations`, `suggestions_livres` — portent une colonne
-`contact_auteur` : l'adresse à laquelle répondre à qui a écrit. Facultative, et
-distincte de toute adresse publiée : dans `suggestions_associations`, `email`
-désigne l'adresse publique de l'association elle-même.
-
-- `admin_sessions` — sessions administrateur
-- `praticiens_contact` — email, consentement et jeton de désactivation du formulaire de contact. Table **séparée** de `praticiens` : l’endpoint public ne joint que le booléen `contact_actif`
-- `contact_journal` — métadonnées des messages envoyés (date, fiche, IP, adresse de l'expéditeur). **Jamais le contenu des messages**, et purgé au-delà de douze mois, au fil des envois
-
-### Tables associations
-- `associations` — associations TSA publiées (source AIS, Tamis-Autisme)
-- `suggestions_associations` — suggestions envoyées depuis le site, en attente de modération
-
-### Tables ressources
-- `livres` — livres publiés (classiques + suggestions validées)
-- `suggestions_livres` — suggestions de livres en attente de validation
-- `videos` — vidéos et chaînes recommandées. `type` distingue les deux : une vidéo
-  porte un `youtube_id` de 11 caractères, une chaîne une `url` normalisée
-
 ## Prérequis
 
-- **Node.js** 22 ou plus (CI en Node 22)
-- **pnpm** 10 (voir `packageManager` dans `package.json`)
-- **MariaDB** (ou MySQL compatible) pour l’API locale
+- **Node.js** 22 ou plus · **pnpm** 10 · **MariaDB** (ou MySQL) pour l’API locale  
+- Détail build, PWA, schéma BDD : [docs/DEVELOPPEMENT.md](docs/DEVELOPPEMENT.md)
 
 ## Développement local
 
@@ -225,34 +187,12 @@ pnpm install
 pnpm dev
 ```
 
-Le site et l’API Nitro sont sur `http://localhost:3000` (`public.apiBase` = `/api`).
-Sans BDD locale, le front peut encore appeler l’API de production en changeant temporairement `apiBase`.
+Site + API : `http://localhost:3000`. Voir aussi [docs/DEVELOPPEMENT.md](docs/DEVELOPPEMENT.md).
 
 ## Hébergement
 
-Le site est **auto-hébergé** : un VPS Infomaniak sert de porte d’entrée publique ;
-l’application (Node / Nitro) et MariaDB tournent sur le serveur de l’éditeur.
-Les détails d’exploitation (proxy, supervision, chemins serveur) restent hors dépôt.
-
-## Build
-
-```bash
-pnpm build
-```
-
-Le résultat est dans `.output/` (SSR + API Nitro). Le sitemap est généré à chaque
-build via `@nuxtjs/sitemap`. IndexNow n’est pas branché au module sitemap : le
-signalement à Bing se fait à la main avec `indexnow.mjs` à la racine du projet.
-
-Variables d’environnement côté serveur (jamais committer) : `DB_*`, `ADMIN_HASH`,
-éventuellement `SMTP_*` et `PUSHBULLET_TOKEN`. Quotter les valeurs contenant `$`
-(hash bcrypt), sinon le shell les tronque.
-
-### Pièges de cache (PWA) — à connaître
-
-- **`navigateFallback` doit rester `undefined`** dans la config PWA. Un fallback vers `/` casse les pages au rechargement.
-- `clientsClaim` + `skipWaiting` : le nouveau SW prend le contrôle immédiatement.
-- Workbox ne précache pas le HTML (`globPatterns` sans `html`).
+Le site est **auto-hébergé** : VPS Infomaniak en porte d’entrée publique ;
+application et base sur le serveur de l’éditeur. Détails d’exploitation hors dépôt.
 
 ## Sécurité
 
@@ -280,6 +220,7 @@ Variables d’environnement côté serveur (jamais committer) : `DB_*`, `ADMIN_H
 
 - Bugs et idées : ouvrir une [issue](https://github.com/Pandorra40/annuaire-tsa/issues) (pas de faille de sécu en public — voir [SECURITY.md](SECURITY.md))
 - Correctifs : fork + branche + pull request ; avant d’ouvrir la PR, `pnpm lint`, `pnpm typecheck` et `pnpm test`
+- Build, variables d’environnement, PWA, tables MariaDB : [docs/DEVELOPPEMENT.md](docs/DEVELOPPEMENT.md)
 - Le projet est tenu par une seule personne : les retours utilisateurs du site comptent autant que le code
 
 ## Historique des versions
