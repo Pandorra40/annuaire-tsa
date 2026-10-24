@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
 
   if (await isAdminSession(event)) return
 
-  setResponseHeader(event, 'Retry-After', '3600')
+  setResponseHeader(event, 'Retry-After', 3600)
 
   if (path.startsWith('/api/')) {
     throw createError({

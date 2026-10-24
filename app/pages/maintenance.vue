@@ -15,7 +15,7 @@ if (import.meta.server) {
   if (data.value?.actif && event) {
     // SEO : indisponibilité temporaire (pas une redirection 302 seule)
     setResponseStatus(event, 503)
-    setResponseHeader(event, 'Retry-After', '3600')
+    setResponseHeader(event, 'Retry-After', 3600)
   } else if (data.value && !data.value.actif) {
     await navigateTo('/', { redirectCode: 302 })
   }

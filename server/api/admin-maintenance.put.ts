@@ -1,10 +1,8 @@
 import { requireAdmin } from '~~/server/utils/auth'
 import { apiError } from '~~/server/utils/errors'
 import { tsaLog } from '~~/server/utils/request'
-import {
-  MAINTENANCE_MESSAGE_MAX,
-  setMaintenanceState
-} from '~~/server/utils/maintenance'
+import { setMaintenanceState } from '~~/server/utils/maintenance'
+import { MAINTENANCE_MESSAGE_MAX } from '~~/server/utils/maintenanceShared'
 import { validateLength } from '~~/server/utils/validators'
 
 export default defineEventHandler(async (event) => {

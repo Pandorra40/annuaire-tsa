@@ -5,13 +5,6 @@ import {
   sanitizeMaintenanceMessage
 } from '~~/server/utils/maintenanceShared'
 
-export {
-  MAINTENANCE_DEFAULT_MESSAGE,
-  MAINTENANCE_MESSAGE_MAX,
-  isMaintenanceBypassPath,
-  sanitizeMaintenanceMessage
-} from '~~/server/utils/maintenanceShared'
-
 const CLE_ACTIF = 'maintenance_actif'
 const CLE_MESSAGE = 'maintenance_message'
 const CACHE_TTL_MS = 3000
