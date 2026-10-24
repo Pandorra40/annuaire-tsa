@@ -13,6 +13,25 @@ Deux voies privées :
 Décrivez ce que vous avez observé et comment le reproduire. Une capture ou une requête
 suffit, inutile de rédiger un rapport.
 
+## Clef PGP
+
+Pour vérifier qu'un message de sécurité ou une archive signée vient bien du projet
+(et non d'une usurpation) :
+
+- **Identité :** Annuaire TSA \<annuaire.tsa@gmail.com\>
+- **Empreinte (fingerprint) :**
+  `E4CB BF46 E6B9 2918 9A4F  E731 2B91 7993 8E49 B2BF`
+- **Clé publique :** [pgp.asc](https://www.annuaire-tsa.fr/pgp.asc)
+  (aussi dans ce dépôt : [`public/pgp.asc`](public/pgp.asc))
+
+Importer et contrôler l'empreinte :
+
+```bash
+curl -O https://www.annuaire-tsa.fr/pgp.asc
+gpg --import pgp.asc
+gpg --fingerprint annuaire.tsa@gmail.com
+```
+
 ## Ce qui est concerné
 
 Le site annuaire-tsa.fr, son API et ce dépôt. En particulier tout ce qui toucherait aux
