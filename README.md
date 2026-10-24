@@ -18,66 +18,52 @@ En septembre 2026, le site a enregistré environ **3 800 visites** (statistiques
 ## Ce que contient le projet
 
 ### 1. Annuaire TSA
-Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, pédopsychiatres, psychologues, neuropsychologues, orthophonistes, ergothérapeutes et psychomotriciens, ainsi que les structures (cabinets, instituts, centres) qui ne désignent pas une personne.
+Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, pédopsychiatres, psychologues, neuropsychologues, orthophonistes, ergothérapeutes et psychomotriciens, ainsi que les structures (cabinets, instituts, centres).
 
-- Recherche par ville, département ou spécialité
-- Filtres par type de praticien, tranche d'âge et mode de consultation
-- Système de confirmation et signalement communautaire
-- Formulaire de contact par praticien, pour les personnes qui ne peuvent pas téléphoner — activé uniquement avec l'accord écrit du praticien, son adresse n'est jamais publiée
-- Suggestion de praticiens par la communauté — formulaire en trois écrans (`/suggerer`), textes adaptés famille ou praticien
-- Pages dédiées par département (`/departement/XX`) pour le SEO
-- Pagination (20 praticiens par page) — page et filtres conservés dans l'URL (recherches partageables, état restauré au retour navigateur)
-- Identifiant national affiché sur les fiches, intitulé d'après le type de fiche et le format du numéro : « N° RPPS » à 11 chiffres, « N° ADELI » à 9 (les psychologues ont basculé vers le RPPS le 3 juin 2024), et pour une structure « N° SIRET » à 14 ou « N° FINESS » à 9 — un FINESS ayant la même longueur qu'un ADELI, la longueur seule ne suffit pas à trancher
-- Partage sur Facebook + copie du lien sur chaque fiche praticien
-- **Critère d'admission** : un praticien ne figure dans l'annuaire que si son identifiant est vérifié au répertoire national des professionnels de santé (RPPS, ou ADELI le temps de la bascule). Une structure — cabinet, centre, institut — n'est pas une personne physique et n'a pas de RPPS : SIRET ou FINESS y sont acceptés sans être exigés. Le critère est écrit sur `/suggerer` et sur `/donnees-praticiens`
-- **Note en sept rubriques nommées** — Types d'intervention, Bilans, Formations complémentaires, Expérience, Modalités, Tarifs, Autres informations — plutôt qu'un seul champ de texte libre : ça guide la saisie côté praticien et évite qu'une information atterrisse sous le mauvais libellé, ou sous aucun
-- **Second lieu optionnel** — un praticien qui reçoit à deux adresses (deux cabinets, parfois deux départements différents) peut le déclarer, sur `/suggerer` comme en admin ; les pages `/departement/XX` des deux lieux le retrouvent
-- Données issues d'Autisme et TND Info Service et de Tamis-Autisme, enrichies manuellement
+- Recherche par ville, département ou métier
+- Filtres : type de praticien, tranche d’âge, téléconsultation, réalisation de bilans
+- Confirmations et signalements par la communauté
+- Contact par écrit sur certaines fiches (uniquement avec l’accord du praticien ; son adresse e-mail n’est jamais affichée)
+- Suggestion d’une fiche via un formulaire guidé (`/suggerer`), formulé pour une famille ou pour un praticien
+- Une page par département (`/departement/XX`)
+- Fiches partageables (Facebook ou copie du lien) ; sur l’accueil, recherche et filtres restent dans l’URL
+- Identifiant professionnel affiché quand il est connu (RPPS, ADELI, ou SIRET / FINESS pour une structure)
+- **Admission** : un praticien n’entre que si son identifiant national est vérifié ; pour une structure, SIRET ou FINESS sont acceptés sans être exigés (détail sur `/suggerer` et `/donnees-praticiens`)
+- Notes organisées en rubriques (interventions, bilans, formations, expérience, modalités, tarifs, autres)
+- Possibilité d’indiquer un second lieu d’exercice
+- Sources : Autisme et TND Info Service, Tamis-Autisme, enrichissement manuel
 
 ### 2. Associations TSA (`/associations/`)
-Annuaire de 290 associations spécialisées dans les troubles du spectre autistique en France.
+Environ **290** associations spécialisées TSA en France (familles, personnes concernées, professionnels).
 
-- Associations de familles, de personnes concernées et de professionnels
 - Recherche par nom, ville, département ou service
-- Informations de contact : téléphone, email, site web
-- Services proposés, public concerné, description
-- Formulaire de suggestion public (`/associations/suggerer`) et modération dans `/admin/associations`
-- Données issues d'Autisme et TND Info Service (réutilisation à titre d’information non commerciale, source citée, selon leurs mentions légales)
+- Coordonnées quand elles sont connues (téléphone, e-mail, site), services et public concerné
+- Chacun peut proposer une association (`/associations/suggerer`) ; publication après relecture
+- Source : Autisme et TND Info Service (réutilisation d’information non commerciale, source citée)
 
 ### 3. Ressources (`/ressources/`)
-Deux rubriques de même niveau, réunies sous une entrée de menu commune : le livre et
-la vidéo se complètent, ils ne se hiérarchisent pas.
+Livres et vidéos au même niveau dans le menu : deux façons de s’informer, sans hiérarchie.
 
-#### Livres TSA (`/ressources/livres/`)
-Sélection collaborative de livres sur le TSA.
+#### Livres (`/ressources/livres/`)
+- Une sélection éditoriale de « grands classiques »
+- Les parutions récentes, mises à jour via la BnF (data.bnf.fr)
+- Suggestion d’un livre sans créer de compte
 
-- **Grands classiques** — sélection éditoriale stockée en base de données
-- **Dernières parutions** — mises à jour automatiquement via data.bnf.fr / BnF (SPARQL, sans clé API)
-- Formulaire de suggestion de livres sans inscription
+#### Vidéos (`/ressources/videos/`)
+Chaînes et vidéos choisies une par une, sans pastille « pour qui » : une ressource peut servir à tout le monde.
 
-#### Vidéos TSA (`/ressources/videos/`)
-Chaînes YouTube et vidéos choisies une par une — sans catégories d’audience
-(professionnels, personnes concernées, etc.) : une ressource peut s’adresser à
-tout le monde.
-
-- **Façade au clic** : le lecteur `youtube-nocookie` n'est créé qu'après un clic
-  explicite. Avant, aucune requête ne part vers Google, et les vignettes sont des
-  dégradés dessinés localement — `img-src` de la CSP reste inchangé
-- **Les chaînes ne sont pas intégrées mais liées** : recommander une chaîne n'est pas
-  recommander sa dernière vidéo. Carte sobre et lien sortant, sans lecteur
-- Chaque entrée porte une **description** obligatoire : c'est elle qui distingue
-  la rubrique d'une liste de liens
-- L'administrateur colle une adresse, le serveur reconnaît une vidéo ou une chaîne et
-  refuse le reste. Le `?si=…` des liens de partage, marqueur de provenance, est retiré
+- Le lecteur YouTube ne se charge **qu’après un clic** (rien vers Google avant)
+- Une chaîne est un lien vers YouTube, pas une vidéo intégrée
+- Chaque entrée a une courte description
+- Seules les adresses YouTube de vidéo ou de chaîne sont acceptées
 
 ### 4. Centres Ressources Autisme (`/cra/`)
-Les 46 centres ressources publics de France listés dans le site, avec le parcours de diagnostic expliqué.
+**47** entrées publiques : 28 CRA (régionaux et antennes), 16 centres IntimAgir, 2 centres spécialisés et le GNCRA, avec le parcours de diagnostic expliqué.
 
-- 27 Centres Ressources Autisme (régionaux et antennes), 16 centres IntimAgir, 2 centres spécialisés et le GNCRA
-- Recherche par nom, région, ville ou département, filtrable par catégorie
-- Regroupement par région, coordonnées complètes (adresse, téléphone, email, site)
-- Le parcours de repérage et de diagnostic en trois niveaux, selon la Stratégie nationale pour l'autisme
-- Données institutionnelles publiques (GNCRA / Autisme et TND Info Service) — **stockées en dur dans `app/data/cra.ts`, pas en base** : ces structures sont stables et ne se modifient pas depuis l'admin
+- Recherche par nom, région, ville ou département ; filtre par type de centre
+- Regroupement par région et coordonnées (adresse, téléphone, e-mail, site)
+- Parcours de repérage et de diagnostic en trois niveaux (stratégie nationale pour l’autisme)
+- Données institutionnelles publiques (GNCRA / Autisme et TND Info Service), maintenues avec le site
 
 ## Stack technique
 
