@@ -16,7 +16,12 @@ import type {
 
 export function useApi() {
   const config = useRuntimeConfig()
-  const base = config.public.apiBase
+  // Au pré-rendu local, /api pointe vers Nitro sans MySQL (ECONNREFUSED :3306)
+  // et produit des fiches « introuvable » vides pour les crawlers. Même source
+  // que le hook nitro:config qui liste les routes : l’API de production.
+  const base = import.meta.prerender
+    ? 'https://www.annuaire-tsa.fr/api'
+    : config.public.apiBase
 
   async function fetchPraticiens() {
     return await $fetch<Praticien[]>(`${base}/praticiens`)
