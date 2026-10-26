@@ -1,4 +1,5 @@
 import type { Association, Praticien } from '../types/index'
+import { descriptionAssociation, descriptionPraticien } from './meta'
 import { normaliserUrl } from './url'
 
 const SITE = 'https://www.annuaire-tsa.fr'
@@ -44,7 +45,7 @@ export function jsonLdPraticien(p: Praticien): JsonLd {
     '@id': ficheUrl,
     'name': p.nom,
     'url': ficheUrl,
-    'description': `${p.type} spécialisé TSA à ${p.ville}`
+    'description': descriptionPraticien(p)
   }
 
   // jobTitle pour une personne / professionnel ; medicalSpecialty pour un médecin.
@@ -81,10 +82,7 @@ export function jsonLdAssociation(a: Association): JsonLd {
     'url': ficheUrl
   }
 
-  if (a.description) schema.description = a.description
-  else if (a.type_association && a.ville) {
-    schema.description = `${a.type_association} à ${a.ville}`
-  }
+  schema.description = descriptionAssociation(a)
 
   if (a.type_association) schema.additionalType = a.type_association
 

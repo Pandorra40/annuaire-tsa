@@ -49,7 +49,7 @@ const titre = computed(() => {
 
 useSeoMeta({
   title: titre,
-  description: computed(() => association.value ? echapperMeta(`${association.value.nom} — Association TSA à ${association.value.ville} (${association.value.departement})`) : '')
+  description: computed(() => association.value ? echapperMeta(descriptionAssociation(association.value)) : '')
 })
 
 // JSON-LD fiche association (complète le WebSite global d'app.vue).

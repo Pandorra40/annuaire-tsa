@@ -82,7 +82,7 @@ onMounted(async () => {
 
 useSeoMeta({
   title: computed(() => praticien.value ? `${praticien.value.nom} — Annuaire TSA` : 'Fiche praticien — Annuaire TSA'),
-  description: computed(() => praticien.value ? echapperMeta(`${praticien.value.type} spécialisé TSA à ${praticien.value.ville}`) : '')
+  description: computed(() => praticien.value ? echapperMeta(descriptionPraticien(praticien.value)) : '')
 })
 
 // JSON-LD fiche (complète le WebSite global d'app.vue, sans le dupliquer).
