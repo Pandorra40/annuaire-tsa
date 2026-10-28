@@ -210,7 +210,7 @@ function scrollToAnnuaire() {
         <h1 class="titre-hero font-black leading-tight mb-6 tracking-tight text-gray-900 mx-auto" style="font-size: clamp(2.5rem, 5.5vw, 4.5rem); text-wrap: balance; max-width: 18ch">
           Trouvez un
           <!-- Dégradé plus sombre : chaque stop ≥ ~4,5:1 sur le fond clair du hero (AA large text ≥ 3:1). Anciens jaunes/verts pâles échouaient 1.4.3. -->
-          <span style="background: linear-gradient(90deg, #dc2626 0%, #c2410c 20%, #a16207 40%, #15803d 60%, #1d4ed8 80%, #6d28d9 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">spécialiste en autisme</span>
+          <span style="background: linear-gradient(90deg, #f87171 0%, #fb923c 20%, #fbbf24 40%, #4ade80 60%, #60a5fa 80%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">spécialiste en autisme</span>
           près de chez vous
         </h1>
 
