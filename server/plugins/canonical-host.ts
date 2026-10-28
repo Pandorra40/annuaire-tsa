@@ -1,9 +1,9 @@
 /**
  * Doit tourner avant le middleware assets (pages prérendues), sinon les 301
- * host/slash ne partent jamais. h3App.use en tête de pile.
+ * host/slash ne partent jamais. h3App.use ajoute en fin de pile — on unshift.
  */
 export default defineNitroPlugin((nitroApp) => {
-  nitroApp.h3App.use((event) => {
+  const handler = defineEventHandler((event) => {
     const url = getRequestURL(event)
     if (
       url.pathname.startsWith('/_nuxt/')
@@ -35,4 +35,6 @@ export default defineNitroPlugin((nitroApp) => {
       return sendRedirect(event, `${pathname}${url.search}`, 301)
     }
   })
+
+  nitroApp.h3App.stack.unshift({ route: '/', handler })
 })
