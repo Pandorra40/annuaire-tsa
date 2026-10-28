@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/banner.png" alt="Annuaire TSA" width="1280" height="640" />
+</p>
+
 # Annuaire TSA — V4.13.11
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
