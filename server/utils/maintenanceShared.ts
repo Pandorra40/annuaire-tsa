@@ -1,3 +1,5 @@
+import { stripHtmlTags } from './stripHtml'
+
 export const MAINTENANCE_DEFAULT_MESSAGE
   = 'Le site est temporairement en maintenance pour une mise à jour. Merci de revenir dans quelques minutes.'
 
@@ -30,8 +32,7 @@ export function isMaintenanceBypassPath(pathname: string): boolean {
 
 /** Texte public : pas de HTML, longueur bornée, repli sur le message par défaut. */
 export function sanitizeMaintenanceMessage(brut: unknown): string {
-  const texte = String(brut ?? '')
-    .replace(/<[^>]*>/g, '')
+  const texte = stripHtmlTags(String(brut ?? ''))
     .replace(/\s+/g, ' ')
     .trim()
   if (texte === '') return MAINTENANCE_DEFAULT_MESSAGE

@@ -2,6 +2,7 @@ import { getDb } from '~~/server/utils/db'
 import { apiError } from '~~/server/utils/errors'
 import { rateLimit } from '~~/server/utils/request'
 import { pushbulletNotify } from '~~/server/utils/pushbullet'
+import { stripHtmlField } from '~~/server/utils/stripHtml'
 import { validateContactAuteur, validateLength, validateUrl } from '~~/server/utils/validators'
 
 const CATS_VALIDES = ['témoignage', 'guide pratique', 'scientifique', 'jeunesse', 'roman', '']
@@ -20,8 +21,7 @@ export default defineEventHandler(async (event) => {
   validateLength(titre, 200, 'titre')
   validateLength(auteur, 100, 'auteur')
 
-  const desc
-    = data.description != null ? String(data.description).replace(/<[^>]*>/g, '').trim() : null
+  const desc = stripHtmlField(data.description)
   if (desc) validateLength(desc, 500, 'description')
 
   const lien = validateUrl(data.lien as string | null | undefined, 'lien')

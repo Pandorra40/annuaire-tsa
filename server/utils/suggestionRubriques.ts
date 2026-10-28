@@ -1,3 +1,4 @@
+import { stripHtmlTags } from '~~/server/utils/stripHtml'
 import { validateLength } from '~~/server/utils/validators'
 
 const RUBRIQUES = {
@@ -13,9 +14,7 @@ const RUBRIQUES = {
 export function parseRubriquesPraticien(data: Record<string, unknown>): Record<string, string | null> {
   const valeurs: Record<string, string | null> = {}
   for (const [colonne, r] of Object.entries(RUBRIQUES)) {
-    const valeur = String(data[colonne] ?? '')
-      .replace(/<[^>]*>/g, '')
-      .trim()
+    const valeur = stripHtmlTags(String(data[colonne] ?? '')).trim()
     if (valeur === '') {
       valeurs[colonne] = null
       continue

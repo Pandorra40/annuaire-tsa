@@ -3,6 +3,7 @@ import { getDb } from '~~/server/utils/db'
 import { apiError } from '~~/server/utils/errors'
 import { rateLimit } from '~~/server/utils/request'
 import { pushbulletNotify } from '~~/server/utils/pushbullet'
+import { stripHtmlField } from '~~/server/utils/stripHtml'
 import { validateContactAuteur, validateLength } from '~~/server/utils/validators'
 import { MOTIF_RETRAIT, MOTIF_RETRAIT_ASSOCIATION } from '~~/server/utils/signalementsMotifs'
 
@@ -18,8 +19,7 @@ export default defineEventHandler(async (event) => {
 
   const estRetrait = motif === MOTIF_RETRAIT || motif === MOTIF_RETRAIT_ASSOCIATION
 
-  const detail
-    = data.detail != null ? String(data.detail).replace(/<[^>]*>/g, '').trim() : null
+  const detail = stripHtmlField(data.detail)
   if (detail) validateLength(detail, 2000, 'détails')
 
   if (!estRetrait && (!detail || [...detail].length < 10)) {

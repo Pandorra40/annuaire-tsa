@@ -3,6 +3,7 @@ import { apiError } from '~~/server/utils/errors'
 import { tsaLog } from '~~/server/utils/request'
 import { setMaintenanceState } from '~~/server/utils/maintenance'
 import { MAINTENANCE_MESSAGE_MAX } from '~~/server/utils/maintenanceShared'
+import { stripHtmlTags } from '~~/server/utils/stripHtml'
 import { validateLength } from '~~/server/utils/validators'
 
 export default defineEventHandler(async (event) => {
@@ -14,7 +15,7 @@ export default defineEventHandler(async (event) => {
   }
 
   if (body.message != null) {
-    const brut = String(body.message).replace(/<[^>]*>/g, '').trim()
+    const brut = stripHtmlTags(String(body.message)).trim()
     if (brut !== '') validateLength(brut, MAINTENANCE_MESSAGE_MAX, 'message')
   }
 

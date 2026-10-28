@@ -3,6 +3,7 @@ import { requireAdmin } from '~~/server/utils/auth'
 import { apiError } from '~~/server/utils/errors'
 import { clientIp, tsaLog } from '~~/server/utils/request'
 import { isIP } from 'node:net'
+import { stripHtmlField } from '~~/server/utils/stripHtml'
 import { validateLength } from '~~/server/utils/validators'
 
 function normaliserIp(ip: unknown): string | null {
@@ -34,8 +35,7 @@ export default defineEventHandler(async (event) => {
     apiError(400, 'Adresse IP invalide')
   }
 
-  let note = data.note != null ? String(data.note).replace(/<[^>]*>/g, '').trim() : null
-  if (note === '') note = null
+  const note = stripHtmlField(data.note)
   if (note !== null) validateLength(note, 100, 'note')
 
   try {

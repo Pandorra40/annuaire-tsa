@@ -50,37 +50,6 @@ export function validateLength(value: string, max: number, field: string): void 
   }
 }
 
-export function sanitizeHtml(html?: string | null): string | null {
-  if (!html) return null
-  let cleaned = html.replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, '')
-  const allowed = new Set(['p', 'br', 'strong', 'em', 'u', 'h2', 'h3', 'ul', 'ol', 'li', 'blockquote', 'a'])
-  // strip disallowed tags but keep text
-  cleaned = cleaned.replace(/<\/?([a-z][a-z0-9]*)\b[^>]*>/gi, (full, tag: string) => {
-    const t = tag.toLowerCase()
-    if (!allowed.has(t)) return ''
-    return full
-  })
-  cleaned = cleaned.replace(
-    /<([a-z][a-z0-9]*)((?:\s+[a-z][a-z0-9-]*(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?)+)\s*\/?>/gi,
-    (_m, tag: string, attrs: string) => {
-      const t = tag.toLowerCase()
-      if (t === 'a') {
-        const href = attrs.match(/\bhref\s*=\s*(["'])(https?:\/\/[^"']+)\1/i)
-        if (href?.[2]) {
-          const safe = href[2]
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-          return `<a href="${safe}" target="_blank" rel="noopener noreferrer">`
-        }
-      }
-      return `<${t}>`
-    }
-  )
-  return cleaned.trim()
-}
-
 export function validateUrl(url: string | null | undefined, field = 'site_web'): string | null {
   if (!url) return null
   let u = String(url).trim()

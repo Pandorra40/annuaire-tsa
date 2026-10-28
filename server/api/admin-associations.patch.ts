@@ -3,6 +3,7 @@ import type { RowDataPacket } from 'mysql2'
 import { getDb } from '~~/server/utils/db'
 import { requireAdmin } from '~~/server/utils/auth'
 import { apiError } from '~~/server/utils/errors'
+import { stripHtmlField } from '~~/server/utils/stripHtml'
 import { validateLength, validateUrl } from '~~/server/utils/validators'
 import { TYPES_ASSOCIATION } from '~~/server/utils/associationTypes'
 import { invaliderAssociation } from '~~/server/utils/prerendu'
@@ -39,19 +40,11 @@ export default defineEventHandler(async (event) => {
 
   const site = validateUrl(data.site_web as string | null | undefined, 'site_web')
 
-  const strip = (v: unknown) =>
-    v != null ? String(v).replace(/<[^>]*>/g, '').trim() : null
-  let services = strip(data.services)
-  let description = strip(data.description)
-  let adresse = strip(data.adresse)
-  let agePublic = strip(data.age_public)
-  let telephone = strip(data.telephone)
-
-  if (services === '') services = null
-  if (description === '') description = null
-  if (adresse === '') adresse = null
-  if (agePublic === '') agePublic = null
-  if (telephone === '') telephone = null
+  const services = stripHtmlField(data.services)
+  const description = stripHtmlField(data.description)
+  const adresse = stripHtmlField(data.adresse)
+  const agePublic = stripHtmlField(data.age_public)
+  const telephone = stripHtmlField(data.telephone)
 
   if (services) validateLength(services, 500, 'services')
   if (description) validateLength(description, 2000, 'description')

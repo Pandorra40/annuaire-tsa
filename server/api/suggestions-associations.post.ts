@@ -2,6 +2,7 @@ import { getDb } from '~~/server/utils/db'
 import { apiError } from '~~/server/utils/errors'
 import { rateLimit, tsaLog } from '~~/server/utils/request'
 import { pushbulletNotify } from '~~/server/utils/pushbullet'
+import { stripHtmlField } from '~~/server/utils/stripHtml'
 import { validateContactAuteur, validateLength, validateUrl } from '~~/server/utils/validators'
 import { TYPES_ASSOCIATION } from '~~/server/utils/associationTypes'
 
@@ -42,14 +43,11 @@ export default defineEventHandler(async (event) => {
   const site = validateUrl(data.site_web as string | null | undefined, 'site_web')
   const contactAuteur = validateContactAuteur(data.contact_auteur)
 
-  const strip = (v: unknown) =>
-    v != null ? String(v).replace(/<[^>]*>/g, '').trim() : null
-  const services = strip(data.services)
-  const description = strip(data.description)
-  const adresse = strip(data.adresse)
-  const agePublic = strip(data.age_public)
-  let telephone = strip(data.telephone)
-  if (telephone === '') telephone = null
+  const services = stripHtmlField(data.services)
+  const description = stripHtmlField(data.description)
+  const adresse = stripHtmlField(data.adresse)
+  const agePublic = stripHtmlField(data.age_public)
+  const telephone = stripHtmlField(data.telephone)
 
   if (services) validateLength(services, 500, 'services')
   if (description) validateLength(description, 2000, 'description')

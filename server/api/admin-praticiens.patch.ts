@@ -9,6 +9,7 @@ import {
   validateLength,
   validateUrl
 } from '~~/server/utils/validators'
+import { stripHtmlField } from '~~/server/utils/stripHtml'
 import { parseRubriquesPraticien } from '~~/server/utils/suggestionRubriques'
 import { enregistrerContact } from '~~/server/utils/adminPraticienContact'
 import { departement2De, departementDe, invaliderPraticien } from '~~/server/utils/prerendu'
@@ -64,14 +65,9 @@ export default defineEventHandler(async (event) => {
   const adeli = normaliserIdentifiant(data.adeli as string | null | undefined, type)
   const valeurs = parseRubriquesPraticien(data)
 
-  let ville2 = data.ville2 != null ? String(data.ville2).replace(/<[^>]*>/g, '').trim() : null
-  let adresse2 = data.adresse2 != null ? String(data.adresse2).replace(/<[^>]*>/g, '').trim() : null
-  let departement2 = data.departement2 != null
-    ? String(data.departement2).replace(/<[^>]*>/g, '').trim()
-    : null
-  if (ville2 === '') ville2 = null
-  if (adresse2 === '') adresse2 = null
-  if (departement2 === '') departement2 = null
+  const ville2 = stripHtmlField(data.ville2)
+  const adresse2 = stripHtmlField(data.adresse2)
+  const departement2 = stripHtmlField(data.departement2)
 
   const ancienDepartement = await departementDe(db, id)
   const ancienDepartement2 = await departement2De(db, id)
