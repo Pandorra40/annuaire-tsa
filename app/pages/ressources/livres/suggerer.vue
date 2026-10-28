@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { normaliserUrl } from '~/utils/url'
 
-useSeoMeta({
+usePageSeo({
   title: 'Suggérer un livre — Livres TSA',
-  description: 'Signalez un livre sur le TSA qui mériterait d\'apparaître dans la sélection.'
+  description: 'Signalez un livre sur le TSA qui mériterait d\'apparaître dans la sélection.',
+  path: '/ressources/livres/suggerer',
+  noindex: true
 })
 
 const { suggererLivre } = useApi()

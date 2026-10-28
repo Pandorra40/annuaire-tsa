@@ -1,9 +1,44 @@
 <script setup lang="ts">
 import type { Praticien } from '~/types/index'
 
-useSeoMeta({
+usePageSeo({
   title: 'Annuaire TSA / Autisme — Trouvez un spécialiste près de chez vous',
-  description: 'Annuaire collaboratif et gratuit de praticiens spécialisés en autisme et TSA (troubles du spectre autistique) en France.'
+  description: 'Annuaire collaboratif et gratuit de praticiens spécialisés en autisme et TSA (troubles du spectre autistique) en France.',
+  path: '/'
+})
+
+useHead({
+  script: [{
+    key: 'ld-website',
+    type: 'application/ld+json',
+    innerHTML: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      '@id': 'https://www.annuaire-tsa.fr/#website',
+      'name': 'Annuaire TSA',
+      'url': 'https://www.annuaire-tsa.fr/',
+      'description': 'Annuaire collaboratif et gratuit de praticiens spécialisés dans les troubles du spectre autistique (TSA) en France.',
+      'inLanguage': 'fr',
+      'publisher': {
+        '@type': 'Organization',
+        '@id': 'https://www.annuaire-tsa.fr/#organization',
+        'name': 'Annuaire TSA',
+        'url': 'https://www.annuaire-tsa.fr/',
+        'logo': {
+          '@type': 'ImageObject',
+          'url': 'https://www.annuaire-tsa.fr/img/og-image.png'
+        }
+      },
+      'potentialAction': {
+        '@type': 'SearchAction',
+        'target': {
+          '@type': 'EntryPoint',
+          'urlTemplate': 'https://www.annuaire-tsa.fr/?q={search_term_string}'
+        },
+        'query-input': 'required name=search_term_string'
+      }
+    })
+  }]
 })
 
 const { fetchPraticiens } = useApi()
@@ -19,12 +54,22 @@ const { data: prerendus, status } = await useAsyncData('praticiens', fetchPratic
 // l'admin n'apparaît qu'après avoir régénéré tout le site.
 const fraiche = ref<Praticien[] | null>(null)
 
-onMounted(async () => {
-  try {
-    const reponse = await fetchPraticiens()
-    if (reponse) fraiche.value = reponse
-  } catch {
-    // Réseau indisponible : on garde la liste du prérendu, déjà affichée.
+onMounted(() => {
+  // Différer le refetch après paint : évite de concurrencer LCP/INP
+  // (payload déjà présent via le prérendu).
+  const rafraichir = async () => {
+    try {
+      const reponse = await fetchPraticiens()
+      if (reponse) fraiche.value = reponse
+    } catch {
+      // Réseau indisponible : on garde la liste du prérendu, déjà affichée.
+    }
+  }
+  const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => void }
+  if (typeof w.requestIdleCallback === 'function') {
+    w.requestIdleCallback(() => { void rafraichir() }, { timeout: 4000 })
+  } else {
+    setTimeout(() => { void rafraichir() }, 1500)
   }
 })
 
@@ -127,8 +172,14 @@ function scrollToAnnuaire() {
           près de chez vous
         </h1>
 
-        <p class="text-gray-700 text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-          Psychiatres, psychologues, neuropsychologues, orthophonistes,<br class="hidden sm:block" /> ergothérapeutes et psychomotriciens spécialisés en autisme et TSA.
+        <p class="text-gray-700 text-xl max-w-2xl mx-auto mb-4 leading-relaxed">
+          Psychologues, neuropsychologues, orthophonistes, ergothérapeutes et psychomotriciens spécialisés en autisme et TSA.
+        </p>
+        <p class="text-gray-600 text-base max-w-2xl mx-auto mb-10 leading-relaxed">
+          Annuaire collaboratif et gratuit : cherchez par ville, département ou métier, filtrez par âge ou téléconsultation, puis vérifiez le praticien (RPPS, cabinet).
+          Pour un parcours de diagnostic, consultez aussi les
+          <NuxtLink to="/cra" class="text-indigo-700 font-semibold underline-offset-2 hover:underline">Centres Ressources Autisme (CRA)</NuxtLink>.
+          Les fiches sont indicatives et ne remplacent pas un avis médical.
         </p>
 
         <!-- La recherche vit DANS le hero : c'est elle le contenu principal.

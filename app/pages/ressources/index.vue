@@ -1,7 +1,6 @@
 <script setup lang="ts">
-// /ressources n'a pas de contenu propre : la rubrique s'ouvre sur les livres,
-// qui existent depuis mai et concentrent le référencement.
-definePageMeta({ redirect: '/ressources/livres' })
+// Redirection 301 déclarée dans nuxt.config routeRules (/ressources → /livres).
+// Ce fichier reste pour la découverte de route Nuxt ; ne pas y mettre de meta-refresh.
 </script>
 
 <template>

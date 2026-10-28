@@ -8,9 +8,10 @@ import {
   suggestionsVideo
 } from '~/search/documents'
 
-useSeoMeta({
+usePageSeo({
   title: 'Vidéos TSA — Chaînes et vidéos sur l\'autisme',
-  description: 'Chaînes YouTube et vidéos sur l\'autisme, choisies une par une. Le lecteur ne se charge qu\'à votre demande : aucune donnée n\'est transmise avant.'
+  description: 'Chaînes YouTube et vidéos sur l\'autisme, choisies une par une. Le lecteur ne se charge qu\'à votre demande : aucune donnée n\'est transmise avant.',
+  path: '/ressources/videos'
 })
 
 const { fetchVideos } = useApi()

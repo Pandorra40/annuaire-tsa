@@ -1,9 +1,11 @@
 <script setup lang="ts">
 definePageMeta({ layout: false })
 
-useSeoMeta({
+usePageSeo({
   title: 'Maintenance — Annuaire TSA',
-  robots: 'noindex, nofollow'
+  description: 'Le site Annuaire TSA est temporairement en maintenance.',
+  path: '/maintenance',
+  noindex: true
 })
 
 const { data, error } = await useFetch<{ actif: boolean, message: string }>('/api/maintenance', {

@@ -251,6 +251,8 @@ function toggleFalc() {
       </div>
     </header>
 
+    <DisclaimerYmyL />
+
     <!-- <main> porte le mode lecture (OpenDyslexic sur le contenu, pas sur
          le bandeau). Sans ce repère, html.lecture * forçait la police de
          lecture jusque dans le chrome. -->

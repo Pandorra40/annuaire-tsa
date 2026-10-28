@@ -10,9 +10,28 @@ import {
 
 type CentreIndexe = { centre: CentreRessource, index: number }
 
-useSeoMeta({
+usePageSeo({
   title: 'Centres Ressources Autisme (CRA) — Annuaire TSA',
-  description: 'Trouvez le Centre Ressources Autisme de votre région et comprenez le parcours de diagnostic TSA en trois niveaux : repérage, diagnostic simple et situations complexes.'
+  description: 'Trouvez le Centre Ressources Autisme de votre région et comprenez le parcours de diagnostic TSA en trois niveaux : repérage, diagnostic simple et situations complexes.',
+  path: '/cra'
+})
+
+useHead({
+  script: [{
+    key: 'ld-cra-list',
+    type: 'application/ld+json',
+    innerHTML: JSON.stringify({
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      'name': 'Centres Ressources Autisme',
+      'itemListElement': CENTRES_RESSOURCES.filter(c => c.categorie === 'CRA').slice(0, 30).map((c, i) => ({
+        '@type': 'ListItem',
+        'position': i + 1,
+        'name': c.nom,
+        'url': c.siteWeb || 'https://www.annuaire-tsa.fr/cra'
+      }))
+    })
+  }]
 })
 
 const route = useRoute()

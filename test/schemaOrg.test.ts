@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { jsonLdAssociation, jsonLdPraticien } from '../app/utils/schemaOrg'
+import { jsonLdAssociation, jsonLdFilAriane, jsonLdPraticien, telephoneE164 } from '../app/utils/schemaOrg'
 import type { Association, Praticien } from '../app/types/index'
 
 const basePraticien: Praticien = {
@@ -16,14 +16,20 @@ const basePraticien: Praticien = {
   confirmations: 3
 }
 
+describe('telephoneE164', () => {
+  it('convertit un fixe FR à 10 chiffres', () => {
+    expect(telephoneE164('05 00 00 00 00')).toBe('+33500000000')
+  })
+})
+
 describe('jsonLdPraticien', () => {
   it('mappe un psychiatre en Physician avec les champs publics', () => {
     const ld = jsonLdPraticien(basePraticien)
     expect(ld['@type']).toBe('Physician')
     expect(ld.name).toBe('Dr Marie Dupont')
     expect(ld.url).toBe('https://www.annuaire-tsa.fr/praticien/42')
-    expect(ld.telephone).toBe('05 00 00 00 00')
-    expect(ld.medicalSpecialty).toBe('Psychiatre')
+    expect(ld.telephone).toBe('+33500000000')
+    expect(ld.medicalSpecialty).toBe('https://schema.org/Psychiatric')
     expect(ld.sameAs).toEqual(['https://doctolib.fr/dupont'])
     expect(ld.address).toMatchObject({
       '@type': 'PostalAddress',
@@ -35,9 +41,23 @@ describe('jsonLdPraticien', () => {
     expect(ld).not.toHaveProperty('aggregateRating')
   })
 
-  it('mappe une structure en MedicalBusiness et un psychologue en ProfessionalService', () => {
+  it('mappe une structure en MedicalBusiness et un psychologue en Person+ProfessionalService', () => {
     expect(jsonLdPraticien({ ...basePraticien, type: 'Structure' })['@type']).toBe('MedicalBusiness')
-    expect(jsonLdPraticien({ ...basePraticien, type: 'Psychologue' })['@type']).toBe('ProfessionalService')
+    expect(jsonLdPraticien({ ...basePraticien, type: 'Psychologue' })['@type']).toEqual([
+      'Person',
+      'ProfessionalService'
+    ])
+  })
+
+  it('émet le second lieu dans location', () => {
+    const ld = jsonLdPraticien({
+      ...basePraticien,
+      type: 'Psychologue',
+      ville2: 'Étampes',
+      departement2: '91',
+      adresse2: '2 rue Autre'
+    })
+    expect(ld.location).toHaveLength(2)
   })
 
   it('omet téléphone et sameAs s\'ils sont absents', () => {
@@ -65,7 +85,18 @@ describe('jsonLdAssociation', () => {
     const ld = jsonLdAssociation(a)
     expect(ld['@type']).toBe('NGO')
     expect(ld.url).toBe('https://www.annuaire-tsa.fr/association/7')
-    expect(ld.telephone).toBe('05 11 11 11 11')
+    expect(ld.telephone).toBe('+33511111111')
     expect(ld.email).toBe('contact@exemple.fr')
+  })
+})
+
+describe('jsonLdFilAriane', () => {
+  it('produit un BreadcrumbList ordonné', () => {
+    const ld = jsonLdFilAriane([
+      { name: 'Accueil', path: '/' },
+      { name: 'Dupont', path: '/praticien/1' }
+    ])
+    expect(ld['@type']).toBe('BreadcrumbList')
+    expect((ld.itemListElement as { position: number }[])[1].position).toBe(2)
   })
 })

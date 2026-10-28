@@ -3,13 +3,16 @@ const HOST = 'www.annuaire-tsa.fr'
 
 const urls = [
   `https://${HOST}/`,
-  `https://${HOST}/suggerer`,
-  `https://${HOST}/livres`,
-  `https://${HOST}/livres/suggerer`,
   `https://${HOST}/apropos`,
+  `https://${HOST}/cra`,
+  `https://${HOST}/associations`,
+  `https://${HOST}/ressources/livres`,
+  `https://${HOST}/ressources/videos`,
   `https://${HOST}/contact`,
   `https://${HOST}/mentions`,
-  `https://${HOST}/departement/93`
+  `https://${HOST}/remerciements`,
+  `https://${HOST}/donnees-praticiens`,
+  `https://${HOST}/llms.txt`
 ]
 
 const res = await fetch('https://api.indexnow.org/indexnow', {

@@ -8,9 +8,10 @@ import {
   suggestionsLivre
 } from '~/search/documents'
 
-useSeoMeta({
+usePageSeo({
   title: 'Livres TSA — Sélection de livres sur l\'autisme',
-  description: 'Sélection collaborative et gratuite de livres sur le trouble du spectre autistique — grands classiques et dernières parutions.'
+  description: 'Sélection collaborative et gratuite de livres sur le trouble du spectre autistique — grands classiques et dernières parutions.',
+  path: '/ressources/livres'
 })
 
 const { fetchLivres } = useApi()

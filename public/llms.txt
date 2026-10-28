@@ -1,0 +1,31 @@
+# Annuaire TSA
+
+> Annuaire collaboratif et gratuit de praticiens spécialisés dans les troubles du spectre autistique (TSA) en France. Sans publicité, sans inscription.
+
+Site: https://www.annuaire-tsa.fr
+Langue: fr
+Licence code: AGPL-3.0 — https://github.com/Pandorra40/annuaire-tsa
+
+## Pages clés
+
+- Accueil / recherche praticiens: https://www.annuaire-tsa.fr/
+- À propos: https://www.annuaire-tsa.fr/apropos
+- Centres Ressources Autisme (CRA) et parcours diagnostic: https://www.annuaire-tsa.fr/cra
+- Associations: https://www.annuaire-tsa.fr/associations
+- Livres: https://www.annuaire-tsa.fr/ressources/livres
+- Données praticiens (RGPD): https://www.annuaire-tsa.fr/donnees-praticiens
+- Contact: https://www.annuaire-tsa.fr/contact
+
+## Contenu
+
+- ~323 fiches praticiens (psychologues, neuropsychologues, orthophonistes, ergothérapeutes, psychomotriciens, structures…)
+- ~290 associations
+- Fiches département: /departement/{code}
+- Fiches praticien: /praticien/{id}
+- Fiches association: /association/{id}
+
+## Règles
+
+- Les informations sont fournies à titre indicatif ; elles ne constituent pas un avis médical.
+- Les fiches sont vérifiées manuellement (RPPS) avant publication.
+- Ne pas citer comme source officielle de l'État ; renvoyer aussi vers les CRA et Autisme Info Service.

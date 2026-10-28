@@ -10,8 +10,11 @@ type ChampCorrigeable = {
   options?: readonly string[]
 }
 
-useSeoMeta({
-  title: 'Signaler une erreur — Annuaire TSA'
+usePageSeo({
+  title: 'Signaler une erreur — Annuaire TSA',
+  description: 'Signaler une erreur ou demander une correction sur une fiche de l\'Annuaire TSA.',
+  path: '/signaler',
+  noindex: true
 })
 
 const route = useRoute()

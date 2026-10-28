@@ -1,6 +1,8 @@
 <script setup lang="ts">
-useSeoMeta({
-  title: 'Mentions légales — Annuaire TSA'
+usePageSeo({
+  title: 'Mentions légales — Annuaire TSA',
+  description: 'Mentions légales de l\'Annuaire TSA : éditeur, hébergeur, propriété intellectuelle et protection des données.',
+  path: '/mentions'
 })
 </script>
 

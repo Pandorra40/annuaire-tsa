@@ -2,9 +2,11 @@
 import { TYPES_PRATICIENS, AGES_OPTIONS, DELAIS_PRATICIEN } from '~/types/index'
 import { normaliserUrl } from '~/utils/url'
 
-useSeoMeta({
+usePageSeo({
   title: 'Suggérer un praticien — Annuaire TSA',
-  description: 'Vous connaissez un praticien spécialisé dans l\'autisme qui n\'apparaît pas encore dans l\'Annuaire TSA ? Signalez-le ici pour l\'ajouter et aider d\'autres familles à le trouver.'
+  description: 'Vous connaissez un praticien spécialisé dans l\'autisme qui n\'apparaît pas encore dans l\'Annuaire TSA ? Signalez-le ici pour l\'ajouter et aider d\'autres familles à le trouver.',
+  path: '/suggerer',
+  noindex: true
 })
 
 const { suggererPraticien } = useApi()

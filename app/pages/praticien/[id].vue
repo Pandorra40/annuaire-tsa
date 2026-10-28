@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Praticien } from '~/types/index'
 import { initiales, isNew } from '~/composables/usePraticien'
-import { jsonLdPraticien } from '~/utils/schemaOrg'
+import { jsonLdFilAriane, jsonLdPraticien } from '~/utils/schemaOrg'
+import { slugVille } from '~/utils/villeSlug'
 
 const route = useRoute()
 const router = useRouter()
@@ -80,21 +81,31 @@ onMounted(async () => {
   }
 })
 
-useSeoMeta({
+usePageSeo({
   title: computed(() => praticien.value ? `${praticien.value.nom} — Annuaire TSA` : 'Fiche praticien — Annuaire TSA'),
-  description: computed(() => praticien.value ? echapperMeta(descriptionPraticien(praticien.value)) : '')
+  description: computed(() => praticien.value ? echapperMeta(descriptionPraticien(praticien.value)) : ''),
+  path: computed(() => `/praticien/${id}`)
 })
 
-// JSON-LD fiche (complète le WebSite global d'app.vue, sans le dupliquer).
-// Uniquement des champs déjà affichés : pas d'aggregateRating ni d'horaires.
+// JSON-LD fiche + fil d'Ariane. Uniquement des champs déjà affichés.
 useHead({
   script: computed(() => {
     if (!praticien.value) return []
-    return [{
-      key: 'ld-praticien',
-      type: 'application/ld+json',
-      innerHTML: JSON.stringify(jsonLdPraticien(praticien.value))
-    }]
+    return [
+      {
+        key: 'ld-praticien',
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify(jsonLdPraticien(praticien.value))
+      },
+      {
+        key: 'ld-breadcrumb-praticien',
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify(jsonLdFilAriane([
+          { name: 'Accueil', path: '/' },
+          { name: praticien.value.nom, path: `/praticien/${praticien.value.id}` }
+        ]))
+      }
+    ]
   })
 })
 
@@ -315,6 +326,9 @@ function libelleIdentifiant(num: string, type?: string) {
                  chose, et désigner quelques-uns ferait porter un soupçon là où la
                  vérification a conclu l'inverse. -->
             <p class="text-xs text-gray-500 leading-relaxed mt-4 pt-4 border-t border-gray-100">
+              <template v-if="praticien.created_at">
+                Fiche publiée le {{ new Date(praticien.created_at).toLocaleDateString('fr-FR') }}.
+              </template>
               Les informations sont vérifiées au moment de la publication. Les disponibilités et
               les tarifs peuvent avoir changé depuis : confirmez-les auprès du praticien avant de
               vous déplacer.
@@ -424,9 +438,18 @@ function libelleIdentifiant(num: string, type?: string) {
                 <p class="text-gray-600 text-sm mb-2">
                   {{ adresseComplete(praticien.adresse, praticien.ville, praticien.departement) }}
                 </p>
-                <NuxtLink v-if="praticien.departement" :to="`/departement/${praticien.departement}`" class="inline-flex items-center gap-1.5 text-indigo-600 text-sm hover:text-indigo-700 transition-colors font-medium">
-                  Voir tous les praticiens du {{ praticien.departement }} →
-                </NuxtLink>
+                <div class="flex flex-wrap gap-x-4 gap-y-1">
+                  <NuxtLink
+                    v-if="praticien.ville"
+                    :to="`/ville/${slugVille(praticien.ville)}`"
+                    class="inline-flex items-center gap-1.5 text-indigo-600 text-sm hover:text-indigo-700 transition-colors font-medium"
+                  >
+                    Voir les praticiens à {{ praticien.ville }} →
+                  </NuxtLink>
+                  <NuxtLink v-if="praticien.departement" :to="`/departement/${praticien.departement}`" class="inline-flex items-center gap-1.5 text-indigo-600 text-sm hover:text-indigo-700 transition-colors font-medium">
+                    Voir tous les praticiens du {{ praticien.departement }} →
+                  </NuxtLink>
+                </div>
               </div>
               <div v-if="aSecondLieu">
                 <p class="text-xs font-semibold text-gray-500 mb-1">Lieu 2</p>

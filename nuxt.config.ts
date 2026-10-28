@@ -81,6 +81,7 @@ export default defineNuxtConfig({
       }
     },
     '/': { prerender: true },
+    '/ressources': { redirect: { to: '/ressources/livres', statusCode: 301 } },
     '/ressources/livres': { prerender: true },
     '/ressources/videos': { prerender: true },
     '/cra': { prerender: true },
@@ -88,6 +89,8 @@ export default defineNuxtConfig({
     '/mentions': { prerender: true },
     '/remerciements': { prerender: true },
     '/couts': { redirect: { to: '/remerciements', statusCode: 301 } },
+    '/recherche': { redirect: { to: '/', statusCode: 301 } },
+    '/recherche/**': { redirect: { to: '/', statusCode: 301 } },
     '/contact': { prerender: true },
     '/suggerer': { prerender: true },
     '/associations/suggerer': { prerender: true },
@@ -101,7 +104,9 @@ export default defineNuxtConfig({
     '/admin/modifier-association': { prerender: true },
     '/admin/stats': { prerender: true },
     '/admin/contacts': { prerender: true },
-    '/stats': { redirect: { to: '/admin/stats', statusCode: 301 } }
+    '/stats': { redirect: { to: '/admin/stats', statusCode: 301 } },
+    // Page maintenance : ne pas prérendre (évite un HTML « site down » indexable).
+    '/maintenance': { prerender: false }
   },
 
   compatibilityDate: '2025-01-15',
@@ -137,14 +142,34 @@ export default defineNuxtConfig({
 
       try {
         const [praticiens, associations] = await Promise.all([
-          ofetch<{ id: number, departement: string }[]>(`${base}/praticiens`),
+          ofetch<{
+            id: number
+            ville?: string
+            ville2?: string | null
+            departement: string
+            departement2?: string | null
+          }[]>(`${base}/praticiens`),
           ofetch<{ id: number }[]>(`${base}/associations`)
         ])
 
-        for (const p of praticiens) routes.push(`/praticien/${p.id}`)
+        const { slugVille } = await import('./app/utils/villeSlug')
+        const depts = new Set<string>()
+        const villes = new Map<string, number>()
+
+        for (const p of praticiens) {
+          routes.push(`/praticien/${p.id}`)
+          if (p.departement) depts.add(p.departement)
+          if (p.departement2) depts.add(p.departement2)
+          for (const v of [p.ville, p.ville2]) {
+            if (!v?.trim()) continue
+            const s = slugVille(v)
+            if (s) villes.set(s, (villes.get(s) || 0) + 1)
+          }
+        }
         for (const a of associations) routes.push(`/association/${a.id}`)
-        for (const dep of new Set(praticiens.map(p => p.departement))) {
-          if (dep) routes.push(`/departement/${dep}`)
+        for (const dep of depts) routes.push(`/departement/${dep}`)
+        for (const [s, n] of villes) {
+          if (n >= 5) routes.push(`/ville/${s}`)
         }
 
         console.info(`[prerender] ${routes.length} fiches ajoutées au pré-rendu`)
@@ -258,11 +283,23 @@ export default defineNuxtConfig({
   // faisait rien. Le signalement à IndexNow se fait par indexnow.mjs, à la
   // racine du projet, lancé à la main.
   sitemap: {
+    // Les routes découvertes au prérendu (dont départements vides via
+    // liens limitrophes) ne doivent pas polluer le sitemap : on ne garde
+    // que la source explicite (statiques + fiches avec données).
+    excludeAppSources: true,
     sources: ['/api/__sitemap__/fiches'],
     exclude: [
       '/admin',
       '/admin/**',
-      '/signaler'
+      '/signaler',
+      '/stats',
+      '/maintenance',
+      '/ressources',
+      '/suggerer',
+      '/associations/suggerer',
+      '/ressources/livres/suggerer',
+      '/recherche',
+      '/recherche/**'
     ]
   }
 })

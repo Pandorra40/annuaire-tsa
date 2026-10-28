@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Association } from '~/types/index'
-import { jsonLdAssociation } from '~/utils/schemaOrg'
+import { jsonLdAssociation, jsonLdFilAriane } from '~/utils/schemaOrg'
 
 const route = useRoute()
 const router = useRouter()
@@ -47,20 +47,40 @@ const titre = computed(() => {
   return tronquerPourTitre(complet) === complet ? complet : tronquerPourTitre(nom)
 })
 
-useSeoMeta({
-  title: titre,
-  description: computed(() => association.value ? echapperMeta(descriptionAssociation(association.value)) : '')
+// Fiches très fines (presque sans description) : pas d'indexation jusqu'à enrichissement.
+const associationFine = computed(() => {
+  const a = association.value
+  if (!a) return false
+  const mots = (a.description || '').trim().split(/\s+/).filter(Boolean).length
+  return mots < 25
 })
 
-// JSON-LD fiche association (complète le WebSite global d'app.vue).
+usePageSeo({
+  title: titre,
+  description: computed(() => association.value ? echapperMeta(descriptionAssociation(association.value)) : ''),
+  path: computed(() => `/association/${id}`),
+  noindex: associationFine
+})
+
 useHead({
   script: computed(() => {
     if (!association.value) return []
-    return [{
-      key: 'ld-association',
-      type: 'application/ld+json',
-      innerHTML: JSON.stringify(jsonLdAssociation(association.value))
-    }]
+    return [
+      {
+        key: 'ld-association',
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify(jsonLdAssociation(association.value))
+      },
+      {
+        key: 'ld-breadcrumb-association',
+        type: 'application/ld+json',
+        innerHTML: JSON.stringify(jsonLdFilAriane([
+          { name: 'Accueil', path: '/' },
+          { name: 'Associations', path: '/associations' },
+          { name: association.value.nom, path: `/association/${association.value.id}` }
+        ]))
+      }
+    ]
   })
 })
 </script>

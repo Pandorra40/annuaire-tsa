@@ -1,12 +1,17 @@
 <script setup lang="ts">
-useSeoMeta({
+usePageSeo({
   title: 'À propos — Annuaire TSA',
-  description: 'Présentation de l\'Annuaire TSA, projet collaboratif et gratuit de praticiens spécialisés dans les troubles du spectre autistique.'
+  description: 'Présentation de l\'Annuaire TSA, projet collaboratif et gratuit de praticiens spécialisés dans les troubles du spectre autistique.',
+  path: '/apropos'
 })
 
 const falcMode = useFalcMode()
 
 const faqNormal = [
+  {
+    label: 'Comment trouver un psychologue spécialisé autisme en France ?',
+    content: 'Utilisez la recherche de l\'Annuaire TSA par ville, département ou métier (psychologue, neuropsychologue, orthophoniste…). Filtrez par public (enfant, adolescent, adulte) ou téléconsultation. Vérifiez ensuite le praticien (RPPS, cabinet) et, pour un diagnostic, renseignez-vous aussi auprès du CRA de votre région. Les informations sont indicatives et ne remplacent pas un avis médical.'
+  },
   {
     label: 'Qu\'est-ce que l\'Annuaire TSA ?',
     content: 'L\'Annuaire TSA est une ressource complète et gratuite pour les familles concernées par les troubles du spectre autistique. Il comprend un annuaire de praticiens spécialisés (psychiatres, psychologues, neuropsychologues, orthophonistes, ergothérapeutes, psychomotriciens), un annuaire de 290 associations TSA en France, et une sélection de livres sur le TSA. Chaque fiche praticien est vérifiée manuellement avant publication.'
@@ -61,6 +66,29 @@ const faqFalc = [
 ]
 
 const faq = computed(() => falcMode.value ? faqFalc : faqNormal)
+
+// FAQPage pour la citabilité IA / GEO (pas un objectif de rich results Google).
+useHead({
+  script: computed(() => {
+    if (falcMode.value) return []
+    return [{
+      key: 'ld-faq',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        'mainEntity': faqNormal.map(item => ({
+          '@type': 'Question',
+          'name': item.label,
+          'acceptedAnswer': {
+            '@type': 'Answer',
+            'text': item.content
+          }
+        }))
+      })
+    }]
+  })
+})
 </script>
 
 <template>
@@ -197,8 +225,21 @@ const faq = computed(() => falcMode.value ? faqFalc : faqNormal)
               {{ falcMode ? 'Questions' : 'Questions fréquentes' }}
             </h2>
           </div>
-          <div class="p-2">
-            <UAccordion :items="faq" />
+          <!-- Réponses en HTML SSR (details) pour crawlers / IA — pas seulement l'accordéon JS. -->
+          <div class="divide-y divide-gray-100">
+            <details
+              v-for="(item, i) in faq"
+              :key="i"
+              class="group px-6 py-4"
+            >
+              <summary class="cursor-pointer list-none font-semibold text-gray-900 flex items-center justify-between gap-3">
+                <span>{{ item.label }}</span>
+                <span class="text-gray-400 group-open:rotate-180 transition-transform" aria-hidden="true">▾</span>
+              </summary>
+              <p class="mt-3 text-gray-600 leading-relaxed text-sm sm:text-base">
+                {{ item.content }}
+              </p>
+            </details>
           </div>
         </div>
 

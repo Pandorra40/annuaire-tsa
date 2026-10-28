@@ -2,9 +2,11 @@
 import { TYPES_ASSOCIATION } from '~/types/index'
 import { normaliserUrl } from '~/utils/url'
 
-useSeoMeta({
+usePageSeo({
   title: 'Suggérer une association — Annuaire TSA',
-  description: 'Vous animez ou connaissez une association spécialisée dans l\'autisme qui n\'apparaît pas encore dans l\'annuaire ? Signalez-la ici.'
+  description: 'Vous animez ou connaissez une association spécialisée dans l\'autisme qui n\'apparaît pas encore dans l\'annuaire ? Signalez-la ici.',
+  path: '/associations/suggerer',
+  noindex: true
 })
 
 const { suggererAssociation } = useApi()

@@ -8,9 +8,10 @@ import {
   suggestionsAssociation
 } from '~/search/documents'
 
-useSeoMeta({
+usePageSeo({
   title: 'Associations TSA — Annuaire TSA',
-  description: 'Trouvez une association spécialisée dans les troubles du spectre autistique près de chez vous. Associations de familles, de personnes concernées et de professionnels TSA en France.'
+  description: 'Trouvez une association spécialisée dans les troubles du spectre autistique près de chez vous. Associations de familles, de personnes concernées et de professionnels TSA en France.',
+  path: '/associations'
 })
 
 const { fetchAssociations } = useApi()

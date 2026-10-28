@@ -7,11 +7,6 @@ const { fetchPraticiensDepartement } = useApi()
 
 const nomDept = computed(() => nomDepartement(num))
 
-useSeoMeta({
-  title: computed(() => `Praticiens TSA — Département ${num} (${nomDept.value})`),
-  description: computed(() => `Trouvez un praticien spécialisé TSA dans le département ${num} — ${nomDept.value}. Psychiatres, psychologues, orthophonistes, ergothérapeutes.`)
-})
-
 // Rendu au build pour que les moteurs voient la liste (SEO) et qu'elle
 // s'affiche immédiatement.
 const { data: tous, status } = await useAsyncData(`praticiens-dep-${num}`, () => fetchPraticiensDepartement(num))
@@ -41,6 +36,33 @@ const praticiens = computed<Praticien[]>(() =>
     || p.departement2 === num.toUpperCase() || p.departement2 === num
   )
 )
+
+usePageSeo({
+  title: computed(() => `Praticiens TSA — Département ${num} (${nomDept.value})`),
+  description: computed(() =>
+    `Trouvez un praticien spécialisé TSA dans le département ${num} — ${nomDept.value}. Psychologues, neuropsychologues, orthophonistes, ergothérapeutes.`
+  ),
+  path: computed(() => `/departement/${num}`),
+  noindex: computed(() => praticiens.value.length === 0)
+})
+
+useHead({
+  script: computed(() => {
+    if (!praticiens.value.length) return []
+    return [{
+      key: 'ld-breadcrumb-dept',
+      type: 'application/ld+json',
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          { '@type': 'ListItem', 'position': 1, 'name': 'Accueil', 'item': 'https://www.annuaire-tsa.fr/' },
+          { '@type': 'ListItem', 'position': 2, 'name': `Département ${num}`, 'item': `https://www.annuaire-tsa.fr/departement/${num}` }
+        ]
+      })
+    }]
+  })
+})
 
 // Mêmes filtres que sur l'accueil. Cette page était la seule liste du site
 // sans aucun moyen de se réduire, alors qu'on y atterrit depuis une fiche.

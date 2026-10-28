@@ -3,8 +3,12 @@ const props = defineProps<{ error: { statusCode: number, message: string } }>()
 
 const is404 = computed(() => props.error.statusCode === 404)
 
-useSeoMeta({
-  title: is404.value ? 'Page introuvable — Annuaire TSA' : 'Erreur — Annuaire TSA'
+usePageSeo({
+  title: is404.value ? 'Page introuvable — Annuaire TSA' : 'Erreur — Annuaire TSA',
+  description: is404.value
+    ? 'La page demandée n\'existe pas ou a été déplacée sur l\'Annuaire TSA.'
+    : 'Une erreur est survenue sur l\'Annuaire TSA.',
+  noindex: true
 })
 
 const handleError = () => clearError({ redirect: '/' })

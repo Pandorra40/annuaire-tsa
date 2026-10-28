@@ -1,7 +1,8 @@
 <script setup lang="ts">
-useSeoMeta({
+usePageSeo({
   title: 'Contact — Annuaire TSA',
-  description: 'Écrire à l\'Annuaire TSA : question sur le projet, signalement d\'une erreur ou suggestion concernant les praticiens et associations spécialisés dans l\'autisme référencés sur le site.'
+  description: 'Écrire à l\'Annuaire TSA : question sur le projet, signalement d\'une erreur ou suggestion concernant les praticiens et associations spécialisés dans l\'autisme référencés sur le site.',
+  path: '/contact'
 })
 
 const falcMode = useFalcMode()

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { GRATUIT } from '~/data/finances'
 
-useSeoMeta({
+usePageSeo({
   title: 'Remerciements — Annuaire TSA',
-  description: 'L\'Annuaire TSA est gratuit grâce à des associations, des services publics, du logiciel libre — et un peu d\'hébergement payé par l\'éditeur, sans demande de don.'
+  description: 'L\'Annuaire TSA est gratuit grâce à des associations, des services publics, du logiciel libre — et un peu d\'hébergement payé par l\'éditeur, sans demande de don.',
+  path: '/remerciements'
 })
 </script>
 
