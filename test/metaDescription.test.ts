@@ -66,8 +66,8 @@ describe('descriptionAssociation', () => {
       nom: 'GEM TSA AUBUSSON 23',
       ville: '',
       departement: '23',
-      type_association: "Association de personnes concernées, GEM",
-      description: "Le GEM : un lieu d'écoute et de rencontres pour des personnes avec un Trouble du Spectre de l'Autisme"
+      type_association: 'Association de personnes concernées, GEM',
+      description: 'Le GEM : un lieu d\'écoute et de rencontres pour des personnes avec un Trouble du Spectre de l\'Autisme'
     }
     const d = descriptionAssociation(a)
     expect(d).toContain('écoute')
