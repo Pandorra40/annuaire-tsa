@@ -86,12 +86,13 @@ const enChargement = computed(() =>
 const route = useRoute()
 const router = useRouter()
 
-// État initialisé depuis l'URL (restauré au retour navigateur, partageable par lien)
-const search = ref((route.query.q as string) || '')
-const filtreType = ref((route.query.type as string) || 'tous')
-const filtreAge = ref((route.query.age as string) || 'tous')
-const filtreTele = ref((route.query.tele as string) || 'tous')
-const filtreBilans = ref((route.query.bilans as string) || 'tous')
+// Comme signaler.vue : page prérendue sans query au build — une lecture unique
+// de route.query laisse q/type/… vides sur un chargement direct /?q=…
+const search = ref('')
+const filtreType = ref('tous')
+const filtreAge = ref('tous')
+const filtreTele = ref('tous')
+const filtreBilans = ref('tous')
 
 const howItWorks = [
   { titre: 'Trouver un spécialiste', desc: 'Recherchez par ville, département ou spécialité. Filtrez selon vos besoins.', emoji: '🔍', bg: 'bg-indigo-50 border-indigo-100', iconBg: 'bg-indigo-100' },
@@ -107,11 +108,54 @@ const specialites = [
 ]
 
 const PAGE_SIZE = 20
-const page = ref(Number(route.query.page) || 1)
+const page = ref(1)
+
+function queryDepuisEtat(): Record<string, string> {
+  const query: Record<string, string> = {}
+  if (search.value.trim()) query.q = search.value.trim()
+  if (filtreType.value !== 'tous') query.type = filtreType.value
+  if (filtreAge.value !== 'tous') query.age = filtreAge.value
+  if (filtreTele.value !== 'tous') query.tele = filtreTele.value
+  if (filtreBilans.value !== 'tous') query.bilans = filtreBilans.value
+  if (page.value > 1) query.page = String(page.value)
+  return query
+}
+
+function etatDepuisQuery() {
+  search.value = (route.query.q as string) || ''
+  filtreType.value = (route.query.type as string) || 'tous'
+  filtreAge.value = (route.query.age as string) || 'tous'
+  filtreTele.value = (route.query.tele as string) || 'tous'
+  filtreBilans.value = (route.query.bilans as string) || 'tous'
+  page.value = Number(route.query.page) || 1
+}
+
+function memeQuery(a: Record<string, string>, b: typeof route.query) {
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)])
+  for (const k of keys) {
+    const va = a[k] ?? ''
+    const vb = b[k]
+    const sb = Array.isArray(vb) ? (vb[0] ?? '') : (vb ?? '')
+    if (va !== sb) return false
+  }
+  return true
+}
+
+// Empêche write-back / reset page pendant qu'on applique l'URL → refs
+let syncDepuisUrl = false
+
+function appliquerQueryUrl() {
+  if (memeQuery(queryDepuisEtat(), route.query)) return
+  syncDepuisUrl = true
+  etatDepuisQuery()
+  nextTick(() => { syncDepuisUrl = false })
+}
+
+watch(() => route.query, appliquerQueryUrl, { deep: true, immediate: true })
 
 // Le filtrage vit dans FiltresPraticiens, qui l'expose : les compteurs de
 // chaque pastille s'en servent déjà, et le dupliquer ici les ferait diverger.
-const filtres = ref<{ passe: (p: Praticien) => boolean } | null>(null)
+const filtres = ref<{ passe: (p: Praticien) => boolean, toutEffacer: () => void } | null>(null)
 
 const praticiensFiltres = computed(() => {
   const test = filtres.value?.passe
@@ -124,20 +168,17 @@ const totalPages = computed(() => Math.ceil(praticiensFiltres.value.length / PAG
 const pageActuelle = computed(() => Math.min(Math.max(page.value, 1), Math.max(totalPages.value, 1)))
 const praticiensPagines = computed(() => praticiensFiltres.value.slice((pageActuelle.value - 1) * PAGE_SIZE, pageActuelle.value * PAGE_SIZE))
 
-// Un changement de filtre revient à la page 1
+// Un changement de filtre (UI) revient à la page 1 — pas pendant un sync URL
 watch([search, filtreType, filtreAge, filtreTele, filtreBilans], () => {
+  if (syncDepuisUrl) return
   page.value = 1
 })
 
 // Reflète l'état (page + filtres) dans l'URL pour le restaurer au retour navigateur
 watch([search, filtreType, filtreAge, filtreTele, filtreBilans, page], () => {
-  const query: Record<string, string> = {}
-  if (search.value.trim()) query.q = search.value.trim()
-  if (filtreType.value !== 'tous') query.type = filtreType.value
-  if (filtreAge.value !== 'tous') query.age = filtreAge.value
-  if (filtreTele.value !== 'tous') query.tele = filtreTele.value
-  if (filtreBilans.value !== 'tous') query.bilans = filtreBilans.value
-  if (page.value > 1) query.page = String(page.value)
+  if (syncDepuisUrl) return
+  const query = queryDepuisEtat()
+  if (memeQuery(query, route.query)) return
   router.replace({ query })
 })
 
@@ -168,7 +209,8 @@ function scrollToAnnuaire() {
              l'écran et coupait mal. Il reste grand, il s'adapte simplement. -->
         <h1 class="titre-hero font-black leading-tight mb-6 tracking-tight text-gray-900 mx-auto" style="font-size: clamp(2.5rem, 5.5vw, 4.5rem); text-wrap: balance; max-width: 18ch">
           Trouvez un
-          <span style="background: linear-gradient(90deg, #f87171 0%, #fb923c 20%, #fbbf24 40%, #4ade80 60%, #60a5fa 80%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">spécialiste en autisme</span>
+          <!-- Dégradé plus sombre : chaque stop ≥ ~4,5:1 sur le fond clair du hero (AA large text ≥ 3:1). Anciens jaunes/verts pâles échouaient 1.4.3. -->
+          <span style="background: linear-gradient(90deg, #dc2626 0%, #c2410c 20%, #a16207 40%, #15803d 60%, #1d4ed8 80%, #6d28d9 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">spécialiste en autisme</span>
           près de chez vous
         </h1>
 
@@ -221,8 +263,15 @@ function scrollToAnnuaire() {
             <span v-if="totalPages > 1"> — page {{ pageActuelle }} / {{ totalPages }}</span>
           </p>
 
-          <div v-if="praticiensFiltres.length === 0" class="text-center py-16 text-gray-500">
-            Aucun résultat pour ces critères.
+          <div v-if="praticiensFiltres.length === 0" class="text-center py-16 text-gray-500 space-y-4">
+            <p>Aucun résultat pour ces critères.</p>
+            <button
+              type="button"
+              class="inline-flex px-4 py-2 text-sm font-semibold text-indigo-700 underline underline-offset-2 hover:text-indigo-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 rounded"
+              @click="filtres?.toutEffacer()"
+            >
+              Effacer les filtres
+            </button>
           </div>
 
           <div v-else class="space-y-3">
@@ -233,15 +282,16 @@ function scrollToAnnuaire() {
           <div v-if="totalPages > 1" class="flex items-center justify-center gap-2 mt-8 flex-wrap">
             <button type="button"
               :disabled="pageActuelle === 1"
-              class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 disabled:opacity-40 hover:border-gray-400 transition-colors"
+              class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 disabled:opacity-40 hover:border-gray-400 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               @click="page = pageActuelle - 1; scrollToAnnuaire()"
             >← Précédent</button>
             <div class="flex gap-1 flex-wrap justify-center">
               <template v-for="p in totalPages" :key="p">
                 <button type="button"
                   v-if="p === 1 || p === totalPages || (p >= pageActuelle - 2 && p <= pageActuelle + 2)"
-                  class="w-9 h-9 rounded-lg text-sm font-semibold border transition-colors"
+                  class="w-9 h-9 rounded-lg text-sm font-semibold border transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                   :class="p === pageActuelle ? 'bg-gray-900 text-white border-gray-900' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400'"
+                  :aria-current="p === pageActuelle ? 'page' : undefined"
                   @click="page = p; scrollToAnnuaire()"
                 >{{ p }}</button>
                 <span v-else-if="p === pageActuelle - 3 || p === pageActuelle + 3" class="w-9 h-9 flex items-center justify-center text-gray-400 text-sm">…</span>
@@ -249,7 +299,7 @@ function scrollToAnnuaire() {
             </div>
             <button type="button"
               :disabled="pageActuelle === totalPages"
-              class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 disabled:opacity-40 hover:border-gray-400 transition-colors"
+              class="px-3 py-1.5 border border-gray-200 rounded-lg text-sm font-medium text-gray-600 disabled:opacity-40 hover:border-gray-400 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               @click="page = pageActuelle + 1; scrollToAnnuaire()"
             >Suivant →</button>
           </div>

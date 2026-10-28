@@ -310,7 +310,7 @@ async function soumettre() {
           <div class="space-y-5">
             <div>
               <label for="motif" class="block text-sm font-semibold text-gray-700 mb-1.5">Motif *</label>
-              <select id="motif" v-model="form.motif" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 transition-all">
+              <select id="motif" v-model="form.motif" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 transition-all">
                 <option value="">— Choisir un motif —</option>
                 <option v-for="m in motifs" :key="m" :value="m">{{ m }}</option>
               </select>
@@ -378,7 +378,7 @@ async function soumettre() {
                         v-if="metaChamp(cle)?.type === 'select'"
                         :id="`corr-${cle}`"
                         v-model="corrections[cle]"
-                        class="w-full border border-indigo-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 bg-white text-gray-900"
+                        class="w-full border border-indigo-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-white text-gray-900"
                       >
                         <option value="">— Choisir —</option>
                         <option v-for="opt in metaChamp(cle)?.options ?? []" :key="opt" :value="opt">{{ opt }}</option>
@@ -389,7 +389,7 @@ async function soumettre() {
                         v-model="corrections[cle]"
                         :rows="metaChamp(cle)?.lignes ?? 2"
                         placeholder="La bonne information…"
-                        class="w-full border border-indigo-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 bg-white text-gray-900 resize-vertical"
+                        class="w-full border border-indigo-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-white text-gray-900 resize-vertical"
                       />
                     </div>
                   </div>
@@ -400,7 +400,7 @@ async function soumettre() {
                 <label for="details" class="block text-sm font-semibold text-gray-700 mb-1.5">
                   Autre chose à signaler ? <span class="text-gray-500 font-normal">(optionnel)</span>
                 </label>
-                <textarea id="details" v-model="form.details" rows="2" placeholder="Le contexte qu'aucune rubrique ci-dessus ne couvre." class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
+                <textarea id="details" v-model="form.details" rows="2" placeholder="Le contexte qu'aucune rubrique ci-dessus ne couvre." class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 bg-gray-50 text-gray-900 resize-vertical transition-all" />
               </div>
             </div>
 
@@ -410,7 +410,7 @@ async function soumettre() {
                 Détails <span v-if="!demandeRetrait">*</span>
                 <span v-else class="text-gray-500 font-normal">(optionnel)</span>
               </label>
-              <textarea id="details" v-model="form.details" rows="4" :placeholder="demandeRetrait ? 'Un mot si vous le souhaitez — ce n\'est pas nécessaire.' : 'Qu\'est-ce qui est inexact, et quelle est la bonne information ? Exemple : le téléphone est le 06 12 34 56 78, plus le 04…'" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-400 focus:ring-2 focus:ring-red-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
+              <textarea id="details" v-model="form.details" rows="4" :placeholder="demandeRetrait ? 'Un mot si vous le souhaitez — ce n\'est pas nécessaire.' : 'Qu\'est-ce qui est inexact, et quelle est la bonne information ? Exemple : le téléphone est le 06 12 34 56 78, plus le 04…'" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600 bg-gray-50 text-gray-900 resize-vertical transition-all" />
             </div>
           </div>
         </div>

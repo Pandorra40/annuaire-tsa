@@ -70,8 +70,6 @@ function passe(p: Praticien, sauf?: 'type' | 'age' | 'tele' | 'bilans') {
   return true
 }
 
-defineExpose({ passe })
-
 function compte(sauf: 'type' | 'age' | 'tele' | 'bilans', predicat: (p: Praticien) => boolean) {
   return props.praticiens.filter(p => passe(p, sauf) && predicat(p)).length
 }
@@ -110,9 +108,11 @@ function toutEffacer() {
   bilans.value = 'tous'
 }
 
+defineExpose({ passe, toutEffacer })
+
 // max-sm: la cible tactile passe à 44px sous 640px, sans rien changer au-delà —
 // en dessous, px-3 py-1.5 restait sous le minimum recommandé (environ 30px).
-const CLASSE_PASTILLE = 'px-3 py-1.5 max-sm:min-h-11 max-sm:px-4 max-sm:text-sm rounded-full text-xs font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed'
+const CLASSE_PASTILLE = 'px-3 py-1.5 max-sm:min-h-11 max-sm:px-4 max-sm:text-sm rounded-full text-xs font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
 const CLASSE_ACTIVE = 'bg-gray-900 text-white border-gray-900'
 const CLASSE_INACTIVE = 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
 </script>
@@ -206,9 +206,9 @@ const CLASSE_INACTIVE = 'bg-white text-gray-600 border-gray-200 hover:border-gra
         class="inline-flex items-center gap-1 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-full pl-3 pr-1 py-1 text-xs font-semibold"
       >
         {{ f.libelle }}
-        <button type="button" class="px-1 leading-none text-sm hover:text-indigo-900" :aria-label="`Retirer le filtre ${f.libelle}`" @click="f.retirer()">×</button>
+        <button type="button" class="px-1 leading-none text-sm hover:text-indigo-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 rounded" :aria-label="`Retirer le filtre ${f.libelle}`" @click="f.retirer()">×</button>
       </span>
-      <button v-if="filtresActifs.length" type="button" class="ml-auto text-xs text-gray-500 underline hover:text-gray-700" @click="toutEffacer">
+      <button v-if="filtresActifs.length" type="button" class="ml-auto text-xs text-gray-500 underline hover:text-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 rounded" @click="toutEffacer">
         Tout effacer
       </button>
     </div>

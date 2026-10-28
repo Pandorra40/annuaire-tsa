@@ -12,7 +12,7 @@ usePageSeo({
 const { suggererPraticien } = useApi()
 const falcMode = useFalcMode()
 
-const champ = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all'
+const champ = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all'
 
 const form = reactive({
   nom: '',
@@ -405,7 +405,7 @@ async function soumettre() {
                   :aria-describedby="erreursChamps.adeli ? 'adeli-erreur adeli-aide' : 'adeli-aide'"
                   :aria-invalid="!!erreursChamps.adeli"
                   :placeholder="estStructure ? 'Ex. 12345678901234' : 'Ex. 10001234567'"
-                  :class="[champ, erreursChamps.adeli ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : '']"
+                  :class="[champ, erreursChamps.adeli ? 'border-red-400 focus:border-red-400 focus-visible:outline-red-600' : '']"
                   @input="delete erreursChamps.adeli"
                 >
                 <p v-if="erreursChamps.adeli" id="adeli-erreur" class="text-xs text-red-600 mt-2">{{ erreursChamps.adeli }}</p>
@@ -519,7 +519,7 @@ async function soumettre() {
                     placeholder="www.doctolib.fr/…"
                     :aria-invalid="!!erreursChamps.site_web"
                     :aria-describedby="erreursChamps.site_web ? 'site_web-erreur' : undefined"
-                    :class="[champ, erreursChamps.site_web ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : '']"
+                    :class="[champ, erreursChamps.site_web ? 'border-red-400 focus:border-red-400 focus-visible:outline-red-600' : '']"
                     @input="delete erreursChamps.site_web"
                   >
                   <p v-if="erreursChamps.site_web" id="site_web-erreur" class="text-xs text-red-600 mt-2">{{ erreursChamps.site_web }}</p>
@@ -584,7 +584,7 @@ async function soumettre() {
                     placeholder="vous@exemple.fr"
                     :aria-describedby="erreursChamps.contact_auteur ? 'contact-auteur-erreur contact-auteur-aide' : 'contact-auteur-aide'"
                     :aria-invalid="!!erreursChamps.contact_auteur"
-                    :class="[champ, erreursChamps.contact_auteur ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : '']"
+                    :class="[champ, erreursChamps.contact_auteur ? 'border-red-400 focus:border-red-400 focus-visible:outline-red-600' : '']"
                     @input="delete erreursChamps.contact_auteur"
                   >
                   <p v-if="erreursChamps.contact_auteur" id="contact-auteur-erreur" class="text-xs text-red-600 mt-2">{{ erreursChamps.contact_auteur }}</p>

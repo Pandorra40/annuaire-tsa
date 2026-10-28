@@ -171,7 +171,7 @@ function scrollTop() {
             <select
               v-model="filtreDept"
               aria-label="Filtrer par département"
-              class="w-full sm:w-64 px-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
+              class="w-full sm:w-64 px-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all"
             >
               <option value="">Tous les départements</option>
               <option v-for="d in departementsDisponibles" :key="d.num" :value="d.num">
@@ -297,6 +297,7 @@ function scrollTop() {
                   v-if="p === 1 || p === totalPages || (p >= pageActuelle - 2 && p <= pageActuelle + 2)"
                   class="w-9 h-9 rounded-lg text-sm font-semibold border transition-colors"
                   :class="p === pageActuelle ? 'bg-gray-900 text-white border-gray-900' : 'bg-white border-gray-200 text-gray-600 hover:border-gray-400'"
+                  :aria-current="p === pageActuelle ? 'page' : undefined"
                   @click="page = p; scrollTop()"
                 >{{ p }}</button>
                 <span v-else-if="p === pageActuelle - 3 || p === pageActuelle + 3" class="w-9 h-9 flex items-center justify-center text-gray-400 text-sm">…</span>

@@ -114,19 +114,19 @@ async function soumettre() {
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label for="titre" class="block text-sm font-semibold text-gray-700 mb-1.5">Titre *</label>
-              <input id="titre" v-model="form.titre" type="text" placeholder="Le titre du livre" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <input id="titre" v-model="form.titre" type="text" placeholder="Le titre du livre" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
               <label for="auteur" class="block text-sm font-semibold text-gray-700 mb-1.5">Auteur *</label>
-              <input id="auteur" v-model="form.auteur" type="text" placeholder="Prénom Nom" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <input id="auteur" v-model="form.auteur" type="text" placeholder="Prénom Nom" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
               <label for="annee" class="block text-sm font-semibold text-gray-700 mb-1.5">Année <span class="text-gray-500 font-normal">(optionnel)</span></label>
-              <input id="annee" v-model="form.annee" type="number" placeholder="2024" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <input id="annee" v-model="form.annee" type="number" placeholder="2024" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
               <label for="categorie" class="block text-sm font-semibold text-gray-700 mb-1.5">Catégorie <span class="text-gray-500 font-normal">(optionnel)</span></label>
-              <select id="categorie" v-model="form.categorie" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all capitalize">
+              <select id="categorie" v-model="form.categorie" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all capitalize">
                 <option value="">— Choisir —</option>
                 <option v-for="cat in categories" :key="cat" :value="cat">{{ cat }}</option>
               </select>
@@ -143,7 +143,7 @@ async function soumettre() {
           <div class="space-y-5">
             <div>
               <label for="description" class="block text-sm font-semibold text-gray-700 mb-1.5">Pourquoi ce livre ?</label>
-              <textarea id="description" v-model="form.description" rows="3" placeholder="En quelques mots, pourquoi recommandez-vous ce livre ?" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
+              <textarea id="description" v-model="form.description" rows="3" placeholder="En quelques mots, pourquoi recommandez-vous ce livre ?" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 resize-vertical transition-all" />
             </div>
             <div>
               <label for="lien" class="block text-sm font-semibold text-gray-700 mb-1.5">Lien (Amazon, éditeur…)</label>
@@ -156,8 +156,8 @@ async function soumettre() {
                 placeholder="www.editeur.fr/…"
                 :aria-invalid="!!erreursChamps.lien"
                 :class="[
-                  'w-full border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 bg-gray-50 text-gray-900 transition-all',
-                  erreursChamps.lien ? 'border-red-400 focus:border-red-400 focus:ring-red-100' : 'border-gray-200 focus:border-indigo-400 focus:ring-indigo-100'
+                  'w-full border rounded-xl px-4 py-2.5 text-sm outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 bg-gray-50 text-gray-900 transition-all',
+                  erreursChamps.lien ? 'border-red-400 focus:border-red-400 focus-visible:outline-red-600' : 'border-gray-200 focus:border-indigo-400 focus-visible:outline-indigo-600'
                 ]"
                 @input="delete erreursChamps.lien"
               />

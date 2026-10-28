@@ -34,10 +34,10 @@ const success = ref(false)
 const error = ref('')
 const erreursChamps = reactive<Record<string, string>>({})
 
-const champBase = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all'
+const champBase = 'w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all'
 function classeChamp(field: string) {
   return erreursChamps[field]
-    ? `${champBase} border-red-400 focus:border-red-400 focus:ring-red-100`
+    ? `${champBase} border-red-400 focus:border-red-400 focus-visible:outline-red-600`
     : champBase
 }
 
@@ -145,30 +145,30 @@ async function soumettre() {
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div class="sm:col-span-2">
               <label for="nom" class="block text-sm font-semibold text-gray-700 mb-1.5">Nom *</label>
-              <input id="nom" v-model="form.nom" type="text" placeholder="Nom de l'association" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <input id="nom" v-model="form.nom" type="text" placeholder="Nom de l'association" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div class="sm:col-span-2">
               <label for="type" class="block text-sm font-semibold text-gray-700 mb-1.5">
                 Type <span class="text-gray-500 font-normal">(optionnel)</span>
               </label>
-              <select id="type" v-model="form.type_association" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all">
+              <select id="type" v-model="form.type_association" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all">
                 <option value="">— Choisir —</option>
                 <option v-for="t in types" :key="t" :value="t">{{ t }}</option>
               </select>
             </div>
             <div>
               <label for="ville" class="block text-sm font-semibold text-gray-700 mb-1.5">Ville *</label>
-              <input id="ville" v-model="form.ville" type="text" placeholder="Lyon" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <input id="ville" v-model="form.ville" type="text" placeholder="Lyon" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
               <label for="departement" class="block text-sm font-semibold text-gray-700 mb-1.5">Département *</label>
-              <input id="departement" v-model="form.departement" type="text" placeholder="69" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <input id="departement" v-model="form.departement" type="text" placeholder="69" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div class="sm:col-span-2">
               <label for="adresse" class="block text-sm font-semibold text-gray-700 mb-1.5">
                 Adresse <span class="text-gray-500 font-normal">(optionnel)</span>
               </label>
-              <input id="adresse" v-model="form.adresse" type="text" placeholder="12 rue de la Paix" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <input id="adresse" v-model="form.adresse" type="text" placeholder="12 rue de la Paix" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all" />
             </div>
           </div>
         </div>
@@ -183,7 +183,7 @@ async function soumettre() {
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <div>
               <label for="telephone" class="block text-sm font-semibold text-gray-700 mb-1.5">Téléphone</label>
-              <input id="telephone" v-model="form.telephone" type="tel" placeholder="01 23 45 67 89" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <input id="telephone" v-model="form.telephone" type="tel" placeholder="01 23 45 67 89" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
               <label for="email" class="block text-sm font-semibold text-gray-700 mb-1.5">Adresse électronique</label>
@@ -211,15 +211,15 @@ async function soumettre() {
           <div class="space-y-5">
             <div>
               <label for="services" class="block text-sm font-semibold text-gray-700 mb-1.5">Services</label>
-              <input id="services" v-model="form.services" type="text" placeholder="Groupes de parole, guidance parentale, activités…" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all" />
+              <input id="services" v-model="form.services" type="text" placeholder="Groupes de parole, guidance parentale, activités…" class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all" />
             </div>
             <div>
               <label for="age_public" class="block text-sm font-semibold text-gray-700 mb-1.5">Public concerné</label>
-              <textarea id="age_public" v-model="form.age_public" rows="3" placeholder="Enfants, adolescents, adultes, familles…" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
+              <textarea id="age_public" v-model="form.age_public" rows="3" placeholder="Enfants, adolescents, adultes, familles…" class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 resize-vertical transition-all" />
             </div>
             <div>
               <label for="description" class="block text-sm font-semibold text-gray-700 mb-1.5">Description</label>
-              <textarea id="description" v-model="form.description" rows="4" placeholder="En quelques lignes, ce que fait l'association et ce qu'elle apporte aux familles." class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 resize-vertical transition-all" />
+              <textarea id="description" v-model="form.description" rows="4" placeholder="En quelques lignes, ce que fait l'association et ce qu'elle apporte aux familles." class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 resize-vertical transition-all" />
             </div>
           </div>
         </div>

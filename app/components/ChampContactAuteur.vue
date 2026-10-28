@@ -61,10 +61,10 @@ const modele = defineModel<string>({ required: true })
           :aria-describedby="erreur ? 'contact-auteur-erreur contact-auteur-aide' : 'contact-auteur-aide'"
           :aria-invalid="!!erreur"
           :class="[
-            'w-full border rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 bg-gray-50 text-gray-900 transition-all',
+            'w-full border rounded-xl px-4 py-2.5 text-sm outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 bg-gray-50 text-gray-900 transition-all',
             erreur
-              ? 'border-red-400 focus:border-red-400 focus:ring-red-100'
-              : 'border-gray-200 focus:border-indigo-400 focus:ring-indigo-100'
+              ? 'border-red-400 focus:border-red-400 focus-visible:outline-red-600'
+              : 'border-gray-200 focus:border-indigo-400 focus-visible:outline-indigo-600'
           ]"
         >
         <p v-if="erreur" id="contact-auteur-erreur" class="text-xs text-red-600 mt-2">{{ erreur }}</p>

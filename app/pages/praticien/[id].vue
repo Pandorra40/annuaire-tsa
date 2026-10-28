@@ -361,35 +361,45 @@ function libelleIdentifiant(num: string, type?: string) {
                     ⚠️ {{ erreurEnvoi }}
                   </div>
 
-                  <input
-                    v-model="message.nom"
-                    type="text"
-                    aria-label="Votre nom"
-                    placeholder="Votre nom"
-                    maxlength="100"
-                    class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
-                  />
-                  <input
-                    v-model="message.email"
-                    type="email"
-                    aria-label="Votre adresse email, pour que le praticien puisse vous répondre"
-                    placeholder="Votre email"
-                    class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition-all"
-                  />
-                  <textarea
-                    v-model="message.message"
-                    rows="5"
-                    maxlength="2000"
-                    aria-label="Votre message"
-                    placeholder="Votre message. Décrivez votre demande — inutile d’entrer dans le détail médical."
-                    class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 resize-vertical transition-all"
-                  />
+                  <div>
+                    <label for="contact-nom" class="block text-sm font-semibold text-gray-700 mb-1.5">Votre nom</label>
+                    <input
+                      id="contact-nom"
+                      v-model="message.nom"
+                      type="text"
+                      placeholder="Camille Dupont"
+                      maxlength="100"
+                      autocomplete="name"
+                      class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all"
+                    >
+                  </div>
+                  <div>
+                    <label for="contact-email" class="block text-sm font-semibold text-gray-700 mb-1.5">Votre adresse email</label>
+                    <input
+                      id="contact-email"
+                      v-model="message.email"
+                      type="email"
+                      placeholder="vous@exemple.fr"
+                      autocomplete="email"
+                      class="w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-all"
+                    >
+                  </div>
+                  <div>
+                    <label for="contact-message" class="block text-sm font-semibold text-gray-700 mb-1.5">Votre message</label>
+                    <textarea
+                      id="contact-message"
+                      v-model="message.message"
+                      rows="5"
+                      maxlength="2000"
+                      placeholder="Ex. : disponibilité pour un premier rendez-vous à Bordeaux"
+                      class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm bg-gray-50 text-gray-900 outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 resize-vertical transition-all"
+                    />
+                  </div>
 
                   <!-- Champ piège : hors écran, jamais rempli par un humain -->
                   <input
                     v-model="message.hp"
                     type="text"
-                    aria-label="Ne pas remplir"
                     tabindex="-1"
                     autocomplete="off"
                     aria-hidden="true"

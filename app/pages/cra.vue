@@ -281,7 +281,7 @@ function initiales(nom: string) {
             <select
               v-model="filtreCategorie"
               aria-label="Filtrer par catégorie de centre"
-              class="w-full sm:w-64 px-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
+              class="w-full sm:w-64 px-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all"
             >
               <option v-for="cat in CATEGORIES" :key="cat.valeur" :value="cat.valeur">{{ cat.label }}</option>
             </select>

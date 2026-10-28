@@ -113,15 +113,27 @@ h1, h2, h3 {
   --ui-radius: 0.3rem;
 }
 
-/* Transitions douces pour le mode sombre */
+/* Transitions douces pour le mode sombre.
+   scroll-padding : header sticky (h-16) + bandeau YMYL (~3–4 rem selon
+   largeur) — les ancres (#annuaire, skip-link) ne passent plus sous le chrome. */
 html {
   transition: background-color 0.2s ease, color 0.2s ease;
+  scroll-padding-block-start: 8.5rem;
 }
 
 /* Améliore le rendu du texte */
 body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus clavier visible (WCAG 2.4.7) — remplace le motif répandu
+   outline-none + focus:ring-indigo-100 (ring trop pâle, < 3:1).
+   :focus-visible évite le cadre au clic souris ; !important gagne sur
+   outline-none Tailwind des champs de formulaire. */
+:where(a, button, input:not([type="hidden"]), select, textarea, summary, [role="button"]):focus-visible {
+  outline: 2px solid var(--color-indigo-600, #4f46e5) !important;
+  outline-offset: 2px;
 }
 
 /* Line-clamp utilitaire */

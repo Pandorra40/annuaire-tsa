@@ -13,7 +13,15 @@ const props = withDefaults(defineProps<{
 })
 
 const listeVisible = ref(false)
+const indexActif = ref(-1)
 const idListe = `suggestions-${useId()}`
+
+const optionId = (i: number) => `${idListe}-opt-${i}`
+
+watch(() => props.suggestions, () => {
+  indexActif.value = -1
+  if (!props.suggestions.length) listeVisible.value = false
+})
 
 function onFocus() {
   if (props.suggestions.length) listeVisible.value = true
@@ -23,16 +31,48 @@ function onBlur() {
   // Laisse le clic sur une suggestion se terminer avant de fermer.
   setTimeout(() => {
     listeVisible.value = false
+    indexActif.value = -1
   }, 150)
 }
 
 function onInput() {
   listeVisible.value = props.suggestions.length > 0
+  indexActif.value = -1
 }
 
 function choisir(sug: SuggestionRecherche) {
   model.value = sug.value
   listeVisible.value = false
+  indexActif.value = -1
+}
+
+function onKeydown(e: KeyboardEvent) {
+  const n = props.suggestions.length
+  if (!n) return
+
+  if (e.key === 'ArrowDown') {
+    e.preventDefault()
+    if (!listeVisible.value) listeVisible.value = true
+    indexActif.value = indexActif.value < n - 1 ? indexActif.value + 1 : 0
+    return
+  }
+  if (e.key === 'ArrowUp') {
+    e.preventDefault()
+    if (!listeVisible.value) listeVisible.value = true
+    indexActif.value = indexActif.value <= 0 ? n - 1 : indexActif.value - 1
+    return
+  }
+  if (e.key === 'Enter' && listeVisible.value && indexActif.value >= 0) {
+    e.preventDefault()
+    const sug = props.suggestions[indexActif.value]
+    if (sug) choisir(sug)
+    return
+  }
+  if (e.key === 'Escape' && listeVisible.value) {
+    e.preventDefault()
+    listeVisible.value = false
+    indexActif.value = -1
+  }
 }
 </script>
 
@@ -42,14 +82,19 @@ function choisir(sug: SuggestionRecherche) {
     <input
       v-model="model"
       type="search"
+      role="combobox"
       :aria-label="ariaLabel ?? 'Rechercher'"
       :placeholder="placeholder"
+      :aria-expanded="listeVisible && suggestions.length > 0"
       :aria-controls="listeVisible && suggestions.length ? idListe : undefined"
+      :aria-activedescendant="listeVisible && indexActif >= 0 ? optionId(indexActif) : undefined"
+      aria-autocomplete="list"
       autocomplete="off"
-      class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 bg-gray-50 text-gray-900 transition-all"
+      class="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl text-base outline-none focus:border-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 bg-gray-50 text-gray-900 transition-all"
       @focus="onFocus"
       @blur="onBlur"
       @input="onInput"
+      @keydown="onKeydown"
     >
     <ul
       v-if="listeVisible && suggestions.length"
@@ -59,9 +104,12 @@ function choisir(sug: SuggestionRecherche) {
     >
       <li
         v-for="(sug, i) in suggestions"
+        :id="optionId(i)"
         :key="`${sug.label}-${i}`"
         role="option"
-        class="px-4 py-2.5 text-sm text-gray-800 hover:bg-indigo-50 cursor-pointer"
+        :aria-selected="i === indexActif"
+        class="px-4 py-2.5 text-sm text-gray-800 cursor-pointer"
+        :class="i === indexActif ? 'bg-indigo-50' : 'hover:bg-indigo-50'"
         @mousedown.prevent="choisir(sug)"
       >
         {{ sug.label }}
