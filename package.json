@@ -45,9 +45,10 @@
       "esbuild": ">=0.28.1",
       "svgo": ">=4.1.0",
       "@tiptap/core": "3.31.3",
-      "fast-uri": ">=4.1.5",
+      "fast-uri": ">=4.2.3",
       "js-yaml": ">=4.3.2",
-      "undici": ">=8.10.2",
+      "undici": ">=8.12.2",
+      "zod": ">=4.6.6",
       "devalue": ">=5.9.3",
       "simple-git": "file:./vendor/simple-git",
       "@simple-git/argv-parser": ">=2.0.1"
