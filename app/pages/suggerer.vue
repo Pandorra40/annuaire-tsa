@@ -86,7 +86,7 @@ const RUBRIQUES = [
 const loading = ref(false)
 const success = ref(false)
 const error = ref('')
-/** Erreurs rattachées à un champ optionnel mal rempli (adeli, site_web, contact_auteur). */
+/** Erreurs rattachées à un champ (adeli, telephone, site_web, contact_auteur…). */
 const erreursChamps = reactive<Record<string, string>>({})
 
 function viderErreursChamps() {
@@ -129,9 +129,15 @@ async function soumettre() {
     return
   }
 
-  // Même règle que l'API : optionnel, mais une saisie incomplète bloque
-  // clairement sur le champ plutôt qu'un refus opaque en bas de page.
+  // Aligné sur l'API : RPPS/ADELI obligatoire pour une personne physique.
   const adeliBrut = form.adeli.replace(/[\s.-]/g, '').trim()
+  if (form.type !== 'Structure' && !adeliBrut) {
+    const msg = 'Le numéro RPPS ou ADELI est obligatoire. Sans identifiant, la fiche ne peut pas être publiée.'
+    erreursChamps.adeli = msg
+    error.value = msg
+    await pointerChamp('adeli')
+    return
+  }
   if (adeliBrut) {
     const ok = form.type === 'Structure'
       ? /^\d{14}$|^\d{9}$/.test(adeliBrut)
@@ -149,6 +155,14 @@ async function soumettre() {
 
   const siteWeb = normaliserUrl(form.site_web)
   if (siteWeb) form.site_web = siteWeb
+  const telephone = form.telephone.trim()
+  if (!telephone && !siteWeb) {
+    const msg = 'Indiquez un téléphone ou un site web : sans moyen de contact, la fiche ne peut pas être publiée.'
+    erreursChamps.telephone = msg
+    error.value = msg
+    await pointerChamp('telephone')
+    return
+  }
 
   loading.value = true
   try {
@@ -161,7 +175,7 @@ async function soumettre() {
       adresse2: secondLieuOuvert.value && form.adresse2 ? form.adresse2 : null,
       ville2: secondLieuOuvert.value && form.ville2 ? form.ville2 : null,
       departement2: secondLieuOuvert.value && form.codePostal2 ? departementDepuisSaisie(form.codePostal2) : null,
-      telephone: form.telephone || null,
+      telephone: telephone || null,
       site_web: siteWeb || null,
       teleconsultation: form.teleconsultation,
       delai: form.delai || null,
@@ -186,6 +200,7 @@ async function soumettre() {
     })
     success.value = true
   } catch (e) {
+    // Ne pas vider le formulaire : l'utilisateur corrige et renvoie.
     const err = e as { data?: { error?: string, field?: string } }
     const msg = err?.data?.error ?? 'Une erreur est survenue. Réessayez dans un instant.'
     error.value = msg
@@ -226,18 +241,19 @@ async function soumettre() {
         <p class="text-sm text-gray-500 mb-1">Suggérer un praticien</p>
         <h1 class="text-3xl sm:text-4xl font-black text-gray-900 tracking-tight">{{ titrePage }}</h1>
         <p v-if="!falcMode" class="mt-3 text-gray-500 text-lg max-w-2xl">
-          <template v-if="estPraticien">Elle sera relue avant d’être publiée. Ce n’est pas un compte : vous ne pourrez pas la modifier ensuite.</template>
-          <template v-else>Vous connaissez un praticien spécialisé TSA qui n’apparaît pas ? Nom, ville et spécialité suffisent.</template>
+          <template v-if="estPraticien">Elle sera relue avant d’être publiée. Identifiant professionnel (RPPS ou ADELI) et un moyen de contact sont obligatoires. Ce n’est pas un compte : vous ne pourrez pas la modifier ensuite.</template>
+          <template v-else>Vous connaissez un praticien spécialisé TSA qui n’apparaît pas ? Indiquez au minimum son identité, son numéro RPPS ou ADELI, et un moyen de le joindre.</template>
         </p>
         <div v-else class="mt-3 text-gray-500 text-lg max-w-2xl space-y-2">
           <template v-if="estPraticien">
             <p>Votre fiche sera lue avant d’être publiée.</p>
-            <p>Ce n’est pas un compte.</p>
-            <p>Vous ne pourrez pas la modifier ensuite sur le site.</p>
+            <p>Le numéro RPPS ou ADELI est obligatoire.</p>
+            <p>Il faut aussi un téléphone ou un site.</p>
+            <p>Ce n’est pas un compte. Vous ne pourrez pas la modifier ensuite.</p>
           </template>
           <template v-else>
             <p>Vous connaissez un professionnel spécialisé en autisme qui n’est pas sur le site ?</p>
-            <p>Le nom, la ville et la spécialité suffisent.</p>
+            <p>Il faut son nom, sa ville, son numéro officiel (RPPS ou ADELI), et un moyen de le joindre.</p>
           </template>
         </div>
 
@@ -248,12 +264,11 @@ async function soumettre() {
 
           <section class="bg-gray-50 border border-gray-200 border-l-4 border-l-indigo-500 rounded-r-2xl p-5" aria-labelledby="regles-admission">
             <template v-if="!falcMode">
-              <h2 id="regles-admission" class="font-bold text-gray-900 mb-2">Une seule condition bloquante</h2>
+              <h2 id="regles-admission" class="font-bold text-gray-900 mb-2">Conditions pour être publié</h2>
               <p class="text-sm text-gray-700 leading-relaxed">
                 L'annuaire ne référence que des praticiens inscrits au répertoire national
-                (RPPS ou ADELI) et dont l'activité est vérifiable. <strong>Nous faisons cette
-                vérification nous-même</strong> — vous n'avez rien à prouver, indiquez ce que
-                vous savez.
+                (RPPS ou ADELI) et joignables. Ces deux éléments sont <strong>obligatoires sur ce
+                formulaire</strong> — sans eux, la suggestion ne peut pas être publiée.
               </p>
               <details class="mt-3">
                 <summary class="text-sm font-semibold text-indigo-700 cursor-pointer hover:text-indigo-800">
@@ -263,16 +278,13 @@ async function soumettre() {
                   <li>
                     <strong class="block text-gray-900 mb-1">1. L'identifiant professionnel — sans exception</strong>
                     Délivré par l'Agence régionale de santé après contrôle du diplôme. C'est la seule
-                    barrière simple contre les charlatans, nombreux autour de l'autisme. Une fiche dont
-                    le numéro reste introuvable n'est pas publiée ; une fiche déjà en ligne dans ce cas
-                    est retirée.
+                    barrière simple contre les charlatans, nombreux autour de l'autisme. Une suggestion
+                    sans numéro n'est pas acceptée ; une fiche déjà en ligne sans numéro est retirée.
                   </li>
                   <li>
                     <strong class="block text-gray-900 mb-1">2. Une activité en cours, et un moyen de contact</strong>
-                    Inscription à l'annuaire national, page de prise de rendez-vous, site professionnel
-                    à jour ou référencement institutionnel. Un annuaire qui oriente des familles ne peut
-                    pas renvoyer vers un cabinet fermé. Une fiche qui n'offre aucun moyen de contact ne
-                    mène nulle part : elle est retirée, et republiée dès qu'un moyen existe.
+                    Téléphone ou site professionnel (Doctolib, page du cabinet…). Une fiche sans moyen
+                    de contact ne mène nulle part : elle n'est pas publiée.
                   </li>
                   <li>
                     <strong class="block text-gray-900 mb-1">3. ADELI ou RPPS, les deux comptent</strong>
@@ -282,18 +294,17 @@ async function soumettre() {
                 </ol>
                 <p class="text-sm text-gray-500 mt-4 pt-3 border-t border-gray-200">
                   Une structure — cabinet, centre, institut — n'est pas une personne physique et n'a pas
-                  de RPPS : son SIRET ou son FINESS peut être indiqué, sans être exigé.
+                  de RPPS : son SIRET ou son FINESS peut être indiqué, sans être exigé. Un moyen de
+                  contact reste obligatoire.
                 </p>
               </details>
             </template>
             <div v-else class="text-sm text-gray-700 leading-relaxed space-y-3">
-              <h2 id="regles-admission" class="font-bold text-gray-900">Règle importante</h2>
-              <p>Le professionnel doit avoir un numéro officiel (RPPS ou ADELI).</p>
-              <p>Nous vérifions ce numéro nous-mêmes.</p>
-              <p>Vous n’avez rien à prouver.</p>
-              <p>Écrivez seulement ce que vous savez.</p>
-              <p>Le professionnel doit aussi être joignable (téléphone ou site).</p>
-              <p>Pour un cabinet ou un centre, un numéro SIRET ou FINESS peut être indiqué. Ce n’est pas obligatoire.</p>
+              <h2 id="regles-admission" class="font-bold text-gray-900">Règles importantes</h2>
+              <p>Le numéro officiel (RPPS ou ADELI) est obligatoire.</p>
+              <p>Sans ce numéro, la fiche n’est pas publiée.</p>
+              <p>Il faut aussi un téléphone ou un site pour joindre le professionnel.</p>
+              <p>Pour un cabinet ou un centre, le SIRET ou FINESS est facultatif. Le contact reste obligatoire.</p>
             </div>
           </section>
 
@@ -304,7 +315,7 @@ async function soumettre() {
                 <input v-model="role" type="radio" value="famille" class="mt-1 accent-indigo-600 shrink-0">
                 <span>
                   <span class="block text-sm font-semibold text-gray-900">Une famille, un proche, un visiteur</span>
-                  <span class="block text-xs text-gray-600 mt-1 leading-relaxed">Vous signalez un praticien que vous connaissez. On ne vous demandera que ce que vous pouvez savoir.</span>
+                  <span class="block text-xs text-gray-600 mt-1 leading-relaxed">Vous signalez un praticien. Identifiant et contact restent obligatoires pour qu’il puisse être publié.</span>
                 </span>
               </label>
               <label class="flex items-start gap-3 border rounded-xl p-4 cursor-pointer transition-colors" :class="role === 'praticien' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 bg-gray-50 hover:border-gray-300'">
@@ -361,13 +372,19 @@ async function soumettre() {
             </div>
             <div class="mt-5">
               <label for="adeli" class="block text-sm font-semibold text-gray-700 mb-1.5">
-                {{ estStructure ? 'Numéro SIRET ou FINESS' : 'Numéro RPPS ou ADELI' }}
-                <span class="text-gray-500 font-normal ml-1">(optionnel)</span>
+                <template v-if="estStructure">
+                  Numéro SIRET ou FINESS
+                  <span class="text-gray-500 font-normal ml-1">(facultatif)</span>
+                </template>
+                <template v-else>
+                  Numéro RPPS ou ADELI *
+                </template>
               </label>
               <input
                 id="adeli"
                 v-model="form.adeli"
                 type="text"
+                :required="!estStructure"
                 :aria-describedby="erreursChamps.adeli ? 'adeli-erreur adeli-aide' : 'adeli-aide'"
                 :aria-invalid="!!erreursChamps.adeli"
                 :placeholder="estStructure ? 'Ex. 12345678901234' : 'Ex. 10001234567'"
@@ -377,14 +394,10 @@ async function soumettre() {
               <p v-if="erreursChamps.adeli" id="adeli-erreur" class="text-xs text-red-600 mt-2">{{ erreursChamps.adeli }}</p>
               <p id="adeli-aide" class="text-xs text-gray-500 mt-2 leading-relaxed">
                 <template v-if="estStructure">
-                  Facultatif pour une structure. Un SIRET ou un FINESS permet de la vérifier
-                  plus vite, mais son absence n'empêche pas la publication.
-                </template>
-                <template v-else-if="estPraticien">
-                  Votre numéro accélère la publication. Sans lui on le cherche ; introuvable, la fiche n’est pas mise en ligne.
+                  Facultatif pour une structure. Un SIRET ou un FINESS aide à la vérifier plus vite.
                 </template>
                 <template v-else>
-                  Vous n’êtes pas obligé de le connaître. Si vous l’avez, la vérification va plus vite. En cas de doute, laissez vide.
+                  11 chiffres (RPPS) ou 9 chiffres (ADELI). Les deux sont acceptés. Sans ce numéro, la suggestion est refusée.
                 </template>
               </p>
             </div>
@@ -464,13 +477,23 @@ async function soumettre() {
           <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
             <h2 class="font-bold text-gray-900 text-lg mb-1 pb-4 border-b border-gray-100 flex items-center">
               Comment le joindre
-              <span class="ml-auto text-xs text-gray-500 font-normal">Optionnel</span>
+              <span class="ml-auto text-xs text-gray-500 font-normal">Au moins un *</span>
             </h2>
-            <p v-if="estPraticien" class="text-xs text-gray-500 mt-3 mb-4">Un téléphone ou un site aide à confirmer que l’activité est en cours.</p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5" :class="estPraticien ? '' : 'mt-5'">
+            <p class="text-xs text-gray-500 mt-3 mb-4">Téléphone ou site web : l’un des deux suffit, les deux sont possibles. Sans moyen de contact, la fiche n’est pas publiée.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
                 <label for="telephone" class="block text-sm font-semibold text-gray-700 mb-1.5">Téléphone</label>
-                <input id="telephone" v-model="form.telephone" type="tel" placeholder="05 56 12 34 56" :class="champ">
+                <input
+                  id="telephone"
+                  v-model="form.telephone"
+                  type="tel"
+                  placeholder="05 56 12 34 56"
+                  :aria-invalid="!!erreursChamps.telephone"
+                  :aria-describedby="erreursChamps.telephone ? 'telephone-erreur' : undefined"
+                  :class="[champ, erreursChamps.telephone ? 'border-red-400 focus:border-red-400 focus-visible:outline-red-600' : '']"
+                  @input="delete erreursChamps.telephone"
+                >
+                <p v-if="erreursChamps.telephone" id="telephone-erreur" class="text-xs text-red-600 mt-2">{{ erreursChamps.telephone }}</p>
               </div>
               <div>
                 <label for="site_web" class="block text-sm font-semibold text-gray-700 mb-1.5">Site web ou Doctolib</label>
@@ -484,7 +507,7 @@ async function soumettre() {
                   :aria-invalid="!!erreursChamps.site_web"
                   :aria-describedby="erreursChamps.site_web ? 'site_web-erreur' : undefined"
                   :class="[champ, erreursChamps.site_web ? 'border-red-400 focus:border-red-400 focus-visible:outline-red-600' : '']"
-                  @input="delete erreursChamps.site_web"
+                  @input="delete erreursChamps.site_web; delete erreursChamps.telephone"
                 >
                 <p v-if="erreursChamps.site_web" id="site_web-erreur" class="text-xs text-red-600 mt-2">{{ erreursChamps.site_web }}</p>
               </div>

@@ -22,6 +22,19 @@ export default defineEventHandler(async (event) => {
     const s = rows[0]
     if (!s) apiError(404, 'Suggestion introuvable')
 
+    // Même politique que suggestions.post : pas de publication sans identifiant
+    // (hors Structure) ni sans moyen de contact.
+    const typeSug = String(s.type ?? '')
+    const adeliSug = s.adeli != null ? String(s.adeli).trim() : ''
+    if (typeSug !== 'Structure' && adeliSug === '') {
+      apiError(400, 'Impossible de publier : numéro RPPS ou ADELI manquant.')
+    }
+    const telSug = s.telephone != null ? String(s.telephone).trim() : ''
+    const siteSug = s.site_web != null ? String(s.site_web).trim() : ''
+    if (telSug === '' && siteSug === '') {
+      apiError(400, 'Impossible de publier : aucun moyen de contact (téléphone ou site).')
+    }
+
     try {
       await db.execute(
         `INSERT INTO praticiens (nom, type, ville, ville2, departement, departement2, adresse, adresse2, telephone, site_web, teleconsultation, delai, ages, types_intervention, bilans, formations, experience, modalites, tarifs, autres_infos, adeli, fait_bilans, statut, confirmations)

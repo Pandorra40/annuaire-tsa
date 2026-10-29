@@ -219,10 +219,10 @@ usePageSeo({
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-7">
           <h2 class="font-black text-gray-900 text-xl mb-3">Ce qui figure sur votre fiche</h2>
           <p class="text-gray-600 leading-relaxed">
-            Nom, profession, ville et département, adresse professionnelle, téléphone,
-            site web ou page de prise de rendez-vous, public reçu, délai d'attente
-            indicatif, pratique de la téléconsultation, numéro ADELI ou RPPS lorsqu'il est
-            public.
+            Nom, profession, ville et département, adresse professionnelle, téléphone
+            et/ou site web (au moins un moyen de contact), public reçu, délai d'attente
+            indicatif, pratique de la téléconsultation, et numéro ADELI ou RPPS
+            (obligatoire pour une personne physique).
           </p>
           <p class="text-gray-600 leading-relaxed mt-3">
             <strong>Aucune donnée personnelle au sens strict</strong> — pas d'adresse

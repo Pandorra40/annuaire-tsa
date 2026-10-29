@@ -1,6 +1,6 @@
 import { getDb } from '~~/server/utils/db'
 import { apiError } from '~~/server/utils/errors'
-import { rateLimit } from '~~/server/utils/request'
+import { rateLimit, tsaLog } from '~~/server/utils/request'
 import { pushbulletNotify } from '~~/server/utils/pushbullet'
 import {
   agesToString,
@@ -19,6 +19,13 @@ export default defineEventHandler(async (event) => {
   const data = await readBody<Record<string, unknown>>(event)
   if (!data) apiError(400, 'Données invalides')
 
+  // Honeypot : même réponse 201 qu'un envoi réel (ne pas révéler le piège).
+  if (data.hp) {
+    tsaLog('suggestion', 'Honeypot déclenché', event)
+    setResponseStatus(event, 201)
+    return { ok: true }
+  }
+
   const nom = String(data.nom ?? '').trim()
   const type = String(data.type ?? '').trim()
   const ville = String(data.ville ?? '').trim()
@@ -36,8 +43,34 @@ export default defineEventHandler(async (event) => {
     apiError(400, 'Type de professionnel invalide')
   }
 
+  const ages = (data.ages as string[]) ?? []
+  if (!Array.isArray(ages) || ages.length === 0) {
+    apiError(400, { error: 'Indiquez au moins un public reçu.', field: 'ages' })
+  }
+
+  // Personne physique : RPPS ou ADELI obligatoire (politique d'admission).
+  // Structure : SIRET/FINESS facultatif — normaliserIdentifiant valide le format si fourni.
   const adeli = normaliserIdentifiant(data.adeli as string | null | undefined, type)
+  if (type !== 'Structure' && !adeli) {
+    apiError(400, {
+      error: 'Le numéro RPPS ou ADELI est obligatoire. Sans identifiant, la fiche ne peut pas être publiée.',
+      field: 'adeli'
+    })
+  }
+
   const site_web = validateUrl(data.site_web as string | null | undefined)
+  const telephoneRaw = data.telephone != null ? String(data.telephone).trim() : ''
+  const telephone = telephoneRaw === '' ? null : telephoneRaw
+  if (telephone) validateLength(telephone, 50, 'téléphone')
+
+  // Moyen de contact publié : téléphone et/ou site (pas d'email praticien en base).
+  if (!telephone && !site_web) {
+    apiError(400, {
+      error: 'Indiquez un téléphone ou un site web : sans moyen de contact, la fiche ne peut pas être publiée.',
+      field: 'telephone'
+    })
+  }
+
   const valeurs = parseRubriquesPraticien(data)
 
   const ville2 = stripHtmlField(data.ville2)
@@ -62,11 +95,11 @@ export default defineEventHandler(async (event) => {
     departement2,
     adresse,
     adresse2,
-    data.telephone != null ? String(data.telephone) : null,
+    telephone,
     site_web,
     data.teleconsultation ? 1 : 0,
     data.delai != null ? String(data.delai) : null,
-    agesToString((data.ages as string[]) ?? []),
+    agesToString(ages),
     valeurs.types_intervention ?? null,
     valeurs.bilans ?? null,
     valeurs.formations ?? null,
