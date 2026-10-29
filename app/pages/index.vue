@@ -222,7 +222,8 @@ function scrollToAnnuaire() {
              l'écran et coupait mal. Il reste grand, il s'adapte simplement. -->
         <h1 class="titre-hero font-black leading-tight mb-6 tracking-tight text-gray-900 mx-auto" style="font-size: clamp(2.5rem, 5.5vw, 4.5rem); text-wrap: balance; max-width: 20ch">
           Trouvez un
-          <span class="text-indigo-700">spécialiste en autisme</span>
+          <!-- Dégradé clair d’origine (volontaire) : ne pas le remplacer par un aplats contraste. -->
+          <span style="background: linear-gradient(90deg, #f87171 0%, #fb923c 20%, #fbbf24 40%, #4ade80 60%, #60a5fa 80%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">spécialiste en autisme</span>
           par ville ou métier
         </h1>
 
