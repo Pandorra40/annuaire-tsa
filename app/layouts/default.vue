@@ -162,9 +162,10 @@ function toggleFalc() {
             Suggérer un praticien
           </NuxtLink>
 
+          <!-- A-/A+ aussi sur petit écran : c’est là qu’ils aident le plus. -->
           <button
             type="button"
-            class="hidden sm:flex p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors font-bold text-sm leading-none"
+            class="flex p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors font-bold text-sm leading-none"
             :disabled="tailleIdx === 0"
             :aria-pressed="tailleIdx < 1"
             aria-label="Réduire la taille du texte"
@@ -173,7 +174,7 @@ function toggleFalc() {
           >A-</button>
           <button
             type="button"
-            class="hidden sm:flex p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors font-bold text-sm leading-none"
+            class="flex p-2 rounded-lg text-gray-600 hover:bg-gray-100 transition-colors font-bold text-sm leading-none"
             :disabled="tailleIdx === 3"
             :aria-pressed="tailleIdx > 1"
             aria-label="Agrandir la taille du texte"

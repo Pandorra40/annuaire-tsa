@@ -2,6 +2,8 @@
 import type { Praticien } from '~/types/index'
 import { initiales, isNew } from '~/composables/usePraticien'
 import { jsonLdFilAriane, jsonLdPraticien } from '~/utils/schemaOrg'
+import { formatTelephoneAffichage, telephoneHref } from '~/utils/telephone'
+import { preparerTexteFiche } from '~/utils/texteFiche'
 import { slugVille } from '~/utils/villeSlug'
 
 const route = useRoute()
@@ -63,10 +65,14 @@ const rubriquesRemplies = computed(() => {
   const remplies: Array<{ label: string, valeur: string }> = []
   for (const r of RUBRIQUES_FICHE) {
     const valeur = praticien.value?.[r.cle]
-    if (valeur) remplies.push({ label: r.label, valeur })
+    if (valeur) remplies.push({ label: r.label, valeur: preparerTexteFiche(valeur) })
   }
   return remplies
 })
+
+const autresInfosAffiche = computed(() =>
+  praticien.value?.autres_infos ? preparerTexteFiche(praticien.value.autres_infos) : ''
+)
 
 function adresseComplete(adresse?: string | null, ville?: string | null, departement?: string | null) {
   return [adresse, ville, departement ? `(${departement})` : ''].filter(Boolean).join(', ') || 'Adresse non renseignée'
@@ -330,14 +336,17 @@ function libelleIdentifiant(num: string, type?: string) {
               <span class="w-9 h-9 rounded-xl bg-indigo-100 flex items-center justify-center text-base">📞</span>
               Contact
             </h2>
-            <a v-if="praticien.telephone" :href="`tel:${praticien.telephone}`" class="flex items-center gap-3 text-indigo-600 font-semibold hover:text-indigo-700 transition-colors mb-3">
-              <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-sm">📞</div>
-              {{ praticien.telephone }}
+            <a v-if="praticien.telephone" :href="telephoneHref(praticien.telephone)" class="flex items-center gap-3 text-indigo-600 font-semibold hover:text-indigo-700 transition-colors mb-3">
+              <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-sm" aria-hidden="true">📞</div>
+              <span class="tabular-nums">{{ formatTelephoneAffichage(praticien.telephone) }}</span>
             </a>
             <p v-else class="text-sm text-gray-500 mb-3">Téléphone non renseigné</p>
-            <a v-if="praticien.site_web" :href="praticien.site_web" target="_blank" rel="noopener" class="flex items-center gap-3 text-indigo-600 hover:text-indigo-700 transition-colors text-sm">
-              <div class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-sm">🔗</div>
-              Site web / Doctolib
+            <a v-if="praticien.site_web" :href="praticien.site_web" target="_blank" rel="noopener" class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-indigo-600 hover:text-indigo-700 transition-colors text-sm">
+              <span class="inline-flex items-center gap-3">
+                <span class="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-sm shrink-0" aria-hidden="true">🔗</span>
+                Site web / prise de rendez-vous
+              </span>
+              <span class="break-all text-gray-500 sm:ml-0 pl-12 sm:pl-0">{{ praticien.site_web.replace(/^https?:\/\//, '') }}</span>
             </a>
             <div v-if="praticien.adeli" class="flex items-center gap-3 text-gray-500 text-sm mt-3">
               <div class="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-sm">🪪</div>
@@ -513,8 +522,8 @@ function libelleIdentifiant(num: string, type?: string) {
                 <dt class="text-sm font-bold text-gray-900">{{ r.label }}</dt>
                 <dd class="text-sm text-gray-600 leading-relaxed" style="white-space:pre-line">{{ r.valeur }}</dd>
               </div>
-              <div v-if="praticien.autres_infos" class="py-3.5">
-                <p class="text-sm text-gray-600 leading-relaxed" style="white-space:pre-line">{{ praticien.autres_infos }}</p>
+              <div v-if="autresInfosAffiche" class="py-3.5">
+                <p class="text-sm text-gray-600 leading-relaxed" style="white-space:pre-line">{{ autresInfosAffiche }}</p>
               </div>
             </dl>
           </div>
@@ -533,8 +542,8 @@ function libelleIdentifiant(num: string, type?: string) {
                    personne n'est encore passé. Le zéro devient une invitation,
                    et le chiffre ne s'affiche qu'à partir de un. -->
               <p v-if="!voteCount" class="text-sm text-gray-600 leading-relaxed mb-4">
-                Personne n'a encore confirmé cette fiche. Si vous connaissez ce praticien,
-                votre confirmation aidera les familles suivantes.
+                Pas encore de confirmation communautaire — c’est fréquent sur les fiches récentes.
+                Si vous connaissez ce praticien, votre avis aide les familles suivantes.
               </p>
               <div v-else class="flex items-center gap-4 mb-4">
                 <div class="text-4xl font-black text-emerald-600 tabular-nums">{{ voteCount }}</div>
@@ -581,7 +590,7 @@ function libelleIdentifiant(num: string, type?: string) {
                 <p class="font-semibold text-gray-900 text-sm mb-2">Vous êtes ce praticien ?</p>
                 <p class="text-sm text-gray-600 leading-relaxed mb-4">
                   Cette fiche vous concerne et reste modifiable à tout moment.
-                  Aucun justificatif ne vous sera demandé.
+                  Vous n’avez pas besoin de joindre de pièce : la demande est vérifiée par l’équipe avant publication du changement.
                 </p>
                 <div class="space-y-2">
                   <NuxtLink

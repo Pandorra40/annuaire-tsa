@@ -373,8 +373,9 @@ usePageSeo({
           <p class="text-gray-600 leading-relaxed mt-3">
             Une seule adresse pour les exercer :
             <a href="mailto:annuaire.tsa@gmail.com" class="text-indigo-600 hover:text-indigo-700 font-medium">annuaire.tsa@gmail.com</a>.
-            Réponse dans les meilleurs délais, et au plus tard sous un mois. Aucun
-            justificatif ne vous sera demandé pour une correction ou un retrait.
+            Réponse dans les meilleurs délais, et au plus tard sous un mois.
+            Pas de pièce à joindre : l’équipe traite la demande (correction ou retrait)
+            après vérification.
           </p>
           <p class="text-gray-600 leading-relaxed mt-3">
             Si la réponse ne vous satisfait pas, vous pouvez saisir la

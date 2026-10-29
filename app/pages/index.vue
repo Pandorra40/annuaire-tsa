@@ -2,7 +2,7 @@
 import type { Praticien } from '~/types/index'
 
 usePageSeo({
-  title: 'Annuaire TSA / Autisme — Trouvez un spécialiste près de chez vous',
+  title: 'Annuaire TSA / Autisme — Trouvez un spécialiste par ville ou métier',
   description: 'Annuaire collaboratif et gratuit de praticiens spécialisés en autisme et TSA (troubles du spectre autistique) en France.',
   path: '/'
 })
@@ -155,12 +155,25 @@ watch(() => route.query, appliquerQueryUrl, { deep: true, immediate: true })
 
 // Le filtrage vit dans FiltresPraticiens, qui l'expose : les compteurs de
 // chaque pastille s'en servent déjà, et le dupliquer ici les ferait diverger.
-const filtres = ref<{ passe: (p: Praticien) => boolean, toutEffacer: () => void } | null>(null)
+const filtres = ref<{
+  passe: (p: Praticien) => boolean
+  scoreDe: (p: Praticien) => number
+  toutEffacer: () => void
+} | null>(null)
 
 const praticiensFiltres = computed(() => {
   const test = filtres.value?.passe
-  if (!test) return praticiens.value
-  return praticiens.value.filter(test)
+  const score = filtres.value?.scoreDe
+  const base = test ? praticiens.value.filter(test) : [...praticiens.value]
+  if (!search.value.trim() || !score) {
+    return base
+  }
+  // Pertinence Orama (score ET cumulé), puis nom — plus l’ordre alphabétique brut.
+  return [...base].sort((a, b) => {
+    const d = score(b) - score(a)
+    if (d !== 0) return d
+    return a.nom.localeCompare(b.nom, 'fr')
+  })
 })
 
 const totalPages = computed(() => Math.ceil(praticiensFiltres.value.length / PAGE_SIZE))
@@ -207,21 +220,19 @@ function scrollToAnnuaire() {
         <!-- clamp() + text-wrap: balance plutôt que des <br> figés à text-7xl :
              en mode texte agrandi (A+), le titre occupait presque tout
              l'écran et coupait mal. Il reste grand, il s'adapte simplement. -->
-        <h1 class="titre-hero font-black leading-tight mb-6 tracking-tight text-gray-900 mx-auto" style="font-size: clamp(2.5rem, 5.5vw, 4.5rem); text-wrap: balance; max-width: 18ch">
+        <h1 class="titre-hero font-black leading-tight mb-6 tracking-tight text-gray-900 mx-auto" style="font-size: clamp(2.5rem, 5.5vw, 4.5rem); text-wrap: balance; max-width: 20ch">
           Trouvez un
-          <!-- Dégradé plus sombre : chaque stop ≥ ~4,5:1 sur le fond clair du hero (AA large text ≥ 3:1). Anciens jaunes/verts pâles échouaient 1.4.3. -->
-          <span style="background: linear-gradient(90deg, #f87171 0%, #fb923c 20%, #fbbf24 40%, #4ade80 60%, #60a5fa 80%, #a78bfa 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">spécialiste en autisme</span>
-          près de chez vous
+          <span class="text-indigo-700">spécialiste en autisme</span>
+          par ville ou métier
         </h1>
 
         <p class="text-gray-700 text-xl max-w-2xl mx-auto mb-4 leading-relaxed">
           Psychologues, neuropsychologues, orthophonistes, ergothérapeutes et psychomotriciens spécialisés en autisme et TSA.
         </p>
         <p class="text-gray-600 text-base max-w-2xl mx-auto mb-10 leading-relaxed">
-          Annuaire collaboratif et gratuit : cherchez par ville, département ou métier, filtrez par âge ou téléconsultation, puis vérifiez le praticien (RPPS, cabinet).
+          Annuaire collaboratif et gratuit : cherchez par ville, département ou métier (plusieurs mots = tous requis), filtrez par âge ou téléconsultation, puis vérifiez le praticien (RPPS, cabinet).
           Pour un parcours de diagnostic, consultez aussi les
           <NuxtLink to="/cra" class="text-indigo-700 font-semibold underline-offset-2 hover:underline">Centres Ressources Autisme (CRA)</NuxtLink>.
-          Les fiches sont indicatives et ne remplacent pas un avis médical.
         </p>
 
         <!-- La recherche vit DANS le hero : c'est elle le contenu principal.
@@ -263,15 +274,30 @@ function scrollToAnnuaire() {
             <span v-if="totalPages > 1"> — page {{ pageActuelle }} / {{ totalPages }}</span>
           </p>
 
-          <div v-if="praticiensFiltres.length === 0" class="text-center py-16 text-gray-500 space-y-4">
-            <p>Aucun résultat pour ces critères.</p>
-            <button
-              type="button"
-              class="inline-flex px-4 py-2 text-sm font-semibold text-indigo-700 underline underline-offset-2 hover:text-indigo-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 rounded"
-              @click="filtres?.toutEffacer()"
-            >
-              Effacer les filtres
-            </button>
+          <div v-if="praticiensFiltres.length === 0" class="text-center py-16 text-gray-600 space-y-5 max-w-lg mx-auto">
+            <p class="font-semibold text-gray-800">Aucun praticien pour ces critères.</p>
+            <p class="text-sm leading-relaxed">
+              L’annuaire ne couvre pas encore tous les métiers partout.
+              Élargissez la recherche, ou orientez-vous vers un CRA ou une association.
+            </p>
+            <div class="flex flex-wrap gap-3 justify-center">
+              <button
+                type="button"
+                class="inline-flex px-4 py-2 text-sm font-semibold bg-white border border-gray-200 rounded-xl text-indigo-700 hover:bg-indigo-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                @click="filtres?.toutEffacer()"
+              >
+                Effacer les filtres
+              </button>
+              <NuxtLink to="/cra" class="inline-flex px-4 py-2 text-sm font-semibold bg-white border border-gray-200 rounded-xl text-gray-800 hover:bg-gray-50">
+                Voir les CRA
+              </NuxtLink>
+              <NuxtLink to="/associations" class="inline-flex px-4 py-2 text-sm font-semibold bg-white border border-gray-200 rounded-xl text-gray-800 hover:bg-gray-50">
+                Associations
+              </NuxtLink>
+              <NuxtLink to="/suggerer" class="inline-flex px-4 py-2 text-sm font-semibold bg-gray-900 text-white rounded-xl hover:bg-gray-700">
+                Suggérer un praticien
+              </NuxtLink>
+            </div>
           </div>
 
           <div v-else class="space-y-3">

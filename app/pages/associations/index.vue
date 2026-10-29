@@ -218,15 +218,23 @@ function toutEffacer() {
             <span v-if="totalPages > 1"> — page {{ pageActuelle }} / {{ totalPages }}</span>
           </p>
 
-          <div v-if="associationsFiltrees.length === 0" class="text-center py-16 text-gray-500 space-y-4">
-            <p>Aucune association pour ces critères.</p>
-            <button
-              type="button"
-              class="inline-flex px-4 py-2 text-sm font-semibold text-indigo-700 underline underline-offset-2 hover:text-indigo-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 rounded"
-              @click="toutEffacer"
-            >
-              Effacer les filtres
-            </button>
+          <div v-if="associationsFiltrees.length === 0" class="text-center py-16 text-gray-600 space-y-4">
+            <p class="font-semibold text-gray-800">Aucune association pour ces critères.</p>
+            <div class="flex flex-wrap gap-3 justify-center">
+              <button
+                type="button"
+                class="inline-flex px-4 py-2 text-sm font-semibold text-indigo-700 border border-indigo-100 bg-indigo-50 rounded-xl hover:bg-indigo-100 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                @click="toutEffacer"
+              >
+                Effacer les filtres
+              </button>
+              <NuxtLink to="/cra" class="inline-flex px-4 py-2 text-sm font-semibold border border-gray-200 rounded-xl text-gray-800 hover:bg-gray-50">
+                Voir les CRA
+              </NuxtLink>
+              <NuxtLink to="/associations/suggerer" class="inline-flex px-4 py-2 text-sm font-semibold bg-gray-900 text-white rounded-xl hover:bg-gray-700">
+                Suggérer une association
+              </NuxtLink>
+            </div>
           </div>
 
           <!-- LISTE -->

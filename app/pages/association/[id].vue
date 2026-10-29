@@ -233,7 +233,7 @@ useHead({
                 <p class="font-semibold text-gray-900 text-sm mb-2">Vous êtes cette association ?</p>
                 <p class="text-sm text-gray-600 leading-relaxed mb-4">
                   Cette fiche vous concerne et reste modifiable à tout moment.
-                  Aucun justificatif ne vous sera demandé.
+                  Pas de pièce à joindre : la demande est vérifiée par l’équipe avant modification.
                 </p>
                 <div class="space-y-2">
                   <NuxtLink

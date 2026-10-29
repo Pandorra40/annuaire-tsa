@@ -72,12 +72,22 @@ const filtreAge = ref('tous')
 const filtreTele = ref('tous')
 const filtreBilans = ref('tous')
 
-const filtres = ref<{ passe: (p: Praticien) => boolean } | null>(null)
+const filtres = ref<{
+  passe: (p: Praticien) => boolean
+  scoreDe: (p: Praticien) => number
+  toutEffacer: () => void
+} | null>(null)
 
 const praticiensFiltres = computed(() => {
   const test = filtres.value?.passe
-  if (!test) return praticiens.value
-  return praticiens.value.filter(test)
+  const score = filtres.value?.scoreDe
+  const base = test ? praticiens.value.filter(test) : [...praticiens.value]
+  if (!recherche.value.trim() || !score) return base
+  return [...base].sort((a, b) => {
+    const d = score(b) - score(a)
+    if (d !== 0) return d
+    return a.nom.localeCompare(b.nom, 'fr')
+  })
 })
 
 // Départements limitrophes, pour qu'un département vide cesse d'être un
@@ -192,12 +202,22 @@ const voisins = computed(() =>
             </span>
           </p>
 
-          <div v-if="praticiensFiltres.length === 0" class="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
-            <p class="text-gray-600 mb-2 font-medium">
+          <div v-if="praticiensFiltres.length === 0" class="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 space-y-4 px-6">
+            <p class="text-gray-700 font-medium">
               {{ praticiens.length ? 'Aucun praticien ne correspond à ces critères.' : 'Aucun praticien référencé dans ce département pour le moment.' }}
             </p>
-            <p v-if="voisins.length" class="text-sm text-gray-500 mb-4">Essayez un département limitrophe :</p>
-            <div v-if="voisins.length" class="flex flex-wrap gap-2 justify-center px-6 mb-6">
+            <p class="text-sm text-gray-600">Élargissez les filtres, regardez un département voisin, ou un CRA / une association.</p>
+            <div v-if="praticiens.length" class="flex flex-wrap gap-2 justify-center">
+              <button
+                type="button"
+                class="px-4 py-2 text-sm font-semibold text-indigo-700 border border-indigo-100 bg-indigo-50 rounded-xl hover:bg-indigo-100"
+                @click="filtres?.toutEffacer()"
+              >
+                Effacer les filtres
+              </button>
+            </div>
+            <p v-if="voisins.length" class="text-sm text-gray-500">Départements limitrophes :</p>
+            <div v-if="voisins.length" class="flex flex-wrap gap-2 justify-center">
               <NuxtLink
                 v-for="v in voisins"
                 :key="v.num"
@@ -205,9 +225,13 @@ const voisins = computed(() =>
                 class="px-3 py-1.5 bg-indigo-50 border border-indigo-100 text-indigo-700 rounded-full text-sm font-semibold hover:bg-indigo-100 transition-colors"
               >{{ v.nom }} ({{ v.num }})</NuxtLink>
             </div>
-            <NuxtLink to="/suggerer" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors">
-              Suggérer un praticien →
-            </NuxtLink>
+            <div class="flex flex-wrap gap-2 justify-center pt-2">
+              <NuxtLink to="/cra" class="inline-flex px-4 py-2 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 hover:bg-gray-50">CRA</NuxtLink>
+              <NuxtLink to="/associations" class="inline-flex px-4 py-2 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 hover:bg-gray-50">Associations</NuxtLink>
+              <NuxtLink to="/suggerer" class="inline-flex items-center gap-2 px-6 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-gray-700 transition-colors">
+                Suggérer un praticien →
+              </NuxtLink>
+            </div>
           </div>
 
           <div v-else class="space-y-3">

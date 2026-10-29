@@ -328,8 +328,8 @@ async function soumettre() {
 
             <div v-if="demandeCorrection" class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-sm text-indigo-900 leading-relaxed">
               Indiquez simplement ce qui doit changer et ce qu'il faut mettre à la place —
-              tarif, adresse, public reçu, spécialités. Aucun justificatif ne vous sera
-              demandé, et la correction est appliquée sous quelques jours.
+              tarif, adresse, public reçu, spécialités. Pas de pièce à joindre :
+              l’équipe vérifie la demande avant de publier le changement (sous quelques jours).
               <br><br>
               Vous préférez écrire ?
               <a href="mailto:annuaire.tsa@gmail.com?subject=Correction%20de%20ma%20fiche" class="font-semibold underline">annuaire.tsa@gmail.com</a>

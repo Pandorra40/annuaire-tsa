@@ -4,7 +4,7 @@ import { normaliserUrl } from '~/utils/url'
 
 usePageSeo({
   title: 'Suggérer un praticien — Annuaire TSA',
-  description: 'Vous connaissez un praticien spécialisé dans l\'autisme qui n\'apparaît pas encore dans l\'Annuaire TSA ? Signalez-le ici pour l\'ajouter et aider d\'autres familles à le trouver.',
+  description: 'Vous connaissez un praticien spécialisé dans l\'autisme qui n\'apparaît pas encore dans l\'Annuaire TSA ? Suggérez-le ici pour l\'ajouter et aider d\'autres familles à le trouver.',
   path: '/suggerer',
   noindex: true
 })
@@ -63,7 +63,7 @@ const estPraticien = computed(() => role.value === 'praticien')
 const labelNom = computed(() => estStructure.value ? 'Nom de la structure *' : 'Nom et prénom *')
 const exempleNom = computed(() => estStructure.value ? 'Institut Mentis Portae' : 'Dr Marie Dupont')
 
-const titrePage = computed(() => estPraticien.value ? 'Votre suggestion' : 'Signaler un praticien')
+const titrePage = computed(() => estPraticien.value ? 'Suggérer votre fiche' : 'Suggérer un praticien')
 
 function toggleAge(age: string) {
   const idx = form.ages.indexOf(age)

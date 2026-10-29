@@ -118,11 +118,16 @@ const praticiensFiltres = computed(() => {
             {{ praticiensFiltres.length }} praticien{{ praticiensFiltres.length > 1 ? 's' : '' }}
           </p>
 
-          <div v-if="praticiensFiltres.length === 0" class="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300">
-            <p class="text-gray-600 mb-4 font-medium">Aucun praticien référencé pour cette ville.</p>
-            <NuxtLink to="/suggerer" class="inline-flex px-6 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold">
-              Suggérer un praticien →
-            </NuxtLink>
+          <div v-if="praticiensFiltres.length === 0" class="text-center py-12 bg-white rounded-2xl border border-dashed border-gray-300 space-y-4 px-6">
+            <p class="text-gray-700 font-medium">Aucun praticien référencé pour cette ville.</p>
+            <p class="text-sm text-gray-600">Essayez le département, un CRA, ou suggérez un praticien que vous connaissez.</p>
+            <div class="flex flex-wrap gap-2 justify-center">
+              <NuxtLink to="/cra" class="inline-flex px-4 py-2 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 hover:bg-gray-50">CRA</NuxtLink>
+              <NuxtLink to="/associations" class="inline-flex px-4 py-2 border border-gray-200 rounded-xl text-sm font-semibold text-gray-800 hover:bg-gray-50">Associations</NuxtLink>
+              <NuxtLink to="/suggerer" class="inline-flex px-6 py-3 bg-gray-900 text-white rounded-xl text-sm font-semibold">
+                Suggérer un praticien →
+              </NuxtLink>
+            </div>
           </div>
 
           <div v-else class="space-y-3">

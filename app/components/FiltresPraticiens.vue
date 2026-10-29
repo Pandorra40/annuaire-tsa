@@ -48,7 +48,7 @@ const age = defineModel<string>('age', { required: true })
 const tele = defineModel<string>('tele', { required: true })
 const bilans = defineModel<string>('bilans', { required: true })
 
-const { correspond, suggestions } = useOramaRecherche(recherche, {
+const { correspond, scoreDe, suggestions } = useOramaRecherche(recherche, {
   schema: SCHEMA_PRATICIEN,
   properties: PRATICIEN_SEARCH_PROPERTIES,
   items: () => props.praticiens,
@@ -108,13 +108,14 @@ function toutEffacer() {
   bilans.value = 'tous'
 }
 
-defineExpose({ passe, toutEffacer })
+defineExpose({ passe, scoreDe, toutEffacer })
 
 // max-sm: la cible tactile passe à 44px sous 640px, sans rien changer au-delà —
 // en dessous, px-3 py-1.5 restait sous le minimum recommandé (environ 30px).
-const CLASSE_PASTILLE = 'px-3 py-1.5 max-sm:min-h-11 max-sm:px-4 max-sm:text-sm rounded-full text-xs font-medium border transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
+const CLASSE_PASTILLE = 'px-3 py-1.5 max-sm:min-h-11 max-sm:px-4 max-sm:text-sm rounded-full text-xs font-medium border transition-colors disabled:opacity-55 disabled:cursor-not-allowed focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600'
 const CLASSE_ACTIVE = 'bg-gray-900 text-white border-gray-900'
-const CLASSE_INACTIVE = 'bg-white text-gray-600 border-gray-200 hover:border-gray-400'
+const CLASSE_INACTIVE = 'bg-white text-gray-700 border-gray-200 hover:border-gray-400'
+// disabled:opacity-55 plutôt que 40 : les pastilles vides restaient presque illisibles.
 </script>
 
 <template>
@@ -123,9 +124,10 @@ const CLASSE_INACTIVE = 'bg-white text-gray-600 border-gray-200 hover:border-gra
       <ChampRechercheOrama
         v-model="recherche"
         :suggestions="suggestions"
-        :placeholder="placeholder ?? 'Bordeaux, 33, Dr Dupont…'"
-        aria-label="Rechercher un praticien par ville, département ou nom"
-        aide="Cherche dans le nom, la ville, le département, le métier et les rubriques de la fiche — y compris le second lieu."
+        :placeholder="placeholder ?? 'ex. orthophoniste Lyon, Bordeaux, 33…'"
+        label="Rechercher un praticien"
+        aria-label="Rechercher un praticien par métier, ville, département ou nom"
+        aide="Plusieurs mots = tous présents (ex. métier + ville). Cherche aussi dans le nom, le département et les rubriques de la fiche."
       />
     </div>
 
