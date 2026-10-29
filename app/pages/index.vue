@@ -364,15 +364,18 @@ function scrollToAnnuaire() {
           🛡️
         </div>
         <h2 class="text-3xl font-black text-gray-900 mb-4">Veiller à la qualité ensemble</h2>
-        <p class="text-gray-600 leading-relaxed mb-8 max-w-xl mx-auto">Confirmez l'exactitude des fiches ou signalez une erreur. Chaque contribution aide les familles à trouver le bon praticien.</p>
-        <div class="flex flex-wrap gap-3 justify-center">
-          <div class="flex items-center gap-2 bg-white border border-orange-200 rounded-full px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm">
-            ✅ Confirmer une fiche
-          </div>
-          <div class="flex items-center gap-2 bg-white border border-orange-200 rounded-full px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm">
-            🚩 Signaler une erreur
-          </div>
+        <p class="text-gray-600 leading-relaxed mb-6 max-w-xl mx-auto">Sur chaque fiche, vous pouvez confirmer qu’elle est exacte ou signaler une erreur. Chaque contribution aide les familles à trouver le bon praticien.</p>
+        <div class="flex flex-wrap gap-3 justify-center mb-4">
+          <p class="text-sm text-gray-700 bg-white border border-orange-200 rounded-2xl px-4 py-3 max-w-md leading-relaxed">
+            ✅ <strong>Confirmer</strong> et 🚩 <strong>Signaler</strong> se trouvent en bas de chaque fiche praticien.
+          </p>
         </div>
+        <NuxtLink
+          to="/#annuaire"
+          class="inline-flex items-center gap-2 text-sm font-semibold text-amber-800 underline underline-offset-2 hover:text-amber-950 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-700 rounded"
+        >
+          Chercher un praticien pour ouvrir sa fiche →
+        </NuxtLink>
       </div>
     </section>
 

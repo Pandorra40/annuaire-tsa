@@ -93,6 +93,11 @@ watch([search, filtreCategorie], () => {
   router.replace({ query })
 })
 
+function toutEffacer() {
+  search.value = ''
+  filtreCategorie.value = ''
+}
+
 const NIVEAUX = [
   {
     numero: 1,
@@ -175,6 +180,12 @@ function initiales(nom: string) {
         <p class="text-gray-700 text-lg max-w-2xl mx-auto leading-relaxed">
           Les CRA accompagnent les personnes concernées, leurs proches et les professionnels. Comprenez le parcours de diagnostic et trouvez le centre de votre région.
         </p>
+        <a
+          href="#centres"
+          class="inline-flex items-center gap-2 px-6 py-3 mt-8 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-700 transition-colors"
+        >
+          Trouver un centre →
+        </a>
       </div>
     </section>
 
@@ -262,7 +273,7 @@ function initiales(nom: string) {
     </section>
 
     <!-- LISTE DES CENTRES -->
-    <section class="bg-gray-50 py-12">
+    <section id="centres" class="bg-gray-50 py-12 scroll-mt-20">
       <div class="max-w-5xl mx-auto px-6">
 
         <h2 class="text-2xl font-black text-gray-900 mb-6 tracking-tight">Trouver un centre</h2>
@@ -295,8 +306,15 @@ function initiales(nom: string) {
           {{ centresFiltres.length }} centre{{ centresFiltres.length > 1 ? 's' : '' }} trouvé{{ centresFiltres.length > 1 ? 's' : '' }}
         </p>
 
-        <div v-if="centresFiltres.length === 0" class="text-center py-16 text-gray-500">
-          Aucun centre pour ces critères.
+        <div v-if="centresFiltres.length === 0" class="text-center py-16 text-gray-500 space-y-4">
+          <p>Aucun centre pour ces critères.</p>
+          <button
+            type="button"
+            class="inline-flex px-4 py-2 text-sm font-semibold text-indigo-700 underline underline-offset-2 hover:text-indigo-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 rounded"
+            @click="toutEffacer"
+          >
+            Effacer les filtres
+          </button>
         </div>
 
         <!-- GROUPES PAR RÉGION -->

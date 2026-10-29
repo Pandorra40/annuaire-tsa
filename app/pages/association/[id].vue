@@ -99,11 +99,14 @@ useHead({
     <!-- ERREUR -->
     <section v-else-if="status === 'error' || !association" class="bg-gray-50 min-h-screen py-16">
       <div class="max-w-3xl mx-auto px-6">
-        <button type="button" class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm mb-6 transition-colors font-medium" @click="retourAssociations">
+        <NuxtLink to="/associations" class="inline-flex items-center gap-2 text-gray-500 hover:text-gray-900 text-sm mb-6 transition-colors font-medium">
           ← Retour aux associations
-        </button>
-        <div class="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-700">
-          Association introuvable.
+        </NuxtLink>
+        <div class="bg-red-50 border border-red-200 rounded-2xl p-6 text-red-700 space-y-4">
+          <p>Association introuvable.</p>
+          <NuxtLink to="/associations" class="inline-flex text-sm font-semibold text-red-800 underline underline-offset-2 hover:text-red-950">
+            Voir la liste des associations →
+          </NuxtLink>
         </div>
       </div>
     </section>

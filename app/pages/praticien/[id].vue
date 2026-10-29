@@ -112,15 +112,37 @@ useHead({
 const alreadyVoted = ref(false)
 const voteCount = ref(0)
 const voteThanks = ref(false)
+const voteError = ref('')
 const copied = ref(false)
+const copyError = ref('')
 const shareUrl = computed(() => encodeURIComponent(import.meta.client ? window.location.href : ''))
 let copiedTimer: ReturnType<typeof setTimeout> | null = null
 
-function partager() {
-  navigator.clipboard.writeText(window.location.href)
-  copied.value = true
-  if (copiedTimer) clearTimeout(copiedTimer)
-  copiedTimer = setTimeout(() => copied.value = false, 2000)
+async function partager() {
+  copyError.value = ''
+  const url = window.location.href
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(url)
+    } else {
+      const ta = document.createElement('textarea')
+      ta.value = url
+      ta.setAttribute('readonly', '')
+      ta.style.position = 'fixed'
+      ta.style.left = '-9999px'
+      document.body.appendChild(ta)
+      ta.select()
+      const ok = document.execCommand('copy')
+      document.body.removeChild(ta)
+      if (!ok) throw new Error('copy failed')
+    }
+    copied.value = true
+    if (copiedTimer) clearTimeout(copiedTimer)
+    copiedTimer = setTimeout(() => { copied.value = false }, 2000)
+  } catch {
+    copyError.value = 'Copie impossible. Sélectionnez et copiez l’adresse de la page.'
+    window.prompt('Copiez ce lien :', url)
+  }
 }
 
 onUnmounted(() => {
@@ -186,6 +208,7 @@ async function envoyer() {
 
 async function confirmer() {
   if (alreadyVoted.value) return
+  voteError.value = ''
   alreadyVoted.value = true
   voteThanks.value = true
   localStorage.setItem(`verified_${id}`, '1')
@@ -193,11 +216,12 @@ async function confirmer() {
   try {
     await confirmerFiche(id)
   } catch {
-    // Rollback silencieux : la confirmation locale reste mais le serveur a échoué
+    // Rollback : la confirmation locale ne doit pas rester si le serveur a échoué
     voteCount.value--
     localStorage.removeItem(`verified_${id}`)
     alreadyVoted.value = false
     voteThanks.value = false
+    voteError.value = 'La confirmation n’a pas pu être enregistrée. Réessayez dans un instant.'
   }
 }
 
@@ -528,6 +552,7 @@ function libelleIdentifiant(num: string, type?: string) {
                 {{ alreadyVoted ? '✓ Confirmé' : '✓ Confirmer cette fiche' }}
               </button>
               <p v-if="voteThanks" class="text-sm text-emerald-600 mt-3 text-center">Merci pour votre confirmation !</p>
+              <p v-if="voteError" class="text-sm text-red-600 mt-3 text-center" role="alert">{{ voteError }}</p>
             </div>
 
             <!-- Exactitude de la fiche : un seul encadré pour les deux publics, placé
@@ -609,6 +634,7 @@ function libelleIdentifiant(num: string, type?: string) {
                   {{ copied ? 'Lien copié !' : 'Copier le lien' }}
                 </button>
               </div>
+              <p v-if="copyError" class="text-sm text-amber-700 mt-3" role="status">{{ copyError }}</p>
             </div>
           </div>
 

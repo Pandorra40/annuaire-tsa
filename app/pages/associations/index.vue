@@ -123,6 +123,13 @@ const associationsPaginees = computed(() => associationsFiltrees.value.slice((pa
 function scrollTop() {
   if (import.meta.client) window.scrollTo({ top: 0, behavior: 'smooth' })
 }
+
+function toutEffacer() {
+  search.value = ''
+  filtreDept.value = ''
+  servicesActifs.value = []
+  page.value = 1
+}
 </script>
 
 <template>
@@ -144,7 +151,7 @@ function scrollTop() {
         <p class="text-gray-700 text-lg max-w-2xl mx-auto leading-relaxed">
           Associations de familles, de personnes concernées et de professionnels spécialisés dans les troubles du spectre autistique.
         </p>
-        <NuxtLink to="/associations/suggerer" class="inline-flex items-center gap-2 px-6 py-3 mt-8 bg-gray-900 text-white font-semibold rounded-xl hover:bg-gray-700 transition-colors">
+        <NuxtLink to="/associations/suggerer" class="inline-flex items-center gap-2 px-6 py-3 mt-8 border border-gray-300 bg-white text-gray-800 font-semibold rounded-xl hover:bg-gray-50 transition-colors shadow-sm">
           + Suggérer une association
         </NuxtLink>
       </div>
@@ -211,8 +218,15 @@ function scrollTop() {
             <span v-if="totalPages > 1"> — page {{ pageActuelle }} / {{ totalPages }}</span>
           </p>
 
-          <div v-if="associationsFiltrees.length === 0" class="text-center py-16 text-gray-500">
-            Aucune association pour ces critères.
+          <div v-if="associationsFiltrees.length === 0" class="text-center py-16 text-gray-500 space-y-4">
+            <p>Aucune association pour ces critères.</p>
+            <button
+              type="button"
+              class="inline-flex px-4 py-2 text-sm font-semibold text-indigo-700 underline underline-offset-2 hover:text-indigo-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 rounded"
+              @click="toutEffacer"
+            >
+              Effacer les filtres
+            </button>
           </div>
 
           <!-- LISTE -->
