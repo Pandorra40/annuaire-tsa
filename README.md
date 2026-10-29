@@ -2,7 +2,7 @@
   <img src="docs/banner.png" alt="Annuaire TSA" width="1280" height="640" />
 </p>
 
-# Annuaire TSA — V4.13.11
+# Annuaire TSA — V4.13.12
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -24,15 +24,15 @@ En septembre 2026, le site a enregistré environ **3 800 visites** (statistiques
 ### 1. Annuaire TSA
 Annuaire collaboratif et gratuit de praticiens spécialisés TSA : psychiatres, pédopsychiatres, psychologues, neuropsychologues, orthophonistes, ergothérapeutes et psychomotriciens, ainsi que les structures (cabinets, instituts, centres).
 
-- Recherche par ville, département ou métier
+- Recherche par ville, département ou métier (plusieurs mots = tous requis)
 - Filtres : type de praticien, tranche d’âge, téléconsultation, réalisation de bilans
 - Confirmations et signalements par la communauté
 - Contact par écrit sur certaines fiches (uniquement avec l’accord du praticien ; son adresse e-mail n’est jamais affichée)
-- Suggestion d’une fiche via un formulaire guidé (`/suggerer`), formulé pour une famille ou pour un praticien
+- Suggestion d’une fiche sur **une seule page** (`/suggerer`) : profil famille ou praticien, puis le formulaire
 - Une page par département (`/departement/XX`)
 - Fiches partageables (Facebook ou copie du lien) ; sur l’accueil, recherche et filtres restent dans l’URL
 - Identifiant professionnel affiché quand il est connu (RPPS, ADELI, ou SIRET / FINESS pour une structure)
-- **Admission** : un praticien n’entre que si son identifiant national est vérifié ; pour une structure, SIRET ou FINESS sont acceptés sans être exigés (détail sur `/suggerer` et `/donnees-praticiens`)
+- **Admission** : un praticien n’entre que si son identifiant national est vérifié ; la suggestion exige RPPS/ADELI et un moyen de contact (tél. ou e-mail) ; pour une structure, SIRET ou FINESS sont acceptés sans être exigés (détail sur `/suggerer` et `/donnees-praticiens`)
 - Notes organisées en rubriques (interventions, bilans, formations, expérience, modalités, tarifs, autres)
 - Possibilité d’indiquer un second lieu d’exercice
 - Sources : Autisme et TND Info Service, Tamis-Autisme, enrichissement manuel
@@ -252,6 +252,7 @@ Jalons visibles sur le site (le détail fichier par fichier reste dans les commi
 | V4.13 | FALC (À propos, Contact, Suggérer) ; durées de conservation RGPD clarifiées |
 | V4.13.x | Retouches : retrait du mode calme, perf / accessibilité, JSON-LD sur les fiches, vidéos sans catégories d’audience (libellé Description) |
 | V4.13.11 | Correctifs sécu (Nuxt ≥4.6.2, nodemailer ≥10.2) ; mode maintenance activable (page publique 503) |
+| V4.13.12 | `/suggerer` en une page ; RPPS/ADELI + contact obligatoires (UI + API) ; recherche ET, 404 et empty states ; correctifs UX d’audit |
 | — | Mentions légales : VPS Infomaniak en porte d’entrée, application auto-hébergée |
 
 ## Remerciements
