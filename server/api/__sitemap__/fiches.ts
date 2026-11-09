@@ -1,7 +1,8 @@
+import { associationsIndexables } from '~/utils/associationIndexation'
 import { slugVille } from '~/utils/villeSlug'
 
 // Alimente le sitemap avec les pages publiques + fiches dynamiques
-// (praticiens, associations, départements non vides, villes ≥ 5 fiches).
+// (praticiens, associations indexables, départements non vides, villes ≥ 5 fiches).
 export default defineEventHandler(async () => {
   const base = 'https://www.annuaire-tsa.fr/api'
 
@@ -27,7 +28,7 @@ export default defineEventHandler(async () => {
         departement: string
         departement2?: string | null
       }[]>(`${base}/praticiens`),
-      $fetch<{ id: number }[]>(`${base}/associations`)
+      $fetch<{ id: number, description?: string | null }[]>(`${base}/associations`)
     ])
 
     const departements = new Set<string>()
@@ -52,7 +53,7 @@ export default defineEventHandler(async () => {
       ...[...departements].map(dep => ({ loc: `/departement/${dep}`, changefreq: 'weekly', priority: 0.7 })),
       ...hubsVille,
       ...praticiens.map(p => ({ loc: `/praticien/${p.id}`, changefreq: 'monthly', priority: 0.6 })),
-      ...associations.map(a => ({ loc: `/association/${a.id}`, changefreq: 'monthly', priority: 0.5 }))
+      ...associationsIndexables(associations).map(a => ({ loc: `/association/${a.id}`, changefreq: 'monthly', priority: 0.5 }))
     ]
   } catch {
     return pagesStatiques

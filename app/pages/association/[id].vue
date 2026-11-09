@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { Association } from '~/types/index'
+import { associationEstNoindex } from '~/utils/associationIndexation'
 import { jsonLdAssociation, jsonLdFilAriane } from '~/utils/schemaOrg'
 
 const route = useRoute()
@@ -48,12 +49,8 @@ const titre = computed(() => {
 })
 
 // Fiches très fines (presque sans description) : pas d'indexation jusqu'à enrichissement.
-const associationFine = computed(() => {
-  const a = association.value
-  if (!a) return false
-  const mots = (a.description || '').trim().split(/\s+/).filter(Boolean).length
-  return mots < 25
-})
+// Même fonction que le sitemap, pour ne pas republier ces URL.
+const associationFine = computed(() => associationEstNoindex(association.value))
 
 usePageSeo({
   title: titre,
