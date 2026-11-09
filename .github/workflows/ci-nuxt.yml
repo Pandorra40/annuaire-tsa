@@ -2,6 +2,8 @@ name: ci
 
 # Repo GitHub = racine de ce projet Nuxt (pas un sous-dossier monorepo).
 # Ne pas filtrer sur annuaire-tsa-nuxt/** : le CI ne se lancerait jamais.
+# Fichier renommé (ci.yml → ci-nuxt.yml) pour réactiver le workflow
+# après un disabled_manually côté GitHub.
 
 on:
   push:

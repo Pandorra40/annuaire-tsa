@@ -51,6 +51,8 @@
       "zod": ">=4.6.6",
       "devalue": ">=5.9.3",
       "node-forge": ">=1.4.2",
+      "glob": ">=14.0.2",
+      "minimatch": ">=11.0.1",
       "simple-git": "file:./vendor/simple-git",
       "@simple-git/argv-parser": ">=2.0.1"
     }
