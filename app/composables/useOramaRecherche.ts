@@ -107,9 +107,15 @@ export function useOramaRecherche<T>(term: Ref<string>, config: ConfigOramaReche
         idsJeton.add(id)
         scores.set(id, (scores.get(id) ?? 0) + (hit.score ?? 0))
       }
-      intersection = intersection === null
-        ? idsJeton
-        : new Set([...intersection].filter(id => idsJeton.has(id)))
+      if (intersection === null) {
+        intersection = idsJeton
+      } else {
+        const retenus: string[] = []
+        for (const id of intersection) {
+          if (idsJeton.has(id)) retenus.push(id)
+        }
+        intersection = new Set(retenus)
+      }
     }
 
     idsCorrespondants.value = intersection ?? new Set()

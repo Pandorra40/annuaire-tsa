@@ -19,10 +19,10 @@ const form = reactive({
   type: '',
   adresse: '',
   ville: '',
-  codepostal: '',
+  codePostal: '',
   adresse2: '',
   ville2: '',
-  codepostal2: '',
+  codePostal2: '',
   telephone: '',
   site_web: '',
   teleconsultation: false,
@@ -97,7 +97,6 @@ function viderErreursChamps() {
 
 function idChamp(field: string): string {
   if (field === 'contact_auteur') return 'contact-auteur'
-  if (field === 'codePostal') return 'codepostal'
   return field
 }
 

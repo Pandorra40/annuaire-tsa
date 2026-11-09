@@ -13,9 +13,9 @@ export default defineNitroPlugin((nitroApp) => {
       return
     }
 
-    const host = (getRequestHeader(event, 'x-forwarded-host')
+    const host = ((getRequestHeader(event, 'x-forwarded-host')
       || getRequestHeader(event, 'host')
-      || '').split(':')[0].toLowerCase()
+      || '').split(':')[0] ?? '').toLowerCase()
 
     let pathname = url.pathname
     let changed = false
