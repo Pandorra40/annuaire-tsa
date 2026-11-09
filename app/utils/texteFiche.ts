@@ -4,8 +4,8 @@
  */
 export function restaurerApostrophes(texte: string): string {
   return texte
-    .replace(/\b([ldnmscjtLDNMSCJT])([aeiouàâäéèêëïîôöùûüAEIOUÀÂÄÉÈÊËÏÎÔÖÙÛÜ])/g, "$1'$2")
-    .replace(/\b([Qq]u)([aeiouàâäéèêëïîôöùûüAEIOUÀÂÄÉÈÊËÏÎÔÖÙÛÜ])/g, "$1'$2")
+    .replace(/\b([ldnmscjtLDNMSCJT])([aeiouàâäéèêëïîôöùûüAEIOUÀÂÄÉÈÊËÏÎÔÖÙÛÜ])/g, '$1\'$2')
+    .replace(/\b([Qq]u)([aeiouàâäéèêëïîôöùûüAEIOUÀÂÄÉÈÊËÏÎÔÖÙÛÜ])/g, '$1\'$2')
 }
 
 /**

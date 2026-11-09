@@ -117,14 +117,14 @@ async function soumettre() {
     const premierManquant = !form.nom
       ? 'nom'
       : !form.type
-        ? 'type'
-        : !form.ville
-          ? 'ville'
-          : !form.codePostal
-            ? 'codePostal'
-            : !form.ages.length
-              ? 'ages'
-              : 'consentement'
+          ? 'type'
+          : !form.ville
+              ? 'ville'
+              : !form.codePostal
+                  ? 'codePostal'
+                  : !form.ages.length
+                      ? 'ages'
+                      : 'consentement'
     await pointerChamp(premierManquant)
     return
   }

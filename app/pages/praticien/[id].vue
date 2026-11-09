@@ -144,7 +144,9 @@ async function partager() {
     }
     copied.value = true
     if (copiedTimer) clearTimeout(copiedTimer)
-    copiedTimer = setTimeout(() => { copied.value = false }, 2000)
+    copiedTimer = setTimeout(() => {
+      copied.value = false
+    }, 2000)
   } catch {
     copyError.value = 'Copie impossible. Sélectionnez et copiez l’adresse de la page.'
     window.prompt('Copiez ce lien :', url)

@@ -17,8 +17,15 @@ onMounted(() => {
     } catch { /* garder prérendu */ }
   }
   const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => void }
-  if (typeof w.requestIdleCallback === 'function') w.requestIdleCallback(() => { void run() }, { timeout: 4000 })
-  else setTimeout(() => { void run() }, 1500)
+  if (typeof w.requestIdleCallback === 'function') {
+    w.requestIdleCallback(() => {
+      void run()
+    }, { timeout: 4000 })
+  } else {
+    setTimeout(() => {
+      void run()
+    }, 1500)
+  }
 })
 
 function matchVille(p: Praticien, s: string): boolean {

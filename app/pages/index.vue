@@ -67,9 +67,13 @@ onMounted(() => {
   }
   const w = window as Window & { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => void }
   if (typeof w.requestIdleCallback === 'function') {
-    w.requestIdleCallback(() => { void rafraichir() }, { timeout: 4000 })
+    w.requestIdleCallback(() => {
+      void rafraichir()
+    }, { timeout: 4000 })
   } else {
-    setTimeout(() => { void rafraichir() }, 1500)
+    setTimeout(() => {
+      void rafraichir()
+    }, 1500)
   }
 })
 
@@ -148,7 +152,9 @@ function appliquerQueryUrl() {
   if (memeQuery(queryDepuisEtat(), route.query)) return
   syncDepuisUrl = true
   etatDepuisQuery()
-  nextTick(() => { syncDepuisUrl = false })
+  nextTick(() => {
+    syncDepuisUrl = false
+  })
 }
 
 watch(() => route.query, appliquerQueryUrl, { deep: true, immediate: true })

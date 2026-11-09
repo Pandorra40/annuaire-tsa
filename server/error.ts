@@ -18,8 +18,8 @@ export default async function errorHandler(error: H3Error, event: H3Event) {
   const messageEn = /page not found|not found/i.test(brut)
   const message = messageEn
     ? (status === 404
-      ? 'Cette adresse n’existe pas ou a été déplacée.'
-      : 'Une erreur inattendue s’est produite.')
+        ? 'Cette adresse n’existe pas ou a été déplacée.'
+        : 'Une erreur inattendue s’est produite.')
     : brut
 
   setResponseHeader(event, 'Cache-Control', 'no-store')
