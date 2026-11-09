@@ -2,7 +2,7 @@
   <img src="docs/banner.png" alt="Annuaire TSA" width="1280" height="640" />
 </p>
 
-# Annuaire TSA — V4.13.12
+# Annuaire TSA — V4.13.13
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -73,7 +73,7 @@ Chaînes et vidéos choisies une par une, sans pastille « pour qui » : une res
 
 | Composant | Technologie |
 |---|---|
-| Frontend | Nuxt ≥4.6.2 + Vue 3 + Nuxt UI + Tailwind CSS |
+| Frontend | Nuxt ≥4.6.4 + Vue 3 + Nuxt UI + Tailwind CSS |
 | Recherche | Orama (index et recherche côté navigateur) |
 | API | Nitro (Node) — routes `server/api/*`, URLs propres `/api/praticiens`, … |
 | Base de données | MariaDB (+ phpMyAdmin) |
@@ -253,6 +253,7 @@ Jalons visibles sur le site (le détail fichier par fichier reste dans les commi
 | V4.13.x | Retouches : retrait du mode calme, perf / accessibilité, JSON-LD sur les fiches, vidéos sans catégories d’audience (libellé Description) |
 | V4.13.11 | Correctifs sécu (Nuxt ≥4.6.2, nodemailer ≥10.2) ; mode maintenance activable (page publique 503) |
 | V4.13.12 | `/suggerer` en une page ; RPPS/ADELI + contact obligatoires (UI + API) ; recherche ET, 404 et empty states ; correctifs UX d’audit |
+| V4.13.13 | Nuxt 4.6.4 + Nitro 2.13.6 (correctifs sécu) |
 | — | Mentions légales : VPS Infomaniak en porte d’entrée, application auto-hébergée |
 
 ## Remerciements
