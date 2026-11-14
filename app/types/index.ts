@@ -1,13 +1,10 @@
-export const TYPES_PRATICIENS = ['Psychiatre', 'Pédopsychiatre', 'Psychologue', 'Neuropsychologue', 'Orthophoniste', 'Ergothérapeute', 'Psychomotricien', 'Structure'] as const
+export { TYPES_PRATICIENS } from '#shared/admissionPraticien'
+export { MOTIF_RETRAIT, MOTIF_RETRAIT_ASSOCIATION } from '#shared/motifsSignalement'
 export const AGES_OPTIONS = ['Enfant', 'Adolescent', 'Adulte'] as const
 export const DELAIS_PRATICIEN = ['Disponible', 'Quelques semaines', '1 à 3 mois', '3 à 6 mois', 'Plus de 6 mois'] as const
 
-// Demande d'effacement émanant du praticien lui-même (art. 17 RGPD) : à traiter en
-// priorité, contrairement aux signalements communautaires. La même chaîne est reprise
-// telle quelle dans api/signalements.php — toute modification doit l'être des deux côtés.
-export const MOTIF_RETRAIT = 'Je suis ce praticien et je demande le retrait de ma fiche'
-// Chaîne dupliquée dans api/signalements.php — toute modification doit l'être des deux côtés.
-export const MOTIF_RETRAIT_ASSOCIATION = 'Je représente cette association et je demande le retrait de la fiche'
+// Demande d'effacement (art. 17 RGPD) : priorité vs signalements communautaires.
+// Chaînes définies dans shared/motifsSignalement.ts (formulaire + API Nitro).
 
 export interface Praticien {
   id: number
@@ -47,7 +44,7 @@ export interface Praticien {
   // une absence d'information lui nuirait sans rien affirmer.
   fait_bilans?: number | null
   confirmations: number
-  // « publie » ou « masquee ». Absent des réponses publiques de praticiens.php.
+  // « publie » ou « masquee ». Absent des réponses publiques de GET /api/praticiens.
   statut?: string
   created_at?: string
   // Vrai si le praticien a consenti au formulaire de contact. L'API ne publie
@@ -146,9 +143,7 @@ export interface Signalement {
   created_at?: string
 }
 
-// Reprend les valeurs déjà présentes dans la table `associations`, et reprises
-// telles quelles par api/suggestions_associations.php — toute modification doit
-// l'être des deux côtés.
+// Valeurs alignées sur la table `associations` et POST /api/suggestions-associations.
 export const TYPES_ASSOCIATION = [
   'Association de familles',
   'Association de personnes concernées',

@@ -1,4 +1,13 @@
 import { apiError } from '~~/server/utils/errors'
+import {
+  TYPES_PRATICIENS,
+  identifiantAuFormat,
+  isValidPraticienType,
+  messageFormatIdentifiant,
+  nettoyerIdentifiant
+} from '#shared/admissionPraticien'
+
+export { isValidPraticienType }
 
 export function agesToString(ages?: string[] | null): string | null {
   if (!ages || ages.length === 0) return null
@@ -11,33 +20,16 @@ export function agesToArray(ages?: string | null): string[] {
 }
 
 export function validPraticienTypes(): string[] {
-  return [
-    'Psychiatre',
-    'Pédopsychiatre',
-    'Psychologue',
-    'Neuropsychologue',
-    'Orthophoniste',
-    'Ergothérapeute',
-    'Psychomotricien',
-    'Structure'
-  ]
-}
-
-export function isValidPraticienType(type: string): boolean {
-  return validPraticienTypes().includes(type)
+  return [...TYPES_PRATICIENS]
 }
 
 export function normaliserIdentifiant(valeur: string | null | undefined, type: string): string | null {
-  const brut = String(valeur ?? '').trim().replace(/[\s.-]/g, '')
+  const brut = nettoyerIdentifiant(valeur)
   if (brut === '') return null
 
-  const attendu = type === 'Structure'
-    ? ['14 chiffres (SIRET) ou 9 chiffres (FINESS)', /^\d{14}$|^\d{9}$/]
-    : ['11 chiffres (RPPS) ou 9 chiffres (ADELI)', /^\d{11}$|^\d{9}$/] as const
-
-  if (!(attendu[1] as RegExp).test(brut)) {
+  if (!identifiantAuFormat(brut, type)) {
     apiError(400, {
-      error: `Identifiant invalide : ${attendu[0]} attendus.`,
+      error: messageFormatIdentifiant(type),
       field: 'adeli'
     })
   }

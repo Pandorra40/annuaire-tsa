@@ -12,6 +12,11 @@ import {
 } from '~~/server/utils/validators'
 import { stripHtmlField } from '~~/server/utils/stripHtml'
 import { parseRubriquesPraticien } from '~~/server/utils/suggestionRubriques'
+import {
+  MSG_CONTACT_OBLIGATOIRE,
+  MSG_RPPS_OBLIGATOIRE,
+  aMoyenContactPublie
+} from '#shared/admissionPraticien'
 
 export default defineEventHandler(async (event) => {
   await rateLimit(event, 'suggestion_tentative', 30, 3600)
@@ -53,7 +58,7 @@ export default defineEventHandler(async (event) => {
   const adeli = normaliserIdentifiant(data.adeli as string | null | undefined, type)
   if (type !== 'Structure' && !adeli) {
     apiError(400, {
-      error: 'Le numéro RPPS ou ADELI est obligatoire. Sans identifiant, la fiche ne peut pas être publiée.',
+      error: MSG_RPPS_OBLIGATOIRE,
       field: 'adeli'
     })
   }
@@ -64,9 +69,9 @@ export default defineEventHandler(async (event) => {
   if (telephone) validateLength(telephone, 50, 'téléphone')
 
   // Moyen de contact publié : téléphone et/ou site (pas d'email praticien en base).
-  if (!telephone && !site_web) {
+  if (!aMoyenContactPublie(telephone, site_web)) {
     apiError(400, {
-      error: 'Indiquez un téléphone ou un site web : sans moyen de contact, la fiche ne peut pas être publiée.',
+      error: MSG_CONTACT_OBLIGATOIRE,
       field: 'telephone'
     })
   }

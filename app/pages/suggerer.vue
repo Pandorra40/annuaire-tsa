@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { TYPES_PRATICIENS, AGES_OPTIONS, DELAIS_PRATICIEN } from '~/types/index'
 import { normaliserUrl } from '~/utils/url'
+import {
+  MSG_CONTACT_OBLIGATOIRE,
+  MSG_RPPS_OBLIGATOIRE,
+  aMoyenContactPublie,
+  identifiantAuFormat,
+  messageFormatIdentifiant,
+  nettoyerIdentifiant
+} from '#shared/admissionPraticien'
 
 usePageSeo({
   title: 'Suggérer un praticien — Annuaire TSA',
@@ -128,37 +136,28 @@ async function soumettre() {
     return
   }
 
-  // Aligné sur l'API : RPPS/ADELI obligatoire pour une personne physique.
-  const adeliBrut = form.adeli.replace(/[\s.-]/g, '').trim()
+  // Aligné sur l'API (#shared/admissionPraticien) : RPPS/ADELI obligatoire hors Structure.
+  const adeliBrut = nettoyerIdentifiant(form.adeli)
   if (form.type !== 'Structure' && !adeliBrut) {
-    const msg = 'Le numéro RPPS ou ADELI est obligatoire. Sans identifiant, la fiche ne peut pas être publiée.'
+    erreursChamps.adeli = MSG_RPPS_OBLIGATOIRE
+    error.value = MSG_RPPS_OBLIGATOIRE
+    await pointerChamp('adeli')
+    return
+  }
+  if (!identifiantAuFormat(adeliBrut, form.type)) {
+    const msg = messageFormatIdentifiant(form.type)
     erreursChamps.adeli = msg
     error.value = msg
     await pointerChamp('adeli')
     return
   }
-  if (adeliBrut) {
-    const ok = form.type === 'Structure'
-      ? /^\d{14}$|^\d{9}$/.test(adeliBrut)
-      : /^\d{11}$|^\d{9}$/.test(adeliBrut)
-    if (!ok) {
-      const msg = form.type === 'Structure'
-        ? 'Identifiant invalide : 14 chiffres (SIRET) ou 9 chiffres (FINESS) attendus.'
-        : 'Identifiant invalide : 11 chiffres (RPPS) ou 9 chiffres (ADELI) attendus.'
-      erreursChamps.adeli = msg
-      error.value = msg
-      await pointerChamp('adeli')
-      return
-    }
-  }
 
   const siteWeb = normaliserUrl(form.site_web)
   if (siteWeb) form.site_web = siteWeb
   const telephone = form.telephone.trim()
-  if (!telephone && !siteWeb) {
-    const msg = 'Indiquez un téléphone ou un site web : sans moyen de contact, la fiche ne peut pas être publiée.'
-    erreursChamps.telephone = msg
-    error.value = msg
+  if (!aMoyenContactPublie(telephone, siteWeb)) {
+    erreursChamps.telephone = MSG_CONTACT_OBLIGATOIRE
+    error.value = MSG_CONTACT_OBLIGATOIRE
     await pointerChamp('telephone')
     return
   }

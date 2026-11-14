@@ -1,0 +1,34 @@
+---
+description: Discipline d’ingénierie légère (esprit ub-mode) pour Annuaire TSA — toujours active, sans TDD/Crapper/Mutator.
+alwaysApply: true
+---
+
+# ub-mode (passif) — Annuaire TSA
+
+Toujours actif sur ce dépôt. Complète les guidelines Karpathy ; ne les remplace pas.
+**Hors scope :** TDD obligatoire, Crapper, Dryer, Mutator, commit/push forcés.
+
+Ordre mental pour tout changement : **faire marcher → clarifier → soigner la pratique**.
+
+## Faire marcher
+
+- Plus petite modification qui résout le besoin ; une décision = un endroit.
+- Enlever de la complexité avant d’en ajouter.
+- Si deux correctifs échouent sur la même hypothèse : écrire l’hypothèse en une phrase, la remettre en cause, puis seulement continuer.
+- Viser un résultat vérifiable (lint, typecheck, test existant, smoke page/API) — pas une « sensation ».
+- Données : forme claire d’abord ; valider aux frontières (API, formulaires, query) ; logique métier aussi pure et locale que le code actuel le permet.
+- Respecter le domaine TSA (fiches, associations, CRA, ressources, RGPD, noindex/sitemap) : pas de champs inventés, pas de fuite d’email praticien, pas de contournement d’admission (RPPS/ADELI…).
+
+## Clarifier
+
+- Corriger la cause, pas masquer le symptôme.
+- Un petit lot vérifiable à la fois ; enchaîner seulement après contrôle.
+- Si des tests existent : vérifier le comportement vu par l’utilisateur/API, pas les détails internes.
+- Refactor seulement pour livrer le besoin ou après un pin de comportement — jamais « en passant ».
+
+## Pratique
+
+- Rester dans le style Nuxt 4 / Nitro / Vue déjà en place (composables, `server/api`, pages).
+- Toucher uniquement ce qui sert la demande ; signaler le dead code voisin, ne pas le supprimer sans accord.
+- Garder le fil de discussion court ; détail long → résumé.
+- Commit / push / deploy seulement si demandé.
