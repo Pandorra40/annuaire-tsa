@@ -2,7 +2,7 @@
   <img src="docs/banner.png" alt="Annuaire TSA" width="1280" height="640" />
 </p>
 
-# Annuaire TSA — V4.13.13
+# Annuaire TSA — V4.13.14
 
 Projet open source communautaire pour les familles concernées par les troubles du spectre autistique (TSA).
 
@@ -254,6 +254,7 @@ Jalons visibles sur le site (le détail fichier par fichier reste dans les commi
 | V4.13.11 | Correctifs sécu (Nuxt ≥4.6.2, nodemailer ≥10.2) ; mode maintenance activable (page publique 503) |
 | V4.13.12 | `/suggerer` en une page ; RPPS/ADELI + contact obligatoires (UI + API) ; recherche ET, 404 et empty states ; correctifs UX d’audit |
 | V4.13.13 | Nuxt 4.6.4 + Nitro 2.13.6 (correctifs sécu) |
+| V4.13.14 | Admission praticien unifiée (`#shared`, UI + API) ; CI GitHub utile (lint / typecheck / tests) ; règles ub-mode passives |
 | — | Mentions légales : VPS Infomaniak en porte d’entrée, application auto-hébergée |
 
 ## Remerciements
