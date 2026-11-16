@@ -1,12 +1,9 @@
 /**
- * Remet des apostrophes d’élision courantes perdues à l’import
- * (« lévaluation » → « l'évaluation », « denfants » → « d'enfants »).
+ * Ne plus « restaurer » d’apostrophes à l’affichage : l’ancienne regex
+ * (`l`/`d`/`s`/`c`… + voyelle) cassait le français correct
+ * (« comportement » → « c'omportement », « depuis » → « d'epuis »).
+ * Les textes en base sont déjà élidés quand il le faut.
  */
-export function restaurerApostrophes(texte: string): string {
-  return texte
-    .replace(/\b([ldnmscjtLDNMSCJT])([aeiouàâäéèêëïîôöùûüAEIOUÀÂÄÉÈÊËÏÎÔÖÙÛÜ])/g, '$1\'$2')
-    .replace(/\b([Qq]u)([aeiouàâäéèêëïîôöùûüAEIOUÀÂÄÉÈÊËÏÎÔÖÙÛÜ])/g, '$1\'$2')
-}
 
 /**
  * Restaure les retours à la ligne stockés en littéral `\n` ou en `<br>`.
@@ -19,5 +16,5 @@ export function normaliserRetoursLigne(texte: string): string {
 }
 
 export function preparerTexteFiche(texte: string): string {
-  return restaurerApostrophes(normaliserRetoursLigne(texte))
+  return normaliserRetoursLigne(texte)
 }
